@@ -218,6 +218,27 @@ td.wrapcell { min-width: 12ch; }
 @media (max-width: 520px) {
   h1 { font-size: 1.6rem; }
 }
+/* About this data (hosted mode: the page text comes from the database). Keep in sync with faq.html. */
+.aboutlink { font-size: 0.85rem; margin: 0; }
+#aboutview h2 { margin-top: 36px; }
+#aboutview h2:first-of-type { margin-top: 20px; }
+#aboutview p { margin: 0 0 10px; }
+#aboutview ul { margin: 0 0 10px; padding-left: 1.3em; }
+#aboutview li { margin-bottom: 6px; }
+#aboutview ul.stats { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 16px 0; padding: 0; list-style: none; }
+#aboutview ul.stats li { display: flex; flex-direction: column; margin: 0; }
+#aboutview ul.stats b { font: 600 1.5rem var(--serif); }
+#aboutview .tablewrap { margin: 8px 0 14px; }
+#aboutview table { min-width: 640px; }
+#aboutview th { text-transform: none; letter-spacing: 0; white-space: normal; font-size: 0.8rem; color: var(--text); }
+#aboutview td:first-child { font-weight: 600; white-space: nowrap; }
+#aboutview details { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin: 12px 0; }
+#aboutview summary { cursor: pointer; font-weight: 500; color: var(--accent); }
+#aboutview .diagram { overflow-x: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
+#aboutview .diagram pre { margin: 0; font: 400 0.8rem/1.4 var(--mono); white-space: pre; }
+#aboutview .diagram svg { max-width: none !important; min-width: 760px; }
+#aboutview footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted); }
+#aboutview footer p { margin-bottom: 8px; }
 </style>
 
 <div class="wrap">
@@ -225,6 +246,7 @@ td.wrapcell { min-width: 12ch; }
     <div class="eyebrow">VigyanShaala colleges master</div>
     <h1>Institution Explorer</h1>
     <p class="lede">Search a college or university. See what is stored about it, and which source each fact came from.</p>
+    <p class="aboutlink"><a href="faq.html" id="aboutlink">About this data</a></p>
     <p class="userbar" id="userbar" hidden><span id="whoami"></span> &middot; <a href="#" id="signout">Sign out</a></p>
   </header>
 
@@ -275,6 +297,8 @@ td.wrapcell { min-width: 12ch; }
 
   <article id="profile" hidden></article>
 
+  <section id="aboutview" hidden></section>
+
   <section class="credits" id="credits" hidden></section>
   <p class="layout-note" id="hostnote" hidden>Free hosting: the database sleeps after about a week without use; if the page can't load, tell Manoj.</p>
 </div>
@@ -318,13 +342,14 @@ td.wrapcell { min-width: 12ch; }
     searchform: $('searchform'), login: $('login'), userbar: $('userbar'), whoami: $('whoami'),
     emailform: $('emailform'), sentbox: $('sentbox'), lemail: $('lemail'),
     sentto: $('sentto'), loginmsg: $('loginmsg'), sendbtn: $('sendbtn'),
-    hostnote: $('hostnote')
+    hostnote: $('hostnote'), about: $('aboutview'), aboutlink: $('aboutlink')
   };
 
   // Hosted mode: config.js (loaded before this script) defines window.EXPLORER_API = {url, anonKey}.
   // Without it the page reads the static data/*.json files, exactly as before.
   var HOSTED = (typeof window.EXPLORER_API === 'object' && window.EXPLORER_API) ? window.EXPLORER_API : null;
   var sb = null, signedIn = false, searchSeq = 0;
+  var aboutLoaded = false;   // hosted: the About page has been fetched and injected
 
   var meta = null;
   var index = [];            // all loaded entries
@@ -524,7 +549,7 @@ td.wrapcell { min-width: 12ch; }
     searchSeq++;
     if (location.hash) clearHash();
     shown = []; active = -1;
-    els.home.hidden = false; els.resview.hidden = true; els.profile.hidden = true; els.credits.hidden = true;
+    els.home.hidden = false; els.resview.hidden = true; els.profile.hidden = true; els.credits.hidden = true; els.about.hidden = true;
     els.q.setAttribute('aria-expanded', 'false');
     if (indexReady) setStatus('Ready. ' + fmtNum(HOSTED ? meta.total : index.length) + ' institutions searchable.');
   }
@@ -532,7 +557,7 @@ td.wrapcell { min-width: 12ch; }
   function showResultsView(list, total) {
     shown = list; active = list.length ? 0 : -1; currentId = null;
     document.title = 'Institution Explorer';
-    els.home.hidden = true; els.profile.hidden = true; els.credits.hidden = true; els.resview.hidden = false;
+    els.home.hidden = true; els.profile.hidden = true; els.credits.hidden = true; els.about.hidden = true; els.resview.hidden = false;
     els.results.textContent = '';
     els.none.hidden = list.length > 0 || !indexReady;
     list.forEach(function (e, i) {
@@ -574,9 +599,74 @@ td.wrapcell { min-width: 12ch; }
     if (HOSTED && !signedIn) return;
     var m = /^#i(\d+)$/.exec(location.hash);
     if (m) { showProfile(Number(m[1])); return; }
+    if (HOSTED && location.hash === '#about') { showAbout(); return; }
     document.title = 'Institution Explorer';
     if (norm(els.q.value) && indexReady) runSearch(true);
     else if (!norm(els.q.value)) showHome();
+  }
+
+  /* ---------- about (hosted mode: page text and diagram) ---------- */
+  var MERMAID_JS = 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js';
+
+  function loadMermaid() {
+    if (window.mermaid) return Promise.resolve();
+    return new Promise(function (resolve, reject) {
+      var tag = document.createElement('script');
+      tag.src = MERMAID_JS;
+      tag.onload = resolve;
+      tag.onerror = function () { reject(new Error('could not load the diagram library')); };
+      document.head.appendChild(tag);
+    });
+  }
+
+  function setupAbout() {
+    Array.prototype.forEach.call(els.about.querySelectorAll('a[href="index.html"]'), function (a) { a.setAttribute('href', '#'); });
+    var box = els.about.querySelector('details'), pre = els.about.querySelector('pre.mermaid');
+    if (!box || !pre) return;
+    var done = false;
+    box.addEventListener('toggle', function () {
+      if (!box.open || done) return;
+      done = true;
+      loadMermaid().then(function () {
+        var dark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+          (document.documentElement.getAttribute('data-theme') !== 'light' && window.matchMedia &&
+           window.matchMedia('(prefers-color-scheme: dark)').matches);
+        window.mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'strict' });
+        return window.mermaid.run({ nodes: [pre] });
+      }).catch(function () {
+        done = false;
+        pre.parentNode.appendChild(h('p', { class: 'muted', text: 'The diagram could not be loaded. Close and reopen this section to try again.' }));
+      });
+    });
+  }
+
+  function showAbout() {
+    searchSeq++;
+    els.home.hidden = true; els.resview.hidden = true; els.profile.hidden = true; els.credits.hidden = true;
+    els.about.hidden = false;
+    document.title = 'About this data - Institution Explorer';
+    setStatus('');
+    window.scrollTo(0, 0);
+    if (aboutLoaded) return;
+    els.about.textContent = '';
+    els.about.appendChild(h('p', { class: 'loading', text: 'Loading...' }));
+    api('explorer_page', { p_slug: 'faq' }).then(function (html) {
+      if (location.hash !== '#about' || !signedIn) return;
+      els.about.textContent = '';
+      els.about.appendChild(h('h1', { text: 'About this data' }));
+      els.about.appendChild(h('p', null, h('a', { href: '#', text: '\u2190 Back to the Explorer' })));
+      if (!html) { els.about.appendChild(h('p', { text: 'This page is not available yet. Tell Manoj Joshi.' })); return; }
+      var body = document.createElement('div');
+      body.innerHTML = html;
+      els.about.appendChild(body);
+      aboutLoaded = true;
+      setupAbout();
+    }).catch(function (err) {
+      if (err && err.handled) return;
+      els.about.textContent = '';
+      els.about.appendChild(h('p', { text: 'Could not load this page. (' + (err && err.message || err) + ')' }));
+      els.about.appendChild(h('p', null, h('a', { href: '#', text: '\u2190 Back to the Explorer' })));
+    });
   }
 
   /* ---------- profile ---------- */
@@ -605,7 +695,7 @@ td.wrapcell { min-width: 12ch; }
 
   function showProfile(id) {
     searchSeq++;
-    els.home.hidden = true; els.resview.hidden = true; els.credits.hidden = true; els.profile.hidden = false;
+    els.home.hidden = true; els.resview.hidden = true; els.credits.hidden = true; els.about.hidden = true; els.profile.hidden = false;
     els.profile.textContent = '';
     els.profile.appendChild(h('p', { class: 'loading', text: 'Loading institution...' }));
     setStatus('');
@@ -873,6 +963,7 @@ td.wrapcell { min-width: 12ch; }
   function showLogin(msg) {
     signedIn = false; searchSeq++;
     meta = null; indexReady = false;
+    aboutLoaded = false; els.about.hidden = true; els.about.textContent = ''; els.aboutlink.parentNode.hidden = true;
     LOGIN_PARTS.forEach(function (k) { (els[k] || els.status).hidden = true; });
     els.searchform.hidden = true; els.status.hidden = true;
     els.userbar.hidden = true; els.login.hidden = false;
@@ -919,6 +1010,7 @@ td.wrapcell { min-width: 12ch; }
       els.login.hidden = true;
       els.whoami.textContent = email;
       els.userbar.hidden = false;
+      els.aboutlink.parentNode.hidden = false;
       els.searchform.hidden = false; els.status.hidden = false;
       els.home.hidden = false;
       setStatus('Loading...');
@@ -928,7 +1020,7 @@ td.wrapcell { min-width: 12ch; }
         els.fcountry.length = 1;   // keep "All countries"
         renderHome();
         indexReady = true;
-        if (/^#i\d+$/.test(location.hash)) route();
+        if (/^#(i\d+|about)$/.test(location.hash)) route();
         else if (els.q.value.trim()) runSearch(true);
         else showHome();
       });
@@ -951,6 +1043,7 @@ td.wrapcell { min-width: 12ch; }
   function startHosted() {
     var startError = linkError();
     els.hostnote.hidden = false;
+    els.aboutlink.setAttribute('href', '#about'); els.aboutlink.parentNode.hidden = true;
     LOGIN_PARTS.forEach(function (k) { (els[k] || els.status).hidden = true; });
     els.searchform.hidden = true; els.status.hidden = true;
     els.emailform.addEventListener('submit', sendLink);
