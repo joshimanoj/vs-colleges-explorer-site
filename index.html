@@ -231,18 +231,17 @@ td.wrapcell { min-width: 12ch; }
   <section id="login" class="loginbox" hidden>
     <h2>Sign in</h2>
     <form id="emailform">
-      <p class="muted">Enter your email address. We will email you a 6-digit code.</p>
+      <p class="muted">Enter your email address. We will email you a sign-in link.</p>
       <label class="sr" for="lemail">Email address</label>
       <input type="email" id="lemail" autocomplete="email" inputmode="email" required placeholder="you@example.com">
-      <button type="submit" class="btn" id="sendbtn">Send code</button>
+      <button type="submit" class="btn" id="sendbtn">Email me a sign-in link</button>
+      <p class="layout-note">The email comes from Supabase Auth &lt;noreply@mail.app.supabase.io&gt;; check spam.</p>
     </form>
-    <form id="codeform" hidden>
-      <p class="muted">We sent a 6-digit code to <b id="sentto"></b>. It expires in 10 minutes.</p>
-      <label class="sr" for="lcode">6-digit code</label>
-      <input type="text" id="lcode" class="code" autocomplete="one-time-code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required placeholder="000000">
-      <button type="submit" class="btn" id="verifybtn">Sign in</button>
+    <div id="sentbox" hidden>
+      <p>Check your inbox for an email from Supabase Auth and click the link. It works once and expires in 30 minutes. You can close this tab.</p>
+      <p class="layout-note">Sent to <b id="sentto"></b>. The email comes from Supabase Auth &lt;noreply@mail.app.supabase.io&gt;; check spam.</p>
       <button type="button" class="linkbtn" id="otheremail">Use a different email</button>
-    </form>
+    </div>
     <p class="loginmsg" id="loginmsg" role="alert"></p>
   </section>
 
@@ -317,15 +316,15 @@ td.wrapcell { min-width: 12ch; }
     stats: $('stats'), chips: $('chips'), snap: $('snapnote'), resview: $('resultsview'),
     results: $('results'), none: $('noresults'), profile: $('profile'), credits: $('credits'),
     searchform: $('searchform'), login: $('login'), userbar: $('userbar'), whoami: $('whoami'),
-    emailform: $('emailform'), codeform: $('codeform'), lemail: $('lemail'), lcode: $('lcode'),
-    sentto: $('sentto'), loginmsg: $('loginmsg'), sendbtn: $('sendbtn'), verifybtn: $('verifybtn'),
+    emailform: $('emailform'), sentbox: $('sentbox'), lemail: $('lemail'),
+    sentto: $('sentto'), loginmsg: $('loginmsg'), sendbtn: $('sendbtn'),
     hostnote: $('hostnote')
   };
 
   // Hosted mode: config.js (loaded before this script) defines window.EXPLORER_API = {url, anonKey}.
   // Without it the page reads the static data/*.json files, exactly as before.
   var HOSTED = (typeof window.EXPLORER_API === 'object' && window.EXPLORER_API) ? window.EXPLORER_API : null;
-  var sb = null, signedIn = false, searchSeq = 0, loginEmail = '';
+  var sb = null, signedIn = false, searchSeq = 0;
 
   var meta = null;
   var index = [];            // all loaded entries
@@ -877,55 +876,35 @@ td.wrapcell { min-width: 12ch; }
     LOGIN_PARTS.forEach(function (k) { (els[k] || els.status).hidden = true; });
     els.searchform.hidden = true; els.status.hidden = true;
     els.userbar.hidden = true; els.login.hidden = false;
-    els.emailform.hidden = false; els.codeform.hidden = true;
-    els.sendbtn.disabled = false; els.verifybtn.disabled = false;
-    els.lcode.value = '';
+    els.emailform.hidden = false; els.sentbox.hidden = true;
+    els.sendbtn.disabled = false;
     loginMsg(msg);
     setTimeout(function () { els.lemail.focus(); }, 0);
   }
 
   function otpErrorText(err) {
     var m = String(err && err.message || '');
-    if (/after \d+ seconds/i.test(m)) return 'A code was just sent. Wait a minute before asking for another.';
+    if (/after \d+ seconds/i.test(m)) return 'An email was just sent. Wait a minute before asking for another.';
     if (err && (err.status === 429 || /rate.?limit|too many/i.test(err.code + ' ' + m)))
-      return 'Too many codes requested; try again in an hour.';
+      return 'Too many emails requested; try again in an hour.';
     if (err && (err.code === 'otp_disabled' || err.code === 'signup_disabled' || err.code === 'user_not_found' ||
         /signups? (not allowed|disabled)|user not found/i.test(m)))
       return NOT_ON_LIST;
-    return 'Could not send the code. ' + m;
+    return 'Could not send the email. ' + m;
   }
 
-  function sendCode(ev) {
+  function sendLink(ev) {
     ev.preventDefault();
-    loginEmail = els.lemail.value.trim().toLowerCase();
-    if (!loginEmail) return;
+    var email = els.lemail.value.trim().toLowerCase();
+    if (!email) return;
     loginMsg(''); els.sendbtn.disabled = true;
-    sb.auth.signInWithOtp({ email: loginEmail, options: { shouldCreateUser: false } }).then(function (r) {
+    sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: false, emailRedirectTo: location.origin + location.pathname } }).then(function (r) {
       els.sendbtn.disabled = false;
       if (r.error) { loginMsg(otpErrorText(r.error)); return; }
-      els.sentto.textContent = loginEmail;
-      els.emailform.hidden = true; els.codeform.hidden = false;
-      els.lcode.value = ''; els.lcode.focus();
+      els.sentto.textContent = email;
+      els.emailform.hidden = true; els.sentbox.hidden = false;
     }).catch(function (err) {
       els.sendbtn.disabled = false; loginMsg('Could not reach the server. Try again. (' + err.message + ')');
-    });
-  }
-
-  function verifyCode(ev) {
-    ev.preventDefault();
-    var token = els.lcode.value.replace(/\s+/g, '');
-    if (!/^\d{6}$/.test(token)) { loginMsg('Enter the 6-digit code from the email.'); return; }
-    loginMsg(''); els.verifybtn.disabled = true;
-    sb.auth.verifyOtp({ email: loginEmail, token: token, type: 'email' }).then(function (r) {
-      els.verifybtn.disabled = false;
-      if (r.error) {
-        loginMsg(r.error.status === 429 ? 'Too many attempts; wait a few minutes and try again.'
-          : 'That code is wrong or has expired. Check it, or use a different email to get a new code.');
-        return;
-      }
-      afterLogin(loginEmail);
-    }).catch(function (err) {
-      els.verifybtn.disabled = false; loginMsg('Could not reach the server. Try again. (' + err.message + ')');
     });
   }
 
@@ -959,13 +938,23 @@ td.wrapcell { min-width: 12ch; }
     });
   }
 
+  // Returns a message if the sign-in link brought back an error (e.g. expired), and clears the hash.
+  function linkError() {
+    if (!/[#&]error/.test(location.hash)) return '';
+    var q = new URLSearchParams(location.hash.slice(1));
+    var desc = q.get('error_description') || q.get('error') || '';
+    clearHash();
+    return /expired|invalid|used|otp/i.test(desc + ' ' + (q.get('error_code') || '')) || !desc
+      ? 'This link has expired or was already used. Request a new one.' : desc.replace(/\+/g, ' ');
+  }
+
   function startHosted() {
+    var startError = linkError();
     els.hostnote.hidden = false;
     LOGIN_PARTS.forEach(function (k) { (els[k] || els.status).hidden = true; });
     els.searchform.hidden = true; els.status.hidden = true;
-    els.emailform.addEventListener('submit', sendCode);
-    els.codeform.addEventListener('submit', verifyCode);
-    $('otheremail').addEventListener('click', function () { loginMsg(''); els.codeform.hidden = true; els.emailform.hidden = false; els.lemail.focus(); });
+    els.emailform.addEventListener('submit', sendLink);
+    $('otheremail').addEventListener('click', function () { loginMsg(''); els.sentbox.hidden = true; els.emailform.hidden = false; els.lemail.focus(); });
     $('signout').addEventListener('click', function (ev) {
       ev.preventDefault();
       var done = function () { clearHash(); els.q.value = ''; showLogin(''); };
@@ -976,12 +965,14 @@ td.wrapcell { min-width: 12ch; }
     tag.onerror = function () { els.login.hidden = false; loginMsg('Could not load the sign-in library. Reload the page, or tell Manoj.'); };
     tag.onload = function () {
       sb = window.supabase.createClient(HOSTED.url, HOSTED.anonKey,
-        { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
+        { auth: { flowType: 'implicit', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } });
       sb.auth.onAuthStateChange(function (event) { if (event === 'SIGNED_OUT' && signedIn) showLogin('You were signed out.'); });
       sb.auth.getSession().then(function (r) {
+        // supabase-js has now read any #access_token=... fragment; remove it before the hash router looks.
+        if (/access_token=/.test(location.hash)) clearHash();
         var sess = r.data && r.data.session;
-        if (sess && sess.user) afterLogin((sess.user.email || '').toLowerCase()); else showLogin('');
-      }).catch(function () { showLogin(''); });
+        if (sess && sess.user) afterLogin((sess.user.email || '').toLowerCase()); else showLogin(startError);
+      }).catch(function () { showLogin(startError); });
     };
     document.head.appendChild(tag);
   }
