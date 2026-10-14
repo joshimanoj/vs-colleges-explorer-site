@@ -256,12 +256,17 @@ td.wrapcell { min-width: 12ch; }
       <p class="muted">Enter your email address. We will email you a sign-in link.</p>
       <label class="sr" for="lemail">Email address</label>
       <input type="email" id="lemail" autocomplete="email" inputmode="email" required placeholder="you@example.com">
-      <button type="submit" class="btn" id="sendbtn">Email me a sign-in link</button>
-      <p class="layout-note">The email comes from Supabase Auth &lt;noreply@mail.app.supabase.io&gt;; check spam.</p>
+      <button type="submit" class="btn" id="sendbtn">Email me a sign-in code</button>
+      <p class="layout-note">The email comes from VigyanShaala Explorer &lt;manoj.joshi@vigyanshaala.com&gt;; check spam, junk or Promotions.</p>
     </form>
     <div id="sentbox" hidden>
-      <p>Check your inbox for an email from Supabase Auth and click the link. It works once and expires in 30 minutes. You can close this tab.</p>
-      <p class="layout-note">Sent to <b id="sentto"></b>. The email comes from Supabase Auth &lt;noreply@mail.app.supabase.io&gt;; check spam.</p>
+      <p>We emailed you a 6-digit code and a link. Type the code here, or click the link in the email. Check spam/junk/promotions.</p>
+      <form id="codeform">
+        <label class="sr" for="lcode">6-digit code</label>
+        <input type="text" id="lcode" class="code" autocomplete="one-time-code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required placeholder="000000">
+        <button type="submit" class="btn" id="verifybtn">Sign in</button>
+      </form>
+      <p class="layout-note">Sent to <b id="sentto"></b>. The email comes from VigyanShaala Explorer &lt;manoj.joshi@vigyanshaala.com&gt;; check spam, junk or Promotions.</p>
       <button type="button" class="linkbtn" id="otheremail">Use a different email</button>
     </div>
     <p class="loginmsg" id="loginmsg" role="alert"></p>
@@ -342,13 +347,14 @@ td.wrapcell { min-width: 12ch; }
     searchform: $('searchform'), login: $('login'), userbar: $('userbar'), whoami: $('whoami'),
     emailform: $('emailform'), sentbox: $('sentbox'), lemail: $('lemail'),
     sentto: $('sentto'), loginmsg: $('loginmsg'), sendbtn: $('sendbtn'),
+    codeform: $('codeform'), lcode: $('lcode'), verifybtn: $('verifybtn'),
     hostnote: $('hostnote'), about: $('aboutview'), aboutlink: $('aboutlink')
   };
 
   // Hosted mode: config.js (loaded before this script) defines window.EXPLORER_API = {url, anonKey}.
   // Without it the page reads the static data/*.json files, exactly as before.
   var HOSTED = (typeof window.EXPLORER_API === 'object' && window.EXPLORER_API) ? window.EXPLORER_API : null;
-  var sb = null, signedIn = false, searchSeq = 0;
+  var sb = null, signedIn = false, searchSeq = 0, loginEmail = '';
   var aboutLoaded = false;   // hosted: the About page has been fetched and injected
 
   var meta = null;
@@ -968,7 +974,7 @@ td.wrapcell { min-width: 12ch; }
     els.searchform.hidden = true; els.status.hidden = true;
     els.userbar.hidden = true; els.login.hidden = false;
     els.emailform.hidden = false; els.sentbox.hidden = true;
-    els.sendbtn.disabled = false;
+    els.sendbtn.disabled = false; els.verifybtn.disabled = false; els.lcode.value = '';
     loginMsg(msg);
     setTimeout(function () { els.lemail.focus(); }, 0);
   }
@@ -992,10 +998,26 @@ td.wrapcell { min-width: 12ch; }
     sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: false, emailRedirectTo: location.origin + location.pathname } }).then(function (r) {
       els.sendbtn.disabled = false;
       if (r.error) { loginMsg(otpErrorText(r.error)); return; }
+      loginEmail = email;
       els.sentto.textContent = email;
       els.emailform.hidden = true; els.sentbox.hidden = false;
+      els.lcode.value = ''; els.lcode.focus();
     }).catch(function (err) {
       els.sendbtn.disabled = false; loginMsg('Could not reach the server. Try again. (' + err.message + ')');
+    });
+  }
+
+  function verifyCode(ev) {
+    ev.preventDefault();
+    var token = els.lcode.value.replace(/\s+/g, '');
+    if (!/^\d{6}$/.test(token)) { loginMsg('Enter the 6-digit code from the email.'); return; }
+    loginMsg(''); els.verifybtn.disabled = true;
+    sb.auth.verifyOtp({ email: loginEmail, token: token, type: 'email' }).then(function (r) {
+      els.verifybtn.disabled = false;
+      if (r.error) { loginMsg('That code is wrong or has expired. Request a new one.'); return; }
+      afterLogin(loginEmail);
+    }).catch(function (err) {
+      els.verifybtn.disabled = false; loginMsg('Could not reach the server. Try again. (' + err.message + ')');
     });
   }
 
@@ -1047,6 +1069,7 @@ td.wrapcell { min-width: 12ch; }
     LOGIN_PARTS.forEach(function (k) { (els[k] || els.status).hidden = true; });
     els.searchform.hidden = true; els.status.hidden = true;
     els.emailform.addEventListener('submit', sendLink);
+    els.codeform.addEventListener('submit', verifyCode);
     $('otheremail').addEventListener('click', function () { loginMsg(''); els.sentbox.hidden = true; els.emailform.hidden = false; els.lemail.focus(); });
     $('signout').addEventListener('click', function (ev) {
       ev.preventDefault();
