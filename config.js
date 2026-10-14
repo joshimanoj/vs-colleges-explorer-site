@@ -1,0 +1,1 @@
+window.EXPLORER_API = {"url": "https://uvuqedkikpfrxwkzurje.supabase.co", "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2dXFlZGtpa3Bmcnh3a3p1cmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5NDc4NTIsImV4cCI6MjEwNzUyMzg1Mn0.W69DmpSneqMDa4qPAEJ665SZDx9XWNG353tFWx8ROWU"};

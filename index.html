@@ -1,0 +1,998 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"></head><body><title>Institution Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap">
+<style>
+:root {
+  --bg: #f3f5fa;
+  --surface: #ffffff;
+  --surface-2: #eaeef7;
+  --border: #d5dbe8;
+  --text: #19202f;
+  --muted: #566078;
+  --accent: #2347b5;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3e9fb;
+  --focus: #2347b5;
+  --shadow: rgba(25, 32, 47, 0.08);
+  --warn-bg: #fdecea;
+  --warn-fg: #8a1c14;
+  --warn-border: #e7a29c;
+  --m-seed-bg: #e3e8f2;   --m-seed-fg: #34405c;
+  --m-exact-bg: #dcf1e2;  --m-exact-fg: #17512b;
+  --m-fuzzy-bg: #fbeccb;  --m-fuzzy-fg: #6b4506;
+  --m-llm-bg: #eadffa;    --m-llm-fg: #4a2a85;
+  --m-manual-bg: #d8eef2; --m-manual-fg: #0f4a58;
+  --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1320;
+    --surface: #161d2d;
+    --surface-2: #1e273b;
+    --border: #2b3750;
+    --text: #e5e9f3;
+    --muted: #9aa5bd;
+    --accent: #8fa8ff;
+    --accent-ink: #0e1320;
+    --accent-soft: #232f55;
+    --focus: #8fa8ff;
+    --shadow: rgba(0, 0, 0, 0.4);
+    --warn-bg: #3a1714;
+    --warn-fg: #ffb4ac;
+    --warn-border: #7a2f29;
+    --m-seed-bg: #29334b;   --m-seed-fg: #c5cee6;
+    --m-exact-bg: #17381f;  --m-exact-fg: #9ee0b0;
+    --m-fuzzy-bg: #43330f;  --m-fuzzy-fg: #f2cf85;
+    --m-llm-bg: #35275a;    --m-llm-fg: #d3bffa;
+    --m-manual-bg: #123a44; --m-manual-fg: #9adbe8;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1320;
+  --surface: #161d2d;
+  --surface-2: #1e273b;
+  --border: #2b3750;
+  --text: #e5e9f3;
+  --muted: #9aa5bd;
+  --accent: #8fa8ff;
+  --accent-ink: #0e1320;
+  --accent-soft: #232f55;
+  --focus: #8fa8ff;
+  --shadow: rgba(0, 0, 0, 0.4);
+  --warn-bg: #3a1714;
+  --warn-fg: #ffb4ac;
+  --warn-border: #7a2f29;
+  --m-seed-bg: #29334b;   --m-seed-fg: #c5cee6;
+  --m-exact-bg: #17381f;  --m-exact-fg: #9ee0b0;
+  --m-fuzzy-bg: #43330f;  --m-fuzzy-fg: #f2cf85;
+  --m-llm-bg: #35275a;    --m-llm-fg: #d3bffa;
+  --m-manual-bg: #123a44; --m-manual-fg: #9adbe8;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 16px/1.5 var(--sans);
+  overflow-wrap: break-word;
+}
+.wrap { max-width: 920px; margin: 0 auto; padding: 24px 16px 48px; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.3rem; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.05rem; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 2px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); font-size: 0.85em; word-break: break-all; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.top { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+.eyebrow { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.lede { color: var(--muted); max-width: 60ch; }
+
+.searchbar { display: flex; gap: 8px; flex-wrap: wrap; }
+.searchbar input[type="search"] {
+  flex: 1 1 100%;
+  min-width: 0;
+  font: 400 1.1rem var(--sans);
+  padding: 12px 14px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px var(--shadow);
+}
+.searchbar select {
+  flex: 1 1 140px;
+  min-width: 0;
+  font: 400 0.95rem var(--sans);
+  padding: 9px 10px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.status { font-size: 0.85rem; color: var(--muted); margin-top: 8px; min-height: 1.3em; }
+
+.stats { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 20px 0 4px; padding: 0; list-style: none; }
+.stats li { display: flex; flex-direction: column; }
+.stats b { font: 600 1.4rem var(--serif); }
+.stats span { font-size: 0.8rem; color: var(--muted); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.chip {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.chip:hover { border-color: var(--accent); }
+.label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; margin-top: 22px; }
+
+.results { list-style: none; margin: 14px 0 0; padding: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.results li { border-bottom: 1px solid var(--border); }
+.results li:last-child { border-bottom: 0; }
+.result { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 10px 14px; cursor: pointer; }
+.result:hover, .result[aria-selected="true"] { background: var(--accent-soft); }
+.result .nm { font-weight: 500; }
+.result .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.result .cc { font-family: var(--mono); font-size: 0.8rem; }
+.empty { margin-top: 14px; color: var(--muted); }
+
+.back { background: none; border: 0; color: var(--accent); padding: 4px 0; cursor: pointer; font-size: 0.95rem; margin: 6px 0 12px; }
+.back:hover { text-decoration: underline; }
+.head .sub { color: var(--muted); margin-top: 4px; }
+.head .facts { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 10px; font-size: 0.95rem; }
+.head .facts a { word-break: break-all; }
+.head .facts span b { font-weight: 500; color: var(--muted); margin-right: 4px; }
+
+.warnbox { background: var(--warn-bg); color: var(--warn-fg); border: 1px solid var(--warn-border); border-radius: 8px; padding: 12px 14px; margin: 16px 0 0; }
+.warnbox h2 { color: var(--warn-fg); border: 0; margin: 0 0 4px; padding: 0; font-size: 1.1rem; }
+.warnbox p + p { margin-top: 6px; }
+
+.recs { display: grid; gap: 10px; }
+.rec { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+.rec .body { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 600; }
+.rec .main { font-weight: 500; }
+.rec .src { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; background: var(--surface-2); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.wrapcell { min-width: 12ch; }
+
+.pill { display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.pill.seed { background: var(--m-seed-bg); color: var(--m-seed-fg); }
+.pill.exact { background: var(--m-exact-bg); color: var(--m-exact-fg); }
+.pill.fuzzy { background: var(--m-fuzzy-bg); color: var(--m-fuzzy-fg); }
+.pill.llm { background: var(--m-llm-bg); color: var(--m-llm-fg); }
+.pill.manual { background: var(--m-manual-bg); color: var(--m-manual-fg); }
+.legend { display: grid; gap: 4px; margin-top: 10px; font-size: 0.85rem; color: var(--muted); padding: 0; list-style: none; }
+.legend li { display: flex; gap: 10px; align-items: baseline; }
+.legend .pill { min-width: 62px; text-align: center; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 6px 8px; padding: 0; margin: 0; list-style: none; }
+.tags li { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; font-size: 0.9rem; }
+.tags small { color: var(--muted); margin-left: 6px; }
+
+.linkbtn { background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; text-align: left; text-decoration: underline; text-underline-offset: 2px; }
+.kids { display: flex; flex-direction: column; gap: 4px; padding: 0; margin: 8px 0 0; list-style: none; }
+
+.credits { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted); }
+.credits p + p { margin-top: 4px; }
+.layout-note { font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+.loading { color: var(--muted); padding: 20px 0; }
+.userbar { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+.loginbox { max-width: 420px; margin: 28px 0 0; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 1px 2px var(--shadow); }
+.loginbox h2 { margin: 0 0 8px; padding: 0; border: 0; }
+.loginbox form { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.loginbox input {
+  font: 400 1.1rem var(--sans); padding: 12px 14px; min-width: 0;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px;
+}
+.loginbox input.code { font-family: var(--mono); letter-spacing: 0.3em; text-align: center; }
+.btn { font: 600 1rem var(--sans); padding: 11px 16px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; cursor: pointer; }
+.btn:disabled { opacity: 0.6; cursor: default; }
+.loginmsg { margin-top: 12px; font-size: 0.95rem; color: var(--warn-fg); }
+.loginmsg:empty { display: none; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: no-preference) {
+  .chip, .result { transition: background-color 0.12s ease, border-color 0.12s ease; }
+}
+@media (max-width: 520px) {
+  h1 { font-size: 1.6rem; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">VigyanShaala colleges master</div>
+    <h1>Institution Explorer</h1>
+    <p class="lede">Search a college or university. See what is stored about it, and which source each fact came from.</p>
+    <p class="userbar" id="userbar" hidden><span id="whoami"></span> &middot; <a href="#" id="signout">Sign out</a></p>
+  </header>
+
+  <section id="login" class="loginbox" hidden>
+    <h2>Sign in</h2>
+    <form id="emailform">
+      <p class="muted">Enter your email address. We will email you a 6-digit code.</p>
+      <label class="sr" for="lemail">Email address</label>
+      <input type="email" id="lemail" autocomplete="email" inputmode="email" required placeholder="you@example.com">
+      <button type="submit" class="btn" id="sendbtn">Send code</button>
+    </form>
+    <form id="codeform" hidden>
+      <p class="muted">We sent a 6-digit code to <b id="sentto"></b>. It expires in 10 minutes.</p>
+      <label class="sr" for="lcode">6-digit code</label>
+      <input type="text" id="lcode" class="code" autocomplete="one-time-code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required placeholder="000000">
+      <button type="submit" class="btn" id="verifybtn">Sign in</button>
+      <button type="button" class="linkbtn" id="otheremail">Use a different email</button>
+    </form>
+    <p class="loginmsg" id="loginmsg" role="alert"></p>
+  </section>
+
+  <form class="searchbar" role="search" id="searchform" autocomplete="off">
+    <label class="sr" for="q">Search institutions</label>
+    <input type="search" id="q" placeholder="Name, acronym or old name" autofocus
+           role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list">
+    <label class="sr" for="fcountry">Country</label>
+    <select id="fcountry"><option value="">All countries</option></select>
+    <label class="sr" for="flevel">Level</label>
+    <select id="flevel">
+      <option value="">All levels</option>
+      <option value="u">University</option>
+      <option value="c">College</option>
+      <option value="s">Standalone</option>
+    </select>
+  </form>
+  <div class="status" id="status" role="status" aria-live="polite">Loading data...</div>
+
+  <section id="home">
+    <ul class="stats" id="stats"></ul>
+    <p class="label">Try a search</p>
+    <div class="chips" id="chips"></div>
+    <p class="layout-note" id="snapnote"></p>
+  </section>
+
+  <section id="resultsview" hidden>
+    <ul class="results" id="results" role="listbox" aria-label="Search results"></ul>
+    <p class="empty" id="noresults" hidden>No match. Try fewer words, or another spelling.</p>
+  </section>
+
+  <article id="profile" hidden></article>
+
+  <section class="credits" id="credits" hidden></section>
+  <p class="layout-note" id="hostnote" hidden>Free hosting: the database sleeps after about a week without use; if the page can't load, tell Manoj.</p>
+</div>
+
+<script src="config.js"></script>
+
+<script>
+/*
+  Search index entry layout (arrays, to save bytes), from data/index-<n>.json:
+    [0] id  [1] display_name  [2] country_code  [3] state  [4] city_or_district
+    [5] level (u = university, c = college, s = standalone)  [6] search_text
+  search_text is lower-cased, accent-stripped, punctuation-stripped words of the display name,
+  canonical name and all aliases, with repeated words removed.
+  Detail shards: data/detail-<id % 64>.json, each {id: profile}.
+    profile = {v, s, parent, child_count, children, links, aliases, recognitions, warnings}
+    (empty parts are omitted)
+    v = values in meta.fields order; s = one source key per field ("." none), or one character
+    meaning that source supplied every valued field except display_name, year and website.
+*/
+(function () {
+  'use strict';
+
+  var SHARDS = 64;
+  var SPECIAL = { '\u0142': 'l', '\u00f8': 'o', '\u0111': 'd', '\u00df': 'ss', '\u00e6': 'ae', '\u0153': 'oe', '\u0131': 'i', '\u00f0': 'd', '\u00fe': 'th' };
+  var LEVELS = { u: 'University', c: 'College', s: 'Standalone' };
+  var LEVEL_WORD = { university: 'University', college: 'College', standalone: 'Standalone institution' };
+  var FIELD_LABEL = {
+    canonical_name: 'Official name', display_name: 'Display name', short_name: 'Short name',
+    level: 'Level', subtype: 'Type', management: 'Management', country_code: 'Country',
+    state: 'State', district: 'District', city: 'City', year_established: 'Year founded', website_url: 'Website'
+  };
+  var CHIPS = ['CMS College Kottayam', 'IIT Bombay', 'Massachusetts Institute of Technology',
+               'University of Melbourne', 'Presidency University'];
+  var MAX_RESULTS = 50;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var els = {
+    q: $('q'), fcountry: $('fcountry'), flevel: $('flevel'), status: $('status'), home: $('home'),
+    stats: $('stats'), chips: $('chips'), snap: $('snapnote'), resview: $('resultsview'),
+    results: $('results'), none: $('noresults'), profile: $('profile'), credits: $('credits'),
+    searchform: $('searchform'), login: $('login'), userbar: $('userbar'), whoami: $('whoami'),
+    emailform: $('emailform'), codeform: $('codeform'), lemail: $('lemail'), lcode: $('lcode'),
+    sentto: $('sentto'), loginmsg: $('loginmsg'), sendbtn: $('sendbtn'), verifybtn: $('verifybtn'),
+    hostnote: $('hostnote')
+  };
+
+  // Hosted mode: config.js (loaded before this script) defines window.EXPLORER_API = {url, anonKey}.
+  // Without it the page reads the static data/*.json files, exactly as before.
+  var HOSTED = (typeof window.EXPLORER_API === 'object' && window.EXPLORER_API) ? window.EXPLORER_API : null;
+  var sb = null, signedIn = false, searchSeq = 0, loginEmail = '';
+
+  var meta = null;
+  var index = [];            // all loaded entries
+  var filesLoaded = 0, filesTotal = 0, indexReady = false;
+  var keyToCode = {}, sourceByCode = {};
+  var shardCache = {};
+  var shown = [];            // current result entries
+  var active = -1;
+  var debounceTimer = null;
+  var lastQuery = '';
+  var currentId = null;
+  var regionNames = null;
+  try { regionNames = new Intl.DisplayNames(['en'], { type: 'region' }); } catch (e) { regionNames = null; }
+
+  /* ---------- helpers ---------- */
+  function norm(text) {
+    var t = String(text || '').toLowerCase().normalize('NFKD');
+    t = t.replace(/([A-Za-z\u00c0-\u024f\u1e00-\u1eff])\p{M}+/gu, '$1');
+    t = t.replace(/[\u0142\u00f8\u0111\u00df\u00e6\u0153\u0131\u00f0\u00fe]/g, function (c) { return SPECIAL[c]; });
+    return t.replace(/[^\p{L}\p{N}\p{M}]+/gu, ' ').trim().replace(/\s+/g, ' ');
+  }
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'class') el.className = attrs[k];
+      else if (k === 'text') el.textContent = attrs[k];
+      else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), attrs[k]);
+      else el.setAttribute(k, attrs[k]);
+    }
+    var add = function (c) {
+      if (c == null || c === false) return;
+      if (Array.isArray(c)) { c.forEach(add); return; }
+      el.appendChild(typeof c === 'object' ? c : document.createTextNode(String(c)));
+    };
+    for (var i = 2; i < arguments.length; i++) add(arguments[i]);
+    return el;
+  }
+  function fmtNum(n) { return Number(n).toLocaleString('en-IN'); }
+  function fmtDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso + 'T00:00:00Z');
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  }
+  function srcName(code) {
+    if (!code) return '';
+    if (code === 'VS_REVIEW') return 'VigyanShaala manual review';
+    var s = sourceByCode[code];
+    return s ? s[1] : code;
+  }
+  function srcLabel(code) {
+    if (!code) return '';
+    var s = sourceByCode[code];
+    return code === 'VS_REVIEW' ? 'VS_REVIEW (manual correction)' : (s ? code + ', ' + s[1] : code);
+  }
+  function countryName(cc) {
+    // Names come from the database's countries table (meta.country_names); the browser's list is a fallback.
+    var name = (meta && meta.country_names && meta.country_names[cc]) || '';
+    if (!name) { try { name = regionNames ? regionNames.of(cc) : ''; } catch (e) { name = ''; } }
+    return name && name !== cc ? name : cc;
+  }
+  function countryLabel(cc) { return countryName(cc); }
+  function safeUrl(u) {
+    if (!u) return null;
+    var s = String(u).trim();
+    if (!/^https?:\/\//i.test(s)) s = 'http://' + s;
+    try { var p = new URL(s); return /^https?:$/.test(p.protocol) ? p.href : null; } catch (e) { return null; }
+  }
+  function extLink(url, text) {
+    var u = safeUrl(url);
+    return u ? h('a', { href: u, target: '_blank', rel: 'noopener noreferrer', text: text || url }) : h('span', { text: text || url || '' });
+  }
+  function setStatus(t) { els.status.textContent = t; }
+
+  /* ---------- loading ---------- */
+  function getJSON(path) {
+    return fetch(path).then(function (r) {
+      if (!r.ok) throw new Error(path + ' ' + r.status);
+      return r.json();
+    });
+  }
+
+  function renderHome() {
+    var t = meta.totals || {};
+    var items = [
+      [fmtNum(meta.total), 'institutions'],
+      [fmtNum(meta.countries.length), 'countries'],
+      [fmtNum(t.source_links || 0), 'source links'],
+      [fmtNum(t.recognitions || 0), 'recognitions']
+    ];
+    els.stats.textContent = '';
+    items.forEach(function (it) { els.stats.appendChild(h('li', null, h('b', { text: it[0] }), h('span', { text: it[1] }))); });
+    els.snap.textContent = 'Data snapshot of ' + fmtDate(meta.snapshot) + '.';
+    els.chips.textContent = '';
+    CHIPS.forEach(function (c) {
+      els.chips.appendChild(h('button', { type: 'button', class: 'chip', text: c, onclick: function () {
+        els.q.value = c; els.q.focus(); runSearch(true);
+      } }));
+    });
+    var top = meta.by_country.map(function (x) { return x[0]; });
+    var rest = meta.countries.filter(function (x) { return top.indexOf(x[0]) < 0; }).map(function (x) { return x[0]; });
+    var codes = top.concat(rest.sort());
+    var counts = {};
+    meta.countries.forEach(function (x) { counts[x[0]] = x[1]; });
+    codes.forEach(function (cc) {
+      els.fcountry.appendChild(h('option', { value: cc, text: countryLabel(cc) + ' (' + fmtNum(counts[cc]) + ')' }));
+    });
+  }
+
+  function loadAll() {
+    getJSON('data/meta.json').then(function (m) {
+      meta = m;
+      m.sources.forEach(function (s) { keyToCode[s[4]] = s[0]; sourceByCode[s[0]] = s; });
+      renderHome();
+      if (/^#i\d+$/.test(location.hash)) route();
+      filesTotal = m.index_files;
+      setStatus('Loading search index (0 of ' + filesTotal + ')...');
+      var jobs = [];
+      for (var i = 0; i < filesTotal; i++) {
+        jobs.push(getJSON('data/index-' + i + '.json').then(function (arr) {
+          for (var j = 0; j < arr.length; j++) index.push(arr[j]);
+          filesLoaded++;
+          if (filesLoaded < filesTotal) setStatus('Loading search index (' + filesLoaded + ' of ' + filesTotal + ')...');
+        }));
+      }
+      return Promise.all(jobs);
+    }).then(function () {
+      indexReady = true;
+      setStatus('Ready. ' + fmtNum(index.length) + ' institutions searchable.');
+      if (els.q.value.trim()) runSearch(true);
+      else if (!/^#i\d+$/.test(location.hash)) showHome();
+    }).catch(function (err) {
+      setStatus('Could not load the data. Reload the page to try again. (' + err.message + ')');
+    });
+  }
+
+  /* ---------- search ---------- */
+  function search(query, country, level) {
+    var qn = norm(query);
+    if (!qn) return [];
+    var words = qn.split(' ');
+    var hits = [];
+    for (var i = 0; i < index.length; i++) {
+      var e = index[i];
+      if (country && e[2] !== country) continue;
+      if (level && e[5] !== level) continue;
+      var st = e[6], ok = true;
+      for (var w = 0; w < words.length; w++) {
+        if (st.indexOf(words[w]) < 0) { ok = false; break; }
+      }
+      if (ok) hits.push(e);
+    }
+    var scored = hits.map(function (e) {
+      var dn = norm(e[1]), rank;
+      if (dn === qn) rank = 0;
+      else if (dn.indexOf(qn) === 0) rank = 1;
+      else {
+        rank = 3;
+        var all = true;
+        for (var w = 0; w < words.length; w++) if (dn.indexOf(words[w]) < 0) { all = false; break; }
+        if (all) rank = 2;
+      }
+      return [rank, dn.length, e];
+    });
+    scored.sort(function (a, b) { return a[0] - b[0] || a[1] - b[1] || a[2][0] - b[2][0]; });
+    return scored.slice(0, MAX_RESULTS).map(function (s) { return s[2]; }).concat([{ total: hits.length }]);
+  }
+
+  function runSearch(immediate) {
+    clearTimeout(debounceTimer);
+    var go = function () {
+      var q = els.q.value;
+      if (!norm(q)) { showHome(); return; }
+      if (!indexReady) { setStatus('Still loading the index. Your search will run when it is ready.'); showResultsView([], 0); return; }
+      if (location.hash) clearHash();
+      if (HOSTED) {
+        var seq = ++searchSeq;
+        lastQuery = q;
+        api('search_institutions', { q: norm(q), country: els.fcountry.value, lvl: els.flevel.value }).then(function (res) {
+          if (seq !== searchSeq) return;   // a newer search or view has replaced this one
+          showResultsView(res.results || [], res.total || 0);
+        }).catch(function (err) {
+          if (err && err.handled || seq !== searchSeq) return;
+          setStatus('Search failed. Try again. (' + (err && err.message || err) + ')');
+        });
+        return;
+      }
+      var out = search(q, els.fcountry.value, els.flevel.value);
+      var info = out.pop();
+      lastQuery = q;
+      showResultsView(out, info.total);
+    };
+    if (immediate) go(); else debounceTimer = setTimeout(go, 150);
+  }
+
+  function showHome() {
+    searchSeq++;
+    if (location.hash) clearHash();
+    shown = []; active = -1;
+    els.home.hidden = false; els.resview.hidden = true; els.profile.hidden = true; els.credits.hidden = true;
+    els.q.setAttribute('aria-expanded', 'false');
+    if (indexReady) setStatus('Ready. ' + fmtNum(HOSTED ? meta.total : index.length) + ' institutions searchable.');
+  }
+
+  function showResultsView(list, total) {
+    shown = list; active = list.length ? 0 : -1; currentId = null;
+    document.title = 'Institution Explorer';
+    els.home.hidden = true; els.profile.hidden = true; els.credits.hidden = true; els.resview.hidden = false;
+    els.results.textContent = '';
+    els.none.hidden = list.length > 0 || !indexReady;
+    list.forEach(function (e, i) {
+      var meta2 = [];
+      if (e[5]) meta2.push(h('span', { text: LEVELS[e[5]] || e[5] }));
+      var place = [e[4], e[3]].filter(Boolean).join(', ');
+      if (place) meta2.push(h('span', { text: place }));
+      meta2.push(h('span', { class: 'cc', text: countryName(e[2]) }));
+      var btn = h('button', { type: 'button', class: 'result', tabindex: '-1', role: 'option',
+        id: 'opt' + i, 'aria-selected': i === 0 ? 'true' : 'false',
+        onclick: function () { openProfile(e[0]); } },
+        h('div', { class: 'nm', text: e[1] }), h('div', { class: 'meta' }, meta2));
+      els.results.appendChild(h('li', { role: 'presentation' }, btn));
+    });
+    els.q.setAttribute('aria-expanded', list.length ? 'true' : 'false');
+    if (list.length) els.q.setAttribute('aria-activedescendant', 'opt0'); else els.q.removeAttribute('aria-activedescendant');
+    if (indexReady) {
+      setStatus(total > list.length ? 'Showing the top ' + list.length + ' of ' + fmtNum(total) + ' matches.' :
+        fmtNum(total) + (total === 1 ? ' match.' : ' matches.'));
+    }
+  }
+
+  function setActive(i) {
+    if (!shown.length) return;
+    active = (i + shown.length) % shown.length;
+    var opts = els.results.querySelectorAll('.result');
+    for (var k = 0; k < opts.length; k++) opts[k].setAttribute('aria-selected', k === active ? 'true' : 'false');
+    els.q.setAttribute('aria-activedescendant', 'opt' + active);
+    opts[active].scrollIntoView({ block: 'nearest' });
+  }
+
+  /* ---------- hash routing ---------- */
+  function clearHash() {
+    try { history.replaceState(null, '', location.pathname + location.search); }
+    catch (e) { try { location.hash = ''; } catch (e2) { /* ignore */ } }
+  }
+  function openProfile(id) { location.hash = 'i' + id; }
+  function route() {
+    if (HOSTED && !signedIn) return;
+    var m = /^#i(\d+)$/.exec(location.hash);
+    if (m) { showProfile(Number(m[1])); return; }
+    document.title = 'Institution Explorer';
+    if (norm(els.q.value) && indexReady) runSearch(true);
+    else if (!norm(els.q.value)) showHome();
+  }
+
+  /* ---------- profile ---------- */
+  function getShard(id) {
+    var k = id % SHARDS;
+    if (!shardCache[k]) shardCache[k] = getJSON('data/detail-' + k + '.json');
+    return shardCache[k];
+  }
+  function getProfile(id) {
+    if (HOSTED) return api('get_institution', { p_id: id });
+    return getShard(id).then(function (s) { return s[String(id)] || null; });
+  }
+
+  function decodeFields(p) {
+    var f = meta.fields, out = {}, i, key;
+    for (i = 0; i < f.length; i++) {
+      var src = null, ch = null;
+      if (p.s.length === 1) ch = (i === 1 || i === 10 || i === 11) ? null : p.s;
+      else ch = p.s.charAt(i) === '.' ? null : p.s.charAt(i);
+      if (ch) src = keyToCode[ch] || null;
+      out[f[i]] = { value: p.v[i], source: src };
+    }
+    if (out.display_name.value == null) out.display_name.value = out.canonical_name.value;
+    return out;
+  }
+
+  function showProfile(id) {
+    searchSeq++;
+    els.home.hidden = true; els.resview.hidden = true; els.credits.hidden = true; els.profile.hidden = false;
+    els.profile.textContent = '';
+    els.profile.appendChild(h('p', { class: 'loading', text: 'Loading institution...' }));
+    setStatus('');
+    window.scrollTo(0, 0);
+    currentId = id;
+    if (!meta) return; // loadAll calls route() again once meta is ready
+    getProfile(id).then(function (p) {
+      if (currentId !== id) return;
+      if (!p) { els.profile.textContent = ''; els.profile.appendChild(h('p', { text: 'No institution with this ID.' })); backButton(); return; }
+      renderProfile(p);
+    }).catch(function (err) {
+      if (err && err.handled) return;
+      els.profile.textContent = '';
+      els.profile.appendChild(h('p', { text: 'Could not load this institution. (' + err.message + ')' }));
+      backButton();
+    });
+  }
+
+  function backButton() {
+    els.profile.insertBefore(h('button', { type: 'button', class: 'back', text: 'Back to search', onclick: function () {
+      if (history.length > 1 && lastQuery) history.back(); else { clearHash(); route(); }
+    } }), els.profile.firstChild);
+  }
+
+  function section(title, node) {
+    return h('section', null, h('h2', { text: title }), node);
+  }
+  function table(headers, rows) {
+    var thead = h('thead', null, h('tr', null, headers.map(function (x) { return h('th', { scope: 'col', text: x }); })));
+    var tbody = h('tbody', null, rows);
+    return h('div', { class: 'tablewrap', tabindex: '0', role: 'region', 'aria-label': 'Table, scrolls sideways' }, h('table', null, thead, tbody));
+  }
+
+  function recView(r) {
+    // r = [body, type, value, score, valid_from, valid_to, source_key, as_of]
+    var body = r[0], type = r[1], val = r[2], score = r[3], vf = r[4], vt = r[5], src = keyToCode[r[6]] || r[6], asOf = r[7];
+    var main = '', extra = '';
+    if (body === 'NAAC') {
+      main = 'Grade ' + (val || 'not given') + (score ? ' (CGPA ' + score + ')' : '');
+      if (vf) extra = 'Declared ' + fmtDate(vf) + '.';
+      if (asOf) extra += (extra ? ' ' : '') + 'Valid per NAAC list of ' + fmtDate(asOf) + '.';
+      return { body: 'NAAC accreditation', main: main, src: src, text: extra, asOf: null };
+    }
+    if (body === 'NIRF') {
+      var m = /^NIRF (\d{4}) (.+)$/.exec(type);
+      var cat = m ? m[2] : type, year = m ? m[1] : '';
+      cat = cat.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^OPENUNIVERSITY$/, 'Open University')
+               .replace(/^STATEPUBLICUNIVERSITY$/, 'State Public University').replace(/^SKILLUNIVERSITY$/, 'Skill University')
+               .replace(/^SDGInstitutions$/, 'SDG Institutions');
+      main = 'Rank ' + (val || 'not given') + (score ? ', score ' + score : '');
+      return { body: 'NIRF' + (year ? ' ' + year : ''), main: main, src: src, text: 'Category: ' + cat + '.', asOf: asOf };
+    }
+    if (body === 'UGC') {
+      if (type === 'UGC status') return { body: 'UGC', main: 'Status: ' + (val || 'not given'), src: src, text: '', asOf: asOf };
+      if (type === 'UGC autonomous status') {
+        var txt = 'Autonomous' + (val ? ', ' + val : '');
+        var span = (vf || vt) ? (vf ? fmtDate(vf) : '?') + ' to ' + (vt ? fmtDate(vt) : '?') : '';
+        return { body: 'UGC', main: txt, src: src, text: span ? 'Valid ' + span + '.' : '', asOf: asOf };
+      }
+      if (type === 'UGC university type') return { body: 'UGC', main: 'University type: ' + (val || 'not given'), src: src, text: '', asOf: asOf };
+      return { body: 'UGC', main: type + (val ? ': ' + val : ''), src: src, text: '', asOf: asOf };
+    }
+    if (body === 'OfS') {
+      if (type === 'OfS registration') return { body: 'OfS (England)', main: 'Registration: ' + (val || 'not given'), src: src, text: '', asOf: asOf };
+      if (type === 'OfS monetary penalty') return { body: 'OfS (England)', main: 'Monetary penalty: ' + (val || 'not given'), src: src, text: 'Amount as published by OfS.', asOf: asOf };
+      return { body: 'OfS (England)', main: type + (val ? ': ' + val : ''), src: src, text: '', asOf: asOf };
+    }
+    if (body === 'CRICOS') return { body: 'CRICOS (Australia)', main: 'Registration: ' + (val || 'not given'), src: src, text: '', asOf: asOf };
+    return { body: body, main: type + (val ? ': ' + val : '') + (score ? ' (' + score + ')' : ''), src: src, text: '', asOf: asOf };
+  }
+
+  var BODY_ORDER = ['NAAC', 'NIRF', 'UGC', 'OfS', 'CRICOS'];
+
+  function renderProfile(p) {
+    var F = decodeFields(p);
+    var root = els.profile;
+    root.textContent = '';
+    var used = {};
+    function use(code) { if (code) used[code] = true; }
+
+    var disp = F.display_name.value, canon = F.canonical_name.value;
+    var place = [F.city.value, F.district.value, F.state.value].filter(function (x, i, a) { return x && a.indexOf(x) === i; }).join(', ');
+    var cc = F.country_code.value;
+    var kind = [LEVEL_WORD[F.level.value] || F.level.value, F.subtype.value].filter(Boolean).join(', ');
+    var facts = [];
+    if (place || cc) facts.push(h('span', null, h('b', { text: 'Where' }), [place, cc && countryName(cc)].filter(Boolean).join(', ')));
+    if (F.year_established.value) facts.push(h('span', null, h('b', { text: 'Founded' }), String(F.year_established.value)));
+    if (F.management.value) facts.push(h('span', null, h('b', { text: 'Management' }), F.management.value));
+    if (F.website_url.value) facts.push(h('span', null, h('b', { text: 'Website' }), extLink(F.website_url.value, F.website_url.value.replace(/^https?:\/\//i, '').replace(/\/$/, ''))));
+    if (F.short_name.value) facts.push(h('span', null, h('b', { text: 'Short name' }), F.short_name.value));
+
+    root.appendChild(h('button', { type: 'button', class: 'back', text: 'Back to search', onclick: function () {
+      if (lastQuery && history.length > 1) history.back(); else { clearHash(); route(); }
+    } }));
+    root.appendChild(h('header', { class: 'head' },
+      h('h1', { text: disp }),
+      canon && canon !== disp ? h('p', { class: 'sub', text: 'Official name: ' + canon }) : null,
+      kind ? h('p', { class: 'sub', text: kind }) : null,
+      h('div', { class: 'facts' }, facts)));
+    document.title = disp + ' - Institution Explorer';
+
+    // warnings
+    if (p.warnings && p.warnings.length) {
+      var wb = h('div', { class: 'warnbox', role: 'alert' }, h('h2', { text: 'Warning' }));
+      p.warnings.forEach(function (w) {
+        use(w.source);
+        var label = w.type === 'fake_university' ? 'Listed as a fake university' : w.type;
+        wb.appendChild(h('p', { text: label + ' by ' + srcName(w.source) + (w.as_of ? ' (list of ' + fmtDate(w.as_of) + ')' : '') + '.' }));
+        if (w.details) wb.appendChild(h('p', { text: w.details }));
+        if (w.address) wb.appendChild(h('p', { text: w.address }));
+      });
+      root.appendChild(wb);
+    }
+
+    // recognitions
+    var recs = (p.recognitions || []).map(recView);
+    var ordered = [];
+    BODY_ORDER.forEach(function (b) {
+      recs.forEach(function (r, i) { if (p.recognitions[i][0] === b) ordered.push(r); });
+    });
+    recs.forEach(function (r, i) { if (BODY_ORDER.indexOf(p.recognitions[i][0]) < 0) ordered.push(r); });
+    var recBox = h('div', { class: 'recs' });
+    if (!ordered.length) recBox.appendChild(h('p', { class: 'muted', text: 'No recognitions stored for this institution.' }));
+    ordered.forEach(function (r) {
+      use(r.src);
+      var line = 'Source: ' + srcName(r.src) + (r.asOf ? '. As of ' + fmtDate(r.asOf) : '') + '.';
+      recBox.appendChild(h('div', { class: 'rec' },
+        h('div', { class: 'body', text: r.body }),
+        h('div', { class: 'main', text: r.main }),
+        r.text ? h('div', { text: r.text }) : null,
+        h('div', { class: 'src', text: line })));
+    });
+    root.appendChild(section('Recognitions', recBox));
+
+    // sources table
+    var loc = [place].filter(Boolean).join('');
+    var rows = (p.links || []).map(function (l) {
+      var code = keyToCode[l[0]] || l[0];
+      use(code);
+      var mm = l[5];
+      var nameCell = l[2] === 0 ? h('span', { class: 'muted', text: 'Same as official name' }) : (l[2] || '');
+      var locCell = l[3] === 0 ? h('span', { class: 'muted', text: 'Same as master location' }) : (l[3] || '');
+      var webCell = l[4] === 0 ? h('span', { class: 'muted', text: 'Same as website' }) : (l[4] ? extLink(l[4], l[4]) : '');
+      return h('tr', null,
+        h('td', { text: code }),
+        h('td', { class: 'mono', text: l[1] }),
+        h('td', { class: 'wrapcell' }, nameCell),
+        h('td', { class: 'wrapcell' }, locCell),
+        h('td', { class: 'wrapcell' }, webCell),
+        h('td', null, h('span', { class: 'pill ' + mm, text: mm })));
+    });
+    var legend = h('ul', { class: 'legend' });
+    Object.keys(meta.match_methods).forEach(function (k) {
+      legend.appendChild(h('li', null, h('span', { class: 'pill ' + k, text: k }), h('span', { text: meta.match_methods[k] })));
+    });
+    root.appendChild(section('Known in sources as',
+      h('div', null, rows.length ? table(['Source', 'Native ID', 'Native name', 'Location', 'Website', 'How matched'], rows)
+        : h('p', { class: 'muted', text: 'No source links.' }), legend)));
+
+    // aliases
+    if (p.aliases && p.aliases.length) {
+      var tags = h('ul', { class: 'tags' });
+      p.aliases.forEach(function (a) {
+        var code = keyToCode[a[2]] || null; use(code);
+        tags.appendChild(h('li', null, a[0], h('small', { text: (a[1] === 'source_spelling' ? 'spelling' : a[1]) + (code ? ', ' + code : '') })));
+      });
+      root.appendChild(section('Also called', tags));
+    }
+
+    // fields -> sources
+    var frows = [];
+    meta.fields.forEach(function (name) {
+      var f = F[name];
+      if (f.value == null || f.value === '') return;
+      var srcCell;
+      if (f.source) { use(f.source); srcCell = srcLabel(f.source); }
+      else if (name === 'display_name') srcCell = f.value === canon && p.v[1] == null ? 'Same as official name' : 'Derived by VigyanShaala';
+      else srcCell = 'Not recorded per field';
+      frows.push(h('tr', null, h('td', { text: FIELD_LABEL[name] || name }), h('td', { class: 'wrapcell', text: String(f.value) }), h('td', { class: 'wrapcell', text: srcCell })));
+    });
+    root.appendChild(section('Where each field comes from', table(['Field', 'Value', 'Source'], frows)));
+
+    // parent and children
+    var hasFam = p.parent || p.child_count;
+    if (hasFam) {
+      var fam = h('div');
+      if (p.parent) {
+        var pl = h('button', { type: 'button', class: 'linkbtn', text: p.parent_name || 'Loading...', onclick: function () { openProfile(p.parent[0]); } });
+        fam.appendChild(h('p', null, 'Part of (' + p.parent[1] + '): ', pl));
+        if (!p.parent_name) getProfile(p.parent[0]).then(function (pp) {
+          if (pp) { var d = pp.v[1] || pp.v[0]; pl.textContent = d; } else pl.textContent = 'Institution ' + p.parent[0];
+        }).catch(function () { pl.textContent = 'Institution ' + p.parent[0]; });
+      }
+      if (p.child_count) {
+        fam.appendChild(h('p', { text: p.child_count === 1 ? '1 institution has this one as its parent.' : fmtNum(p.child_count) + ' institutions have this one as their parent.' + ((p.children || []).length < p.child_count ? ' Showing the first ' + (p.children || []).length + '.' : '') }));
+        var ul = h('ul', { class: 'kids' });
+        (p.children || []).forEach(function (c) {
+          ul.appendChild(h('li', null, h('button', { type: 'button', class: 'linkbtn', text: c[1], onclick: function () { openProfile(c[0]); } })));
+        });
+        fam.appendChild(ul);
+      }
+      root.appendChild(section('Parent and children', fam));
+    }
+
+    // credits
+    var cr = els.credits;
+    cr.textContent = '';
+    var codes = Object.keys(used);
+    if (codes.length) {
+      cr.appendChild(h('p', { text: 'Sources used on this page' }));
+      codes.forEach(function (c) {
+        var s = sourceByCode[c];
+        if (!s) return;
+        var text = s[3] || (c === 'VS_REVIEW' ? 'VigyanShaala manual review.' : s[1]);
+        var line = h('p', null, text + ' ');
+        if (s[2]) line.appendChild(extLink(s[2], s[2].replace(/^https?:\/\//, '')));
+        cr.appendChild(line);
+      });
+      cr.appendChild(h('p', { text: 'Institution ID ' + currentId + '. Snapshot of ' + fmtDate(meta.snapshot) + '.' }));
+      cr.hidden = false;
+    }
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- events ---------- */
+  els.q.addEventListener('input', function () { runSearch(false); });
+  els.fcountry.addEventListener('change', function () { runSearch(true); });
+  els.flevel.addEventListener('change', function () { runSearch(true); });
+  $('searchform').addEventListener('submit', function (ev) { ev.preventDefault(); });
+  els.q.addEventListener('keydown', function (ev) {
+    if (ev.key === 'ArrowDown') { ev.preventDefault(); if (els.resview.hidden) runSearch(true); else setActive(active + 1); }
+    else if (ev.key === 'ArrowUp') { ev.preventDefault(); setActive(active - 1); }
+    else if (ev.key === 'Enter') {
+      ev.preventDefault();
+      if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; runSearch(true); }
+      if (shown.length && active >= 0) openProfile(shown[active][0]);
+    } else if (ev.key === 'Escape') { els.q.value = ''; showHome(); }
+  });
+  window.addEventListener('hashchange', function () {
+    route();
+  });
+
+  /* ---------- hosted mode: login and API calls ---------- */
+  var SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
+  var NOT_ON_LIST = 'This email is not on the access list. Ask Manoj Joshi for access.';
+  var LOGIN_PARTS = ['searchform', 'status', 'home', 'resview', 'profile', 'credits'];
+
+  function loginMsg(t) { els.loginmsg.textContent = t || ''; }
+
+  // Calls a database function; rejects with err.handled = true after sending the user back to the login screen.
+  function api(fn, args) {
+    return sb.rpc(fn, args).then(function (r) {
+      if (r.error) {
+        var e = r.error;
+        if (e.code === '42501' || e.code === 'PGRST301' || e.code === 'PGRST303' || r.status === 401) {
+          showLogin('Your session ended. Please sign in again.');
+          e.handled = true;
+        }
+        throw e;
+      }
+      return r.data;
+    });
+  }
+
+  function showLogin(msg) {
+    signedIn = false; searchSeq++;
+    meta = null; indexReady = false;
+    LOGIN_PARTS.forEach(function (k) { (els[k] || els.status).hidden = true; });
+    els.searchform.hidden = true; els.status.hidden = true;
+    els.userbar.hidden = true; els.login.hidden = false;
+    els.emailform.hidden = false; els.codeform.hidden = true;
+    els.sendbtn.disabled = false; els.verifybtn.disabled = false;
+    els.lcode.value = '';
+    loginMsg(msg);
+    setTimeout(function () { els.lemail.focus(); }, 0);
+  }
+
+  function otpErrorText(err) {
+    var m = String(err && err.message || '');
+    if (/after \d+ seconds/i.test(m)) return 'A code was just sent. Wait a minute before asking for another.';
+    if (err && (err.status === 429 || /rate.?limit|too many/i.test(err.code + ' ' + m)))
+      return 'Too many codes requested; try again in an hour.';
+    if (err && (err.code === 'otp_disabled' || err.code === 'signup_disabled' || err.code === 'user_not_found' ||
+        /signups? (not allowed|disabled)|user not found/i.test(m)))
+      return NOT_ON_LIST;
+    return 'Could not send the code. ' + m;
+  }
+
+  function sendCode(ev) {
+    ev.preventDefault();
+    loginEmail = els.lemail.value.trim().toLowerCase();
+    if (!loginEmail) return;
+    loginMsg(''); els.sendbtn.disabled = true;
+    sb.auth.signInWithOtp({ email: loginEmail, options: { shouldCreateUser: false } }).then(function (r) {
+      els.sendbtn.disabled = false;
+      if (r.error) { loginMsg(otpErrorText(r.error)); return; }
+      els.sentto.textContent = loginEmail;
+      els.emailform.hidden = true; els.codeform.hidden = false;
+      els.lcode.value = ''; els.lcode.focus();
+    }).catch(function (err) {
+      els.sendbtn.disabled = false; loginMsg('Could not reach the server. Try again. (' + err.message + ')');
+    });
+  }
+
+  function verifyCode(ev) {
+    ev.preventDefault();
+    var token = els.lcode.value.replace(/\s+/g, '');
+    if (!/^\d{6}$/.test(token)) { loginMsg('Enter the 6-digit code from the email.'); return; }
+    loginMsg(''); els.verifybtn.disabled = true;
+    sb.auth.verifyOtp({ email: loginEmail, token: token, type: 'email' }).then(function (r) {
+      els.verifybtn.disabled = false;
+      if (r.error) {
+        loginMsg(r.error.status === 429 ? 'Too many attempts; wait a few minutes and try again.'
+          : 'That code is wrong or has expired. Check it, or use a different email to get a new code.');
+        return;
+      }
+      afterLogin(loginEmail);
+    }).catch(function (err) {
+      els.verifybtn.disabled = false; loginMsg('Could not reach the server. Try again. (' + err.message + ')');
+    });
+  }
+
+  function afterLogin(email) {
+    loginMsg('');
+    sb.rpc('explorer_me').then(function (r) {
+      if (r.error || r.data !== true) {
+        var msg = r.error ? 'Could not check your access. Try again. (' + r.error.message + ')' : NOT_ON_LIST;
+        return sb.auth.signOut().then(function () { showLogin(msg); }, function () { showLogin(msg); });
+      }
+      signedIn = true;
+      els.login.hidden = true;
+      els.whoami.textContent = email;
+      els.userbar.hidden = false;
+      els.searchform.hidden = false; els.status.hidden = false;
+      els.home.hidden = false;
+      setStatus('Loading...');
+      return api('explorer_meta').then(function (m) {
+        meta = m;
+        m.sources.forEach(function (s) { keyToCode[s[4]] = s[0]; sourceByCode[s[0]] = s; });
+        els.fcountry.length = 1;   // keep "All countries"
+        renderHome();
+        indexReady = true;
+        if (/^#i\d+$/.test(location.hash)) route();
+        else if (els.q.value.trim()) runSearch(true);
+        else showHome();
+      });
+    }).catch(function (err) {
+      if (err && err.handled) return;
+      setStatus('Could not load the data. Reload the page to try again. (' + (err && err.message || err) + ')');
+    });
+  }
+
+  function startHosted() {
+    els.hostnote.hidden = false;
+    LOGIN_PARTS.forEach(function (k) { (els[k] || els.status).hidden = true; });
+    els.searchform.hidden = true; els.status.hidden = true;
+    els.emailform.addEventListener('submit', sendCode);
+    els.codeform.addEventListener('submit', verifyCode);
+    $('otheremail').addEventListener('click', function () { loginMsg(''); els.codeform.hidden = true; els.emailform.hidden = false; els.lemail.focus(); });
+    $('signout').addEventListener('click', function (ev) {
+      ev.preventDefault();
+      var done = function () { clearHash(); els.q.value = ''; showLogin(''); };
+      sb.auth.signOut().then(done, done);
+    });
+    var tag = document.createElement('script');
+    tag.src = SUPABASE_JS;
+    tag.onerror = function () { els.login.hidden = false; loginMsg('Could not load the sign-in library. Reload the page, or tell Manoj.'); };
+    tag.onload = function () {
+      sb = window.supabase.createClient(HOSTED.url, HOSTED.anonKey,
+        { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
+      sb.auth.onAuthStateChange(function (event) { if (event === 'SIGNED_OUT' && signedIn) showLogin('You were signed out.'); });
+      sb.auth.getSession().then(function (r) {
+        var sess = r.data && r.data.session;
+        if (sess && sess.user) afterLogin((sess.user.email || '').toLowerCase()); else showLogin('');
+      }).catch(function () { showLogin(''); });
+    };
+    document.head.appendChild(tag);
+  }
+
+  if (HOSTED) {
+    startHosted();
+  } else {
+    loadAll();
+    var startHash = /^#i(\d+)$/.exec(location.hash);
+    if (startHash) showProfile(Number(startHash[1]));
+  }
+})();
+</script>
+</body></html>
