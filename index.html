@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"></head><body><title>Institution Explorer</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"></head><body><title>College & Course Explorer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap">
@@ -271,9 +271,9 @@ td.wrapcell { min-width: 12ch; }
 
 <div class="wrap">
   <header class="top">
-    <div class="eyebrow">VigyanShaala colleges master</div>
-    <h1>Institution Explorer</h1>
-    <p class="lede">Search a college or university. See what is stored about it, and which source each fact came from.</p>
+    <div class="eyebrow">VigyanShaala colleges &amp; courses master</div>
+    <h1>College &amp; Course Explorer</h1>
+    <p class="lede">Search any college or university to see what we hold about it: recognitions, PG courses (for core colleges) and the source of every fact. Use <b>Check courses</b> to spot-check courses at random or see which core colleges are thin on courses.</p>
     <p class="aboutlink"><a href="faq.html" id="aboutlink">About this data</a></p>
     <p class="userbar" id="userbar" hidden><span id="whoami"></span> &middot; <a href="#" id="signout">Sign out</a></p>
   </header>
@@ -317,6 +317,11 @@ td.wrapcell { min-width: 12ch; }
       <option value="u">University</option>
       <option value="c">College</option>
       <option value="s">Standalone</option>
+    </select>
+    <label class="sr" for="fcourses">Courses</label>
+    <select id="fcourses" hidden>
+      <option value="">With or without courses</option>
+      <option value="1">Only with courses</option>
     </select>
   </form>
   <div class="status" id="status" role="status" aria-live="polite">Loading data...</div>
@@ -419,7 +424,7 @@ td.wrapcell { min-width: 12ch; }
   function statusLabel(s) { return STATUS_LABEL[s] || s; }
   var profileUI = null;   // { id, select(tab) } for the profile currently drawn
   var els = {
-    q: $('q'), fcountry: $('fcountry'), flevel: $('flevel'), status: $('status'), home: $('home'),
+    q: $('q'), fcountry: $('fcountry'), flevel: $('flevel'), fcourses: $('fcourses'), status: $('status'), home: $('home'),
     stats: $('stats'), chips: $('chips'), snap: $('snapnote'), resview: $('resultsview'),
     results: $('results'), none: $('noresults'), profile: $('profile'), credits: $('credits'),
     searchform: $('searchform'), login: $('login'), userbar: $('userbar'), whoami: $('whoami'),
@@ -618,7 +623,8 @@ td.wrapcell { min-width: 12ch; }
       if (HOSTED) {
         var seq = ++searchSeq;
         lastQuery = q;
-        api('search_institutions', { q: norm(q), country: els.fcountry.value, lvl: els.flevel.value }).then(function (res) {
+        api('search_institutions', { q: norm(q), country: els.fcountry.value, lvl: els.flevel.value,
+                                     with_courses: els.fcourses.value === '1' }).then(function (res) {
           if (seq !== searchSeq) return;   // a newer search or view has replaced this one
           showResultsView(res.results || [], res.total || 0);
         }).catch(function (err) {
@@ -647,7 +653,7 @@ td.wrapcell { min-width: 12ch; }
 
   function showResultsView(list, total) {
     shown = list; active = list.length ? 0 : -1; currentId = null; fromCheck = false;
-    document.title = 'Institution Explorer';
+    document.title = 'College & Course Explorer';
     leaveCheck();
     els.home.hidden = true; els.profile.hidden = true; els.credits.hidden = true; els.about.hidden = true; els.resview.hidden = false;
     els.results.textContent = '';
@@ -697,7 +703,7 @@ td.wrapcell { min-width: 12ch; }
     if (m) { showProfile(Number(m[1]), m[2]); return; }
     if (HOSTED && location.hash === '#about') { showAbout(); return; }
     if (HOSTED && (location.hash === '#check' || location.hash === '#coverage')) { showCheck(location.hash === '#coverage'); return; }
-    document.title = 'Institution Explorer';
+    document.title = 'College & Course Explorer';
     if (norm(els.q.value) && indexReady) runSearch(true);
     else if (!norm(els.q.value)) showHome();
   }
@@ -742,7 +748,7 @@ td.wrapcell { min-width: 12ch; }
     leaveCheck();
     els.home.hidden = true; els.resview.hidden = true; els.profile.hidden = true; els.credits.hidden = true;
     els.about.hidden = false;
-    document.title = 'About this data - Institution Explorer';
+    document.title = 'About this data - College & Course Explorer';
     setStatus('');
     window.scrollTo(0, 0);
     if (aboutLoaded) return;
@@ -898,7 +904,7 @@ td.wrapcell { min-width: 12ch; }
       whereLine ? h('p', { class: 'sub where', text: whereLine }) : null,
       kind ? h('p', { class: 'sub', text: kind }) : null,
       HOSTED && p.coverage ? h('div', { class: 'covbadge' }, h('span', { class: 'pill ' + (STATUS_PILL[p.coverage.status] || 'seed'), text: statusLabel(p.coverage.status) })) : null));
-    document.title = disp + ' - Institution Explorer';
+    document.title = disp + ' - College & Course Explorer';
 
     var panels = {};
     PTABS.forEach(function (t) { panels[t] = h('div', { class: 'ppanel', role: 'tabpanel', id: 'ppanel-' + t, hidden: '' }); });
@@ -1148,7 +1154,7 @@ td.wrapcell { min-width: 12ch; }
     els.home.hidden = true; els.resview.hidden = true; els.profile.hidden = true; els.credits.hidden = true; els.about.hidden = true;
     els.searchform.hidden = true; els.status.hidden = true; els.check.hidden = false; els.tabs.hidden = false;
     setTab('check');
-    document.title = 'Check courses - Institution Explorer';
+    document.title = 'Check courses - College & Course Explorer';
     if (!meta || !meta.courses) { cel.msg.textContent = 'Course data is not loaded yet. Tell Manoj.'; return; }
     initCheck();
     var want = coverageView ? 'coverage' : 'courses';
@@ -1251,6 +1257,8 @@ td.wrapcell { min-width: 12ch; }
   els.q.addEventListener('input', function () { runSearch(false); });
   els.fcountry.addEventListener('change', function () { runSearch(true); });
   els.flevel.addEventListener('change', function () { runSearch(true); });
+  els.fcourses.hidden = !HOSTED;   // courses live only in the hosted database
+  els.fcourses.addEventListener('change', function () { runSearch(true); });
   $('searchform').addEventListener('submit', function (ev) { ev.preventDefault(); });
   els.q.addEventListener('keydown', function (ev) {
     if (ev.key === 'ArrowDown') { ev.preventDefault(); if (els.resview.hidden) runSearch(true); else setActive(active + 1); }
