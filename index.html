@@ -211,6 +211,23 @@ td.wrapcell { min-width: 12ch; }
 .btn:disabled { opacity: 0.6; cursor: default; }
 .loginmsg { margin-top: 12px; font-size: 0.95rem; color: var(--warn-fg); }
 .loginmsg:empty { display: none; }
+.tabs { display: flex; gap: 6px; margin: 0 0 12px; }
+.tab { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 0.95rem; }
+.tab[aria-current="page"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.checkbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+.checkbar select, .checkbar input[type="search"] { flex: 1 1 140px; min-width: 0; font: 400 0.95rem var(--sans); padding: 9px 10px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; }
+.checkbar input[type="search"] { flex-basis: 200px; }
+.btn.alt { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); }
+.subtabs { display: flex; gap: 16px; margin: 14px 0 0; border-bottom: 1px solid var(--border); }
+.subtab { background: none; border: 0; border-bottom: 3px solid transparent; padding: 6px 2px; cursor: pointer; font-size: 0.95rem; color: var(--muted); }
+.subtab[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.covline { margin-top: 12px; padding: 8px 12px; background: var(--accent-soft); border-radius: 8px; font-size: 0.95rem; }
+.pill.stemin { background: var(--m-exact-bg); color: var(--m-exact-fg); }
+.pill.stemout { background: var(--m-seed-bg); color: var(--m-seed-fg); }
+.pill.stemunc { background: var(--m-fuzzy-bg); color: var(--m-fuzzy-fg); }
+.coursemeta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+#checkview .tablewrap { margin-top: 12px; }
+#checkview td.num { text-align: right; white-space: nowrap; }
 [hidden] { display: none !important; }
 @media (prefers-reduced-motion: no-preference) {
   .chip, .result { transition: background-color 0.12s ease, border-color 0.12s ease; }
@@ -272,6 +289,11 @@ td.wrapcell { min-width: 12ch; }
     <p class="loginmsg" id="loginmsg" role="alert"></p>
   </section>
 
+  <nav class="tabs" id="tabs" aria-label="Views" hidden>
+    <button type="button" class="tab" id="tabsearch" aria-current="page">Search</button>
+    <button type="button" class="tab" id="tabcheck">Check courses</button>
+  </nav>
+
   <form class="searchbar" role="search" id="searchform" autocomplete="off">
     <label class="sr" for="q">Search institutions</label>
     <input type="search" id="q" placeholder="Name, acronym or old name" autofocus
@@ -298,6 +320,44 @@ td.wrapcell { min-width: 12ch; }
   <section id="resultsview" hidden>
     <ul class="results" id="results" role="listbox" aria-label="Search results"></ul>
     <p class="empty" id="noresults" hidden>No match. Try fewer words, or another spelling.</p>
+  </section>
+
+  <section id="checkview" hidden>
+    <p class="muted">Spot-check the PG courses stored for core colleges (courses are collected for core colleges only).</p>
+    <div class="checkbar">
+      <label class="sr" for="cregion">Region</label>
+      <select id="cregion"><option value="">India and abroad</option><option value="india">India</option><option value="abroad">Abroad</option></select>
+      <label class="sr" for="ccountry">Country</label>
+      <select id="ccountry"><option value="">All countries</option></select>
+    </div>
+    <div class="subtabs" role="tablist">
+      <button type="button" class="subtab" id="subcourses" aria-current="page">Random courses</button>
+      <button type="button" class="subtab" id="subcoverage">Coverage</button>
+    </div>
+    <div id="coursespanel">
+      <form class="checkbar" id="courseform" autocomplete="off">
+        <label class="sr" for="cstem">STEM</label>
+        <select id="cstem"><option value="">All courses</option><option value="in">STEM only</option><option value="not">Not STEM</option><option value="none">No subject or verdict</option></select>
+        <label class="sr" for="csource">Source</label>
+        <select id="csource"><option value="">All sources</option></select>
+        <label class="sr" for="cq">Course name contains</label>
+        <input type="search" id="cq" placeholder="Course name contains...">
+        <button type="submit" class="btn" id="cgo">20 random courses</button>
+        <button type="button" class="btn alt" id="crandcol">Random college</button>
+      </form>
+    </div>
+    <div id="coveragepanel" hidden>
+      <form class="checkbar" id="coverform" autocomplete="off">
+        <label class="sr" for="cstatus">Coverage status</label>
+        <select id="cstatus"><option value="">All colleges</option></select>
+        <label class="sr" for="cname">College name contains</label>
+        <input type="search" id="cname" placeholder="College name contains...">
+        <button type="submit" class="btn" id="cshow">Show list</button>
+        <button type="button" class="btn alt" id="crandcov">Random college with this status</button>
+      </form>
+    </div>
+    <p class="status" id="checkstatus" role="status" aria-live="polite"></p>
+    <div id="checkresults"></div>
   </section>
 
   <article id="profile" hidden></article>
@@ -348,7 +408,8 @@ td.wrapcell { min-width: 12ch; }
     emailform: $('emailform'), sentbox: $('sentbox'), lemail: $('lemail'),
     sentto: $('sentto'), loginmsg: $('loginmsg'), sendbtn: $('sendbtn'),
     codeform: $('codeform'), lcode: $('lcode'), verifybtn: $('verifybtn'),
-    hostnote: $('hostnote'), about: $('aboutview'), aboutlink: $('aboutlink')
+    hostnote: $('hostnote'), about: $('aboutview'), aboutlink: $('aboutlink'),
+    tabs: $('tabs'), check: $('checkview')
   };
 
   // Hosted mode: config.js (loaded before this script) defines window.EXPLORER_API = {url, anonKey}.
@@ -429,6 +490,10 @@ td.wrapcell { min-width: 12ch; }
     return u ? h('a', { href: u, target: '_blank', rel: 'noopener noreferrer', text: text || url }) : h('span', { text: text || url || '' });
   }
   function setStatus(t) { els.status.textContent = t; }
+  function leaveCheck() {
+    els.check.hidden = true;
+    if (HOSTED && signedIn) { els.searchform.hidden = false; els.status.hidden = false; els.tabs.hidden = false; setTab('search'); }
+  }
 
   /* ---------- loading ---------- */
   function getJSON(path) {
@@ -446,6 +511,7 @@ td.wrapcell { min-width: 12ch; }
       [fmtNum(t.source_links || 0), 'source links'],
       [fmtNum(t.recognitions || 0), 'recognitions']
     ];
+    if (HOSTED && meta.courses) items.push([fmtNum(meta.courses.total), 'PG courses (' + fmtNum(meta.courses.colleges) + ' core colleges)']);
     els.stats.textContent = '';
     items.forEach(function (it) { els.stats.appendChild(h('li', null, h('b', { text: it[0] }), h('span', { text: it[1] }))); });
     els.snap.textContent = 'Data snapshot of ' + fmtDate(meta.snapshot) + '.';
@@ -552,17 +618,19 @@ td.wrapcell { min-width: 12ch; }
   }
 
   function showHome() {
-    searchSeq++;
+    searchSeq++; fromCheck = false;
     if (location.hash) clearHash();
     shown = []; active = -1;
+    leaveCheck();
     els.home.hidden = false; els.resview.hidden = true; els.profile.hidden = true; els.credits.hidden = true; els.about.hidden = true;
     els.q.setAttribute('aria-expanded', 'false');
     if (indexReady) setStatus('Ready. ' + fmtNum(HOSTED ? meta.total : index.length) + ' institutions searchable.');
   }
 
   function showResultsView(list, total) {
-    shown = list; active = list.length ? 0 : -1; currentId = null;
+    shown = list; active = list.length ? 0 : -1; currentId = null; fromCheck = false;
     document.title = 'Institution Explorer';
+    leaveCheck();
     els.home.hidden = true; els.profile.hidden = true; els.credits.hidden = true; els.about.hidden = true; els.resview.hidden = false;
     els.results.textContent = '';
     els.none.hidden = list.length > 0 || !indexReady;
@@ -606,6 +674,7 @@ td.wrapcell { min-width: 12ch; }
     var m = /^#i(\d+)$/.exec(location.hash);
     if (m) { showProfile(Number(m[1])); return; }
     if (HOSTED && location.hash === '#about') { showAbout(); return; }
+    if (HOSTED && (location.hash === '#check' || location.hash === '#coverage')) { showCheck(location.hash === '#coverage'); return; }
     document.title = 'Institution Explorer';
     if (norm(els.q.value) && indexReady) runSearch(true);
     else if (!norm(els.q.value)) showHome();
@@ -648,6 +717,7 @@ td.wrapcell { min-width: 12ch; }
 
   function showAbout() {
     searchSeq++;
+    leaveCheck();
     els.home.hidden = true; els.resview.hidden = true; els.profile.hidden = true; els.credits.hidden = true;
     els.about.hidden = false;
     document.title = 'About this data - Institution Explorer';
@@ -701,6 +771,7 @@ td.wrapcell { min-width: 12ch; }
 
   function showProfile(id) {
     searchSeq++;
+    leaveCheck();
     els.home.hidden = true; els.resview.hidden = true; els.credits.hidden = true; els.about.hidden = true; els.profile.hidden = false;
     els.profile.textContent = '';
     els.profile.appendChild(h('p', { class: 'loading', text: 'Loading institution...' }));
@@ -722,7 +793,7 @@ td.wrapcell { min-width: 12ch; }
 
   function backButton() {
     els.profile.insertBefore(h('button', { type: 'button', class: 'back', text: 'Back to search', onclick: function () {
-      if (history.length > 1 && lastQuery) history.back(); else { clearHash(); route(); }
+      if (history.length > 1 && (lastQuery || fromCheck)) history.back(); else { clearHash(); route(); }
     } }), els.profile.firstChild);
   }
 
@@ -794,7 +865,7 @@ td.wrapcell { min-width: 12ch; }
     if (F.short_name.value) facts.push(h('span', null, h('b', { text: 'Short name' }), F.short_name.value));
 
     root.appendChild(h('button', { type: 'button', class: 'back', text: 'Back to search', onclick: function () {
-      if (lastQuery && history.length > 1) history.back(); else { clearHash(); route(); }
+      if ((lastQuery || fromCheck) && history.length > 1) history.back(); else { clearHash(); route(); }
     } }));
     root.appendChild(h('header', { class: 'head' },
       h('h1', { text: disp }),
@@ -802,6 +873,8 @@ td.wrapcell { min-width: 12ch; }
       kind ? h('p', { class: 'sub', text: kind }) : null,
       h('div', { class: 'facts' }, facts)));
     document.title = disp + ' - Institution Explorer';
+
+    if (HOSTED && p.coverage) root.appendChild(h('p', { class: 'covline', text: coverageLine(p.coverage) }));
 
     // warnings
     if (p.warnings && p.warnings.length) {
@@ -835,6 +908,7 @@ td.wrapcell { min-width: 12ch; }
         h('div', { class: 'src', text: line })));
     });
     root.appendChild(section('Recognitions', recBox));
+    if (HOSTED) root.appendChild(coursesSection(p));
 
     // sources table
     var loc = [place].filter(Boolean).join('');
@@ -926,7 +1000,173 @@ td.wrapcell { min-width: 12ch; }
     window.scrollTo(0, 0);
   }
 
+  /* ---------- courses (hosted mode only) ---------- */
+  var LEVEL_NAME = { master: "Master's", graduate_diploma: 'Graduate diploma', graduate_certificate: 'Graduate certificate' };
+  var STEM_PILL = { IN: ['stemin', 'STEM'], OUT: ['stemout', 'Not STEM'], UNCLEAR: ['stemunc', 'Unclear'], PENDING: ['stemunc', 'Pending'] };
+  function stemBadge(v) {
+    var x = STEM_PILL[v];
+    return x ? h('span', { class: 'pill ' + x[0], text: x[1] }) : h('span', { class: 'muted', text: '\u2014' });
+  }
+  function coverageLine(c) {
+    return 'Coverage: ' + c.status + '. ' + fmtNum(c.stem_pg) + ' STEM PG course' + (c.stem_pg === 1 ? '' : 's') +
+      ' of ' + fmtNum(c.pg_all) + ' PG course' + (c.pg_all === 1 ? '' : 's') + ' stored.';
+  }
+  function coursesSection(p) {
+    if (!p.coverage) {
+      return section('Courses', h('p', { class: 'muted', text: 'Courses not collected (not in core list).' }));
+    }
+    var list = p.courses || [];
+    var stem = list.filter(function (c) { return c[4] === 'IN'; }).length;
+    var title = 'Courses (' + fmtNum(list.length) + ', STEM ' + fmtNum(stem) + ')';
+    if (!list.length) return section(title, h('p', { class: 'muted', text: 'No PG courses stored for this college.' }));
+    var rows = list.map(function (c) {
+      return h('tr', null,
+        h('td', { class: 'wrapcell' }, c[0], c[6] ? h('div', { class: 'coursemeta', text: 'Awarded by: ' + c[6] }) : null),
+        h('td', { text: c[1] || '' }),
+        h('td', { text: LEVEL_NAME[c[2]] || c[2] }),
+        h('td', { class: 'wrapcell', text: c[3] || '' }),
+        h('td', null, stemBadge(c[4])),
+        h('td', { class: 'mono', text: (c[5] || '').replace(/,/g, ', ') }));
+    });
+    return section(title, table(['Course', 'Degree', 'Level', 'Subject', 'STEM', 'Source'], rows));
+  }
+
+  /* ---------- check courses tab (hosted mode only) ---------- */
+  var chk = { init: false, sub: 'courses' };
+  var fromCheck = false;   // a profile was opened from the Check courses tab (Back returns there)
+  var cel = {
+    region: $('cregion'), country: $('ccountry'), stem: $('cstem'), source: $('csource'), q: $('cq'),
+    status: $('cstatus'), name: $('cname'), msg: $('checkstatus'), out: $('checkresults'),
+    cpanel: $('coursespanel'), vpanel: $('coveragepanel'), subc: $('subcourses'), subv: $('subcoverage')
+  };
+  var checkSeq = 0;
+
+  function setTab(which) {
+    $('tabsearch').setAttribute('aria-current', which === 'search' ? 'page' : 'false');
+    $('tabcheck').setAttribute('aria-current', which === 'check' ? 'page' : 'false');
+  }
+  function nz(v) { return v ? v : null; }
+  function whereArgs() { return { region: nz(cel.region.value), country: nz(cel.country.value) }; }
+
+  function initCheck() {
+    if (chk.init || !meta || !meta.courses) return;
+    chk.init = true;
+    var c = meta.courses;
+    cel.country.length = 1;
+    c.countries.forEach(function (x) { cel.country.appendChild(h('option', { value: x[0], text: countryName(x[0]) + ' (' + fmtNum(x[1]) + ')' })); });
+    cel.source.length = 1;
+    c.sources.forEach(function (code) { cel.source.appendChild(h('option', { value: code, text: code + ' - ' + srcName(code) })); });
+    cel.status.length = 1;
+    ['no STEM PG', 'thin (1-4)', 'ok (5+)', 'intern list', 'skipped'].forEach(function (k) {
+      cel.status.appendChild(h('option', { value: k, text: k + ' (' + fmtNum((c.status || {})[k] || 0) + ')' }));
+    });
+  }
+
+  function showCheck(coverageView) {
+    searchSeq++; fromCheck = true;
+    els.home.hidden = true; els.resview.hidden = true; els.profile.hidden = true; els.credits.hidden = true; els.about.hidden = true;
+    els.searchform.hidden = true; els.status.hidden = true; els.check.hidden = false; els.tabs.hidden = false;
+    setTab('check');
+    document.title = 'Check courses - Institution Explorer';
+    if (!meta || !meta.courses) { cel.msg.textContent = 'Course data is not loaded yet. Tell Manoj.'; return; }
+    initCheck();
+    var want = coverageView ? 'coverage' : 'courses';
+    if (chk.sub === want && (cel.out.childNodes.length || chk.shown)) return;   // coming back: keep the last results
+    chk.shown = true;
+    setSub(want);
+  }
+  function setSub(which) {
+    chk.sub = which;
+    cel.cpanel.hidden = which !== 'courses'; cel.vpanel.hidden = which !== 'coverage';
+    cel.subc.setAttribute('aria-current', which === 'courses' ? 'page' : 'false');
+    cel.subv.setAttribute('aria-current', which === 'coverage' ? 'page' : 'false');
+    if (location.hash !== (which === 'coverage' ? '#coverage' : '#check')) {
+      try { history.replaceState(null, '', location.pathname + location.search + (which === 'coverage' ? '#coverage' : '#check')); } catch (e) { /* ignore */ }
+    }
+    cel.out.textContent = '';
+    cel.msg.textContent = '';
+    if (which === 'coverage') runCoverage();
+  }
+  function checkFail(seq) {
+    return function (err) {
+      if (err && err.handled || seq !== checkSeq) return;
+      cel.msg.textContent = 'Could not load. Try again. (' + (err && err.message || err) + ')';
+    };
+  }
+  function collegeButton(id, name) {
+    return h('button', { type: 'button', class: 'linkbtn', text: name, onclick: function () { openProfile(id); } });
+  }
+
+  function runSamples() {
+    var seq = ++checkSeq, w = whereArgs();
+    cel.msg.textContent = 'Loading...';
+    api('sample_courses', { n: 20, region: w.region, country: w.country, stem: nz(cel.stem.value),
+                            source: nz(cel.source.value), q: nz(cel.q.value.trim()) }).then(function (res) {
+      if (seq !== checkSeq) return;
+      var rows = res.rows || [];
+      cel.out.textContent = '';
+      cel.msg.textContent = fmtNum(res.total) + (res.total === 1 ? ' course matches' : ' courses match') +
+        (rows.length ? '; showing ' + rows.length + ' at random. Press the button again for another sample.' : '.');
+      if (!rows.length) return;
+      cel.out.appendChild(table(['College', 'Country', 'Course', 'Degree', 'Level', 'Subject', 'STEM', 'Source'], rows.map(function (r) {
+        return h('tr', null,
+          h('td', { class: 'wrapcell' }, collegeButton(r[0], r[1])),
+          h('td', { text: countryName(r[2]) }),
+          h('td', { class: 'wrapcell', text: r[3] }),
+          h('td', { text: r[4] || '' }),
+          h('td', { text: LEVEL_NAME[r[5]] || r[5] }),
+          h('td', { class: 'wrapcell', text: r[6] || '' }),
+          h('td', null, stemBadge(r[7])),
+          h('td', { class: 'mono', text: (r[8] || '').replace(/,/g, ', ') }));
+      })));
+    }).catch(checkFail(seq));
+  }
+
+  function runCoverage() {
+    var seq = ++checkSeq, w = whereArgs();
+    cel.msg.textContent = 'Loading...';
+    api('coverage_list', { region: w.region, country: w.country, status: nz(cel.status.value), q: nz(cel.name.value.trim()), lim: 200 }).then(function (res) {
+      if (seq !== checkSeq) return;
+      var rows = res.rows || [];
+      cel.out.textContent = '';
+      cel.msg.textContent = fmtNum(res.total) + (res.total === 1 ? ' college' : ' colleges') +
+        (res.total > rows.length ? '; showing the first ' + rows.length + ', fewest STEM courses first.' : ', fewest STEM courses first.');
+      if (!rows.length) return;
+      cel.out.appendChild(table(['College', 'Country', 'State', 'STEM PG', 'All PG', 'Status'], rows.map(function (r) {
+        return h('tr', null,
+          h('td', { class: 'wrapcell' }, collegeButton(r[0], r[1])),
+          h('td', { text: countryName(r[2]) }),
+          h('td', { class: 'wrapcell', text: r[3] || '' }),
+          h('td', { class: 'num', text: fmtNum(r[5]) }),
+          h('td', { class: 'num', text: fmtNum(r[6]) }),
+          h('td', { text: r[7] }));
+      })));
+    }).catch(checkFail(seq));
+  }
+
+  function randomCollege(status) {
+    var seq = ++checkSeq, w = whereArgs();
+    cel.msg.textContent = 'Picking a college...';
+    api('random_college', { region: w.region, country: w.country, status: status }).then(function (id) {
+      if (seq !== checkSeq) return;
+      if (!id) { cel.msg.textContent = 'No college matches these filters.'; return; }
+      cel.msg.textContent = '';
+      openProfile(id);
+    }).catch(checkFail(seq));
+  }
+
   /* ---------- events ---------- */
+  $('tabsearch').addEventListener('click', function () { clearHash(); route(); });
+  $('tabcheck').addEventListener('click', function () { location.hash = 'check'; });
+  cel.subc.addEventListener('click', function () { setSub('courses'); });
+  cel.subv.addEventListener('click', function () { setSub('coverage'); });
+  $('courseform').addEventListener('submit', function (ev) { ev.preventDefault(); runSamples(); });
+  $('crandcol').addEventListener('click', function () { randomCollege(null); });
+  $('coverform').addEventListener('submit', function (ev) { ev.preventDefault(); runCoverage(); });
+  $('crandcov').addEventListener('click', function () { randomCollege(nz(cel.status.value)); });
+  [cel.region, cel.country, cel.status].forEach(function (el) {
+    el.addEventListener('change', function () { if (chk.sub === 'coverage') runCoverage(); });
+  });
   els.q.addEventListener('input', function () { runSearch(false); });
   els.fcountry.addEventListener('change', function () { runSearch(true); });
   els.flevel.addEventListener('change', function () { runSearch(true); });
@@ -947,7 +1187,7 @@ td.wrapcell { min-width: 12ch; }
   /* ---------- hosted mode: login and API calls ---------- */
   var SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
   var NOT_ON_LIST = 'This email is not on the access list. Ask Manoj Joshi for access.';
-  var LOGIN_PARTS = ['searchform', 'status', 'home', 'resview', 'profile', 'credits'];
+  var LOGIN_PARTS = ['searchform', 'status', 'home', 'resview', 'profile', 'credits', 'tabs', 'check'];
 
   function loginMsg(t) { els.loginmsg.textContent = t || ''; }
 
@@ -969,6 +1209,7 @@ td.wrapcell { min-width: 12ch; }
   function showLogin(msg) {
     signedIn = false; searchSeq++;
     meta = null; indexReady = false;
+    chk.init = false; chk.shown = false; cel.out.textContent = '';
     aboutLoaded = false; els.about.hidden = true; els.about.textContent = ''; els.aboutlink.parentNode.hidden = true;
     LOGIN_PARTS.forEach(function (k) { (els[k] || els.status).hidden = true; });
     els.searchform.hidden = true; els.status.hidden = true;
@@ -1032,6 +1273,7 @@ td.wrapcell { min-width: 12ch; }
       els.login.hidden = true;
       els.whoami.textContent = email;
       els.userbar.hidden = false;
+      els.tabs.hidden = false;
       els.aboutlink.parentNode.hidden = false;
       els.searchform.hidden = false; els.status.hidden = false;
       els.home.hidden = false;
@@ -1042,7 +1284,7 @@ td.wrapcell { min-width: 12ch; }
         els.fcountry.length = 1;   // keep "All countries"
         renderHome();
         indexReady = true;
-        if (/^#(i\d+|about)$/.test(location.hash)) route();
+        if (/^#(i\d+|about|check|coverage)$/.test(location.hash)) route();
         else if (els.q.value.trim()) runSearch(true);
         else showHome();
       });
