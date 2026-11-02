@@ -235,6 +235,7 @@ td.wrapcell { min-width: 12ch; }
 .pill.stemin { background: var(--m-exact-bg); color: var(--m-exact-fg); }
 .pill.stemout { background: var(--m-seed-bg); color: var(--m-seed-fg); }
 .pill.stemunc { background: var(--m-fuzzy-bg); color: var(--m-fuzzy-fg); }
+.pill.online { background: var(--m-llm-bg, var(--m-fuzzy-bg)); color: var(--m-llm-fg, var(--m-fuzzy-fg)); margin-left: 6px; }
 .coursemeta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
 #profile { min-width: 0; max-width: 100%; }
 #checkview .tablewrap { margin-top: 12px; }
@@ -354,6 +355,8 @@ td.wrapcell { min-width: 12ch; }
       <form class="checkbar" id="courseform" autocomplete="off">
         <label class="sr" for="cstem">STEM</label>
         <select id="cstem"><option value="">All courses</option><option value="in">STEM only</option><option value="not">Not STEM</option><option value="none">No subject or verdict</option></select>
+        <label class="sr" for="cmode">Mode</label>
+        <select id="cmode"><option value="">On campus and online</option><option value="on campus">On campus</option><option value="online">Online</option></select>
         <label class="sr" for="csource">Source</label>
         <select id="csource"><option value="">All sources</option></select>
         <label class="sr" for="cq">Course name contains</label>
@@ -1071,13 +1074,21 @@ td.wrapcell { min-width: 12ch; }
   }
   function coverageLine(c) {
     return 'Coverage: ' + statusLabel(c.status) + '. ' + fmtNum(c.stem_pg) + ' STEM PG course' + (c.stem_pg === 1 ? '' : 's') +
-      ' of ' + fmtNum(c.pg_all) + ' PG course' + (c.pg_all === 1 ? '' : 's') + ' stored.';
+      ' of ' + fmtNum(c.pg_all) + ' on-campus PG course' + (c.pg_all === 1 ? '' : 's') + ' stored' +
+      (c.pg_online ? '; plus ' + fmtNum(c.pg_online) + ' online (' + fmtNum(c.stem_pg_online) + ' STEM), not counted.' : '.');
+  }
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function nbaNote(d) {   // d = 'YYYY-MM-DD' of the latest NBA accreditation end; a note only when it is in the past
+    if (!d || d >= new Date().toISOString().slice(0, 10)) return null;
+    return 'NBA accreditation lapsed ' + MON[+d.slice(5, 7) - 1] + ' ' + d.slice(0, 4);
   }
   function coursesLabel(p) {
     if (!p.coverage) return 'Courses';
     var list = p.courses || [];
-    var stem = list.filter(function (c) { return c[4] === 'IN'; }).length;
-    return 'Courses (' + fmtNum(list.length) + ' \u00b7 ' + fmtNum(stem) + ' STEM)';
+    var on = list.filter(function (c) { return c[7] !== 'online'; });
+    var stem = on.filter(function (c) { return c[4] === 'IN'; }).length;
+    var online = list.length - on.length;
+    return 'Courses (' + fmtNum(on.length) + ' \u00b7 ' + fmtNum(stem) + ' STEM' + (online ? ' \u00b7 +' + fmtNum(online) + ' online' : '') + ')';
   }
   function coursesPanel(p) {
     if (!p.coverage) return h('p', { class: 'muted', text: 'Courses not collected (not in core list).' });
@@ -1085,33 +1096,41 @@ td.wrapcell { min-width: 12ch; }
     var box = h('div', null, h('p', { class: 'covline', text: coverageLine(p.coverage) }));
     if (!list.length) { box.appendChild(h('p', { class: 'muted', text: 'No PG courses stored for this college.' })); return box; }
     var stemOnly = h('input', { type: 'checkbox', id: 'cstemonly' });
+    var inclOnline = h('input', { type: 'checkbox', id: 'cinclonline', checked: true });
+    var hasCampus = list.some(function (c) { return c[8]; });
     var nameBox = h('input', { type: 'search', placeholder: 'Filter by course name', 'aria-label': 'Filter courses by name', autocomplete: 'off' });
     var count = h('span', { class: 'count' });
     var tbody = h('tbody');
-    var thead = h('thead', null, h('tr', null, ['Course', 'Degree', 'Level', 'Subject', 'STEM', 'Source'].map(function (x) { return h('th', { scope: 'col', text: x }); })));
+    var thead = h('thead', null, h('tr', null, ['Course', 'Degree', 'Level'].concat(hasCampus ? ['Campus'] : [], ['Subject', 'STEM', 'Source']).map(function (x) { return h('th', { scope: 'col', text: x }); })));
     var none = h('p', { class: 'muted', text: 'No courses match.' });
     var rowEls = list.map(function (c) {
-      return { c: c, key: norm(c[0]), el: h('tr', null,
-        h('td', { class: 'wrapcell' }, c[0], c[6] ? h('div', { class: 'coursemeta', text: 'Awarded by: ' + c[6] }) : null),
+      var note = c[5].split(',').indexOf('NBA') >= 0 ? nbaNote(c[9]) : null;
+      var cells = [
+        h('td', { class: 'wrapcell' }, c[0], c[7] === 'online' ? h('span', { class: 'pill online', text: 'Online' }) : null,
+          c[6] ? h('div', { class: 'coursemeta', text: 'Awarded by: ' + c[6] }) : null,
+          note ? h('div', { class: 'coursemeta', text: note }) : null),
         h('td', { text: c[1] || '' }),
-        h('td', { text: LEVEL_NAME[c[2]] || c[2] }),
+        h('td', { text: LEVEL_NAME[c[2]] || c[2] })];
+      if (hasCampus) cells.push(h('td', { class: 'wrapcell', text: c[8] || '' }));
+      return { c: c, key: norm(c[0]), el: h.apply(null, ['tr', null].concat(cells, [
         h('td', { class: 'wrapcell', text: c[3] || '' }),
         h('td', null, stemBadge(c[4])),
-        h('td', { class: 'mono', text: (c[5] || '').replace(/,/g, ', ') })) };
+        h('td', { class: 'mono', text: (c[5] || '').replace(/,/g, ', ') })])) };
     });
     function apply() {
-      var q = norm(nameBox.value.trim()), so = stemOnly.checked, n = 0;
+      var q = norm(nameBox.value.trim()), so = stemOnly.checked, io = inclOnline.checked, n = 0;
       tbody.textContent = '';
       rowEls.forEach(function (r) {
-        if ((so && r.c[4] !== 'IN') || (q && r.key.indexOf(q) < 0)) return;
+        if ((so && r.c[4] !== 'IN') || (!io && r.c[7] === 'online') || (q && r.key.indexOf(q) < 0)) return;
         tbody.appendChild(r.el); n++;
       });
       count.textContent = 'Showing ' + fmtNum(n) + ' of ' + fmtNum(list.length);
       none.hidden = n > 0;
     }
     stemOnly.addEventListener('change', apply);
+    inclOnline.addEventListener('change', apply);
     nameBox.addEventListener('input', apply);
-    box.appendChild(h('div', { class: 'ctools' }, h('label', null, stemOnly, 'STEM only'), nameBox, count));
+    box.appendChild(h('div', { class: 'ctools' }, h('label', null, stemOnly, 'STEM only'), h('label', null, inclOnline, 'Include online'), nameBox, count));
     box.appendChild(h('div', { class: 'tablewrap', tabindex: '0', role: 'region', 'aria-label': 'Table, scrolls sideways' }, h('table', null, thead, tbody)));
     box.appendChild(none);
     apply();
@@ -1122,7 +1141,7 @@ td.wrapcell { min-width: 12ch; }
   var chk = { init: false, sub: 'courses' };
   var fromCheck = false;   // a profile was opened from the Check courses tab (Back returns there)
   var cel = {
-    region: $('cregion'), country: $('ccountry'), stem: $('cstem'), source: $('csource'), q: $('cq'),
+    region: $('cregion'), country: $('ccountry'), stem: $('cstem'), source: $('csource'), mode: $('cmode'), q: $('cq'),
     status: $('cstatus'), name: $('cname'), msg: $('checkstatus'), out: $('checkresults'),
     cpanel: $('coursespanel'), vpanel: $('coveragepanel'), subc: $('subcourses'), subv: $('subcoverage')
   };
@@ -1188,22 +1207,25 @@ td.wrapcell { min-width: 12ch; }
     var seq = ++checkSeq, w = whereArgs();
     cel.msg.textContent = 'Loading...';
     api('sample_courses', { n: 20, region: w.region, country: w.country, stem: nz(cel.stem.value),
-                            source: nz(cel.source.value), q: nz(cel.q.value.trim()) }).then(function (res) {
+                            source: nz(cel.source.value), mode: nz(cel.mode.value), q: nz(cel.q.value.trim()) }).then(function (res) {
       if (seq !== checkSeq) return;
       var rows = res.rows || [];
       cel.out.textContent = '';
       cel.msg.textContent = fmtNum(res.total) + (res.total === 1 ? ' course matches' : ' courses match') +
         (rows.length ? '; showing ' + rows.length + ' at random. Press the button again for another sample.' : '.');
       if (!rows.length) return;
-      cel.out.appendChild(table(['College', 'Country', 'Course', 'Degree', 'Level', 'Subject', 'STEM', 'Source'], rows.map(function (r) {
+      cel.out.appendChild(table(['College', 'Country', 'Course', 'Degree', 'Level', 'Subject', 'STEM', 'Mode', 'Source'], rows.map(function (r) {
         return h('tr', null,
           h('td', { class: 'wrapcell' }, collegeButton(r[0], r[1])),
           h('td', { text: countryName(r[2]) }),
-          h('td', { class: 'wrapcell', text: r[3] }),
+          h('td', { class: 'wrapcell' }, r[3],
+            r[10] ? h('div', { class: 'coursemeta', text: 'Campus: ' + r[10] }) : null,
+            r[9] === 'online' || r[8].split(',').indexOf('NBA') < 0 || !nbaNote(r[11]) ? null : h('div', { class: 'coursemeta', text: nbaNote(r[11]) })),
           h('td', { text: r[4] || '' }),
           h('td', { text: LEVEL_NAME[r[5]] || r[5] }),
           h('td', { class: 'wrapcell', text: r[6] || '' }),
           h('td', null, stemBadge(r[7])),
+          h('td', { text: r[9] === 'online' ? 'Online' : 'On campus' }),
           h('td', { class: 'mono', text: (r[8] || '').replace(/,/g, ', ') }));
       })));
     }).catch(checkFail(seq));
@@ -1219,13 +1241,14 @@ td.wrapcell { min-width: 12ch; }
       cel.msg.textContent = fmtNum(res.total) + (res.total === 1 ? ' college' : ' colleges') +
         (res.total > rows.length ? '; showing the first ' + rows.length + ', fewest STEM courses first.' : ', fewest STEM courses first.');
       if (!rows.length) return;
-      cel.out.appendChild(table(['College', 'Country', 'State', 'STEM PG', 'All PG', 'Status'], rows.map(function (r) {
+      cel.out.appendChild(table(['College', 'Country', 'State', 'STEM PG', 'All PG', 'Online PG', 'Status'], rows.map(function (r) {
         return h('tr', null,
           h('td', { class: 'wrapcell' }, collegeButton(r[0], r[1])),
           h('td', { text: countryName(r[2]) }),
           h('td', { class: 'wrapcell', text: r[3] || '' }),
           h('td', { class: 'num', text: fmtNum(r[5]) }),
           h('td', { class: 'num', text: fmtNum(r[6]) }),
+          h('td', { class: 'num', text: fmtNum(r[9]) + (r[8] ? ' (' + fmtNum(r[8]) + ' STEM)' : '') }),
           h('td', { text: statusLabel(r[7]) }));
       })));
     }).catch(checkFail(seq));
