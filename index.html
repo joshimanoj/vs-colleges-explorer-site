@@ -283,7 +283,7 @@ td.wrapcell { min-width: 12ch; }
         <div class="userbar" id="userbar" hidden><span id="whoami"></span> &middot; <a href="#" id="signout">Sign out</a></div>
       </div>
     </div>
-    <h1>College &amp; Course Explorer</h1>
+    <h1><a href="#" id="brandlink" style="color:inherit;text-decoration:none;">College &amp; Course Explorer</a></h1>
     <p class="lede">Search any college or university to see what we hold about it: recognitions, PG courses (for core colleges), and the source of every fact.</p>
   </header>
 
@@ -494,10 +494,6 @@ td.wrapcell { min-width: 12ch; }
     return u ? h('a', { href: u, target: '_blank', rel: 'noopener noreferrer', text: text || url }) : h('span', { text: text || url || '' });
   }
   function setStatus(t) { els.status.textContent = t; }
-  function leaveCheck() {
-    els.check.hidden = true;
-    if (HOSTED && signedIn) { els.searchform.hidden = false; els.status.hidden = false; els.tabs.hidden = false; setTab('search'); }
-  }
 
   /* ---------- loading ---------- */
   function getJSON(path) {
@@ -522,7 +518,11 @@ td.wrapcell { min-width: 12ch; }
     els.chips.textContent = '';
     CHIPS.forEach(function (c) {
       els.chips.appendChild(h('button', { type: 'button', class: 'chip', text: c, onclick: function () {
-        els.q.value = c; els.q.focus(); runSearch(true);
+        els.q.value = c;
+        location.hash = 'search';
+        showSearch();
+        els.q.focus();
+        runSearch(true);
       } }));
     });
     var top = meta.by_country.map(function (x) { return x[0]; });
@@ -644,6 +644,8 @@ td.wrapcell { min-width: 12ch; }
     searchSeq++;
     els.home.hidden = true;
     if (els.searchview) els.searchview.hidden = false;
+    els.searchform.hidden = false;
+    els.status.hidden = false;
     els.profile.hidden = true;
     els.credits.hidden = true;
     els.about.hidden = true;
@@ -660,6 +662,8 @@ td.wrapcell { min-width: 12ch; }
     document.title = 'College & Course Explorer';
     els.home.hidden = true;
     if (els.searchview) els.searchview.hidden = false;
+    els.searchform.hidden = false;
+    els.status.hidden = false;
     els.profile.hidden = true; els.credits.hidden = true; els.about.hidden = true; els.resview.hidden = false;
     els.results.textContent = '';
     els.none.hidden = list.length > 0 || !indexReady;
@@ -1147,6 +1151,13 @@ td.wrapcell { min-width: 12ch; }
       showHome();
     });
   }
+  if ($('brandlink')) {
+    $('brandlink').addEventListener('click', function (ev) {
+      ev.preventDefault();
+      clearHash();
+      showHome();
+    });
+  }
   els.q.addEventListener('input', function () { runSearch(false); });
   els.fcountry.addEventListener('change', function () { runSearch(true); });
   els.flevel.addEventListener('change', function () { runSearch(true); });
@@ -1254,6 +1265,8 @@ td.wrapcell { min-width: 12ch; }
       els.whoami.textContent = email;
       els.userbar.hidden = false;
       els.aboutlink.hidden = false;
+      els.searchform.hidden = false;
+      els.status.hidden = false;
       els.home.hidden = false;
       if (els.searchview) els.searchview.hidden = true;
       setStatus('Loading...');
@@ -1286,8 +1299,7 @@ td.wrapcell { min-width: 12ch; }
   function startHosted() {
     var startError = linkError();
     els.aboutlink.setAttribute('href', '#about'); els.aboutlink.parentNode.hidden = true;
-    LOGIN_PARTS.forEach(function (k) { (els[k] || els.status).hidden = true; });
-    els.searchform.hidden = true; els.status.hidden = true;
+    LOGIN_PARTS.forEach(function (k) { if (els[k]) els[k].hidden = true; });
     els.emailform.addEventListener('submit', sendLink);
     els.codeform.addEventListener('submit', verifyCode);
     $('otheremail').addEventListener('click', function () { loginMsg(''); els.sentbox.hidden = true; els.emailform.hidden = false; els.lemail.focus(); });
