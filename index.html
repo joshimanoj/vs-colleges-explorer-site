@@ -363,7 +363,6 @@ td.wrapcell { min-width: 12ch; }
   <section id="aboutview" hidden></section>
 
   <section class="credits" id="credits" hidden></section>
-  <p class="layout-note" id="hostnote" hidden>Free hosting: the database sleeps after about a week without use; if the page can't load, tell Manoj.</p>
 </div>
 
 <script src="config.js"></script>
@@ -413,7 +412,7 @@ td.wrapcell { min-width: 12ch; }
     emailform: $('emailform'), sentbox: $('sentbox'), lemail: $('lemail'),
     sentto: $('sentto'), loginmsg: $('loginmsg'), sendbtn: $('sendbtn'),
     codeform: $('codeform'), lcode: $('lcode'), verifybtn: $('verifybtn'),
-    hostnote: $('hostnote'), about: $('aboutview'), aboutlink: $('aboutlink'),
+    about: $('aboutview'), aboutlink: $('aboutlink'),
     searchview: $('searchview'), backtohome: $('backtohome'), btnGetStarted: $('btn-get-started')
   };
 
@@ -1286,7 +1285,6 @@ td.wrapcell { min-width: 12ch; }
 
   function startHosted() {
     var startError = linkError();
-    els.hostnote.hidden = false;
     els.aboutlink.setAttribute('href', '#about'); els.aboutlink.parentNode.hidden = true;
     LOGIN_PARTS.forEach(function (k) { (els[k] || els.status).hidden = true; });
     els.searchform.hidden = true; els.status.hidden = true;
