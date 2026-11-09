@@ -418,7 +418,7 @@ td.wrapcell { min-width: 12ch; }
 
   var $ = function (id) { return document.getElementById(id); };
   var PROFILE_HASH = /^#i(\d+)(?:\/([a-z]+))?$/;
-  var PTABS = ['overview', 'recognition', 'courses', 'names'];
+  var PTABS = ['overview', 'courses', 'rankings', 'fees', 'aid', 'admissions', 'recognition', 'names'];
   var STATUS_LABEL = { 'no STEM PG': 'No STEM PG courses', 'thin (1-4)': '1-4 STEM PG courses', 'ok (5+)': '5+ STEM PG courses',
                        'intern list': 'On intern list', 'skipped': 'Skipped (decided)' };
   var STATUS_PILL = { 'no STEM PG': 'stemout', 'thin (1-4)': 'stemunc', 'ok (5+)': 'stemin' };
@@ -941,7 +941,7 @@ td.wrapcell { min-width: 12ch; }
         use(rk.source);
         var cls = 'pill rank-' + (rk.source || '').toLowerCase();
         var label = rk.source + ' ' + (rk.year || '') + ' \u00b7 ' + rk.series + ' #' + rk.rank;
-        rstrip.appendChild(h('span', { class: cls, text: label }));
+        rstrip.appendChild(h('button', { type: 'button', class: cls, style: 'cursor: pointer; font: inherit;', text: label, onclick: function () { select('rankings'); } }));
       });
       root.appendChild(rstrip);
     }
@@ -951,66 +951,103 @@ td.wrapcell { min-width: 12ch; }
     PTABS.forEach(function (t) { panels[t] = h('div', { class: 'ppanel', role: 'tabpanel', id: 'ppanel-' + t, hidden: '' }); });
     panels.overview.appendChild(h('div', { class: 'facts' }, facts));
 
-    // Tuition & Aid
+    // TAB: Rankings
+    var rkList = p.rankings || [];
+    var rkBox = h('div');
+    if (!rkList.length) {
+      rkBox.appendChild(h('p', { class: 'muted', text: 'No official NIRF, QS, or THE ranking records stored for this institution.' }));
+    } else {
+      rkBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Official institutional and subject rankings from statutory and global rankers: NIRF 2025 (India Ministry of Education), QS World University Rankings 2027, and Times Higher Education (THE) 2027.' }));
+      var rkRows = rkList.map(function (rk) {
+        use(rk.source);
+        var cls = 'pill rank-' + (rk.source || '').toLowerCase();
+        return h('tr', null,
+          h('td', null, h('span', { class: cls, text: rk.source })),
+          h('td', { class: 'mono', text: rk.year || '' }),
+          h('td', { class: 'wrapcell', text: rk.series || '' }),
+          h('td', { class: 'wrapcell', style: 'font-weight: 600;' }, 'Rank #' + rk.rank));
+      });
+      rkBox.appendChild(table(['Ranker', 'Year', 'Category / Subject Series', 'Rank'], rkRows));
+    }
+    panels.rankings.appendChild(section('Official Rankings', rkBox));
+
+    // TAB: Tuition fees
     var feesList = p.fees || [];
+    var fBox = h('div');
+    if (!feesList.length) {
+      fBox.appendChild(h('p', { class: 'muted', text: 'No regulated tuition fee schedule stored for this institution.' }));
+    } else {
+      fBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Annual tuition fee bands as mandated by state fee regulatory committees, official prospectuses, or national regulatory bodies (CRICOS, DAAD, IPEDS).' }));
+      var fRows = feesList.map(function (f) {
+        var range = '';
+        var sym = f.currency === 'INR' ? '\u20b9' : (f.currency === 'GBP' ? '\u00a3' : (f.currency === 'EUR' ? '\u20ac' : (f.currency || '') + ' '));
+        if (f.min != null && f.max != null) {
+          range = sym + fmtNum(f.min) + ' \u2013 ' + sym + fmtNum(f.max);
+        } else if (f.min != null) {
+          range = sym + fmtNum(f.min);
+        } else if (f.max != null) {
+          range = 'Up to ' + sym + fmtNum(f.max);
+        }
+        if (f.period) range += ' / ' + f.period.replace('_', ' ');
+        var catLabel = f.category ? f.category.replace(/_/g, ' ') : 'General Domestic';
+        return h('tr', null,
+          h('td', { class: 'wrapcell', text: (f.degree_family || '').toUpperCase() }),
+          h('td', { class: 'wrapcell', text: catLabel }),
+          h('td', { class: 'mono', style: 'font-weight: 600;', text: range }));
+      });
+      fBox.appendChild(table(['Degree Family', 'Fee Category / Quota', 'Annual Tuition Range'], fRows));
+      fBox.appendChild(h('p', { class: 'layout-note', text: 'Amounts represent statutory tuition fees and exclude optional hostel, mess, and one-time deposits.' }));
+    }
+    panels.fees.appendChild(section('Regulated Annual Tuition Fees', fBox));
+
+    // TAB: Financial aid
     var aidList = (p.aid_policies && p.aid_policies.length) ? p.aid_policies :
                   ((meta && meta.aid_policies && meta.aid_policies[cc]) ? meta.aid_policies[cc] : []);
-    if (feesList.length || aidList.length) {
-      var aidCard = h('div', { class: 'det-card' });
-      aidCard.appendChild(h('h3', { text: 'Tuition Fees & Financial Aid' }));
-
-      if (feesList.length) {
-        var fRows = feesList.map(function (f) {
-          var range = '';
-          var sym = f.currency === 'INR' ? '\u20b9' : (f.currency === 'GBP' ? '\u00a3' : (f.currency === 'EUR' ? '\u20ac' : (f.currency || '') + ' '));
-          if (f.min != null && f.max != null) {
-            range = sym + fmtNum(f.min) + ' \u2013 ' + sym + fmtNum(f.max);
-          } else if (f.min != null) {
-            range = sym + fmtNum(f.min);
-          } else if (f.max != null) {
-            range = 'Up to ' + sym + fmtNum(f.max);
-          }
-          if (f.period) range += ' / ' + f.period.replace('_', ' ');
-          var catLabel = f.category ? f.category.replace(/_/g, ' ') : 'General Domestic';
-          return h('tr', null,
-            h('td', { class: 'wrapcell', text: (f.degree_family || '').toUpperCase() }),
-            h('td', { class: 'wrapcell', text: catLabel }),
-            h('td', { class: 'mono', text: range }));
-        });
-        aidCard.appendChild(table(['Degree Family', 'Fee Category', 'Annual Tuition'], fRows));
-      }
-
-      if (aidList.length) {
-        var aBox = h('div', { class: 'aid-list', style: feesList.length ? 'margin-top: 14px;' : '' });
-        aBox.appendChild(h('div', { style: 'font-weight: 600; font-size: 0.9rem; color: var(--muted); margin-bottom: 4px;', text: 'Applicable Statutory Aid & Visa Rights' }));
-        aidList.forEach(function (ap) {
-          var val = '';
-          if (ap.amount) {
-            var sym = ap.currency === 'INR' ? '\u20b9' : (ap.currency || '') + ' ';
-            val = sym + fmtNum(ap.amount) + ' / month';
-          } else if (ap.work_rights_months) {
-            val = ap.work_rights_months + '-Month Post-Study Work Visa';
-          }
-          var item = h('div', { class: 'aid-item' },
-            h('div', { class: 'aid-head' },
-              h('span', { class: 'aid-badge', text: ap.benefit ? ap.benefit.replace(/_/g, ' ') : 'Statutory Policy' }),
-              val ? h('b', { style: 'color: var(--text);', text: val }) : null),
-            h('div', { class: 'aid-title', text: ap.name }),
-            ap.eligibility ? h('p', { class: 'aid-sub', text: ap.eligibility }) : null,
-            ap.authority ? h('p', { class: 'coursemeta', text: 'Authority: ' + ap.authority }) : null);
-          aBox.appendChild(item);
-        });
-        aidCard.appendChild(aBox);
-      }
-      panels.overview.appendChild(section('Tuition Fees & Financial Aid', aidCard));
+    var aBox = h('div');
+    if (!aidList.length) {
+      aBox.appendChild(h('p', { class: 'muted', text: 'No statutory financial aid, stipend, or post-study work visa policies recorded for this jurisdiction.' }));
+    } else {
+      aBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Statutory government fellowships, research stipends, and post-study work authorization visa rights applicable in ' + (countryName(cc) || cc) + '.' }));
+      var aListEl = h('div', { class: 'aid-list' });
+      aidList.forEach(function (ap) {
+        var val = '';
+        if (ap.amount) {
+          var sym = ap.currency === 'INR' ? '\u20b9' : (ap.currency || '') + ' ';
+          val = sym + fmtNum(ap.amount) + ' / month';
+        } else if (ap.work_rights_months) {
+          val = ap.work_rights_months + '-Month Post-Study Work Visa';
+        }
+        var item = h('div', { class: 'aid-item' },
+          h('div', { class: 'aid-head' },
+            h('span', { class: 'aid-badge', text: ap.benefit ? ap.benefit.replace(/_/g, ' ') : 'Statutory Policy' }),
+            val ? h('b', { style: 'font-size: 1.05rem; color: var(--text);', text: val }) : null),
+          h('div', { class: 'aid-title', text: ap.name }),
+          ap.degree_family ? h('p', { class: 'coursemeta', text: 'Target Degree: ' + ap.degree_family.toUpperCase() }) : null,
+          ap.eligibility ? h('p', { class: 'aid-sub', style: 'margin-top: 4px;', text: ap.eligibility }) : null,
+          ap.authority ? h('p', { class: 'coursemeta', text: 'Administering Authority: ' + ap.authority }) : null);
+        aListEl.appendChild(item);
+      });
+      aBox.appendChild(aListEl);
     }
+    panels.aid.appendChild(section('Statutory Aid & Work Authorization', aBox));
 
-    // Admission Pathways & Exam Schedules
-    if (p.admission_routes && p.admission_routes.length) {
-      var admCard = h('div', { class: 'det-card' });
-      admCard.appendChild(h('h3', { text: 'Postgraduate Admission Pathways & 2026\u201327 Timeline' }));
+    // TAB: Admission pathways & entrance exams
+    var admRoutes = p.admission_routes || [];
+    var admBox = h('div');
+    var diffExplainer = h('div', { class: 'diff-explainer', style: 'background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.9rem; line-height: 1.5;' },
+      h('div', { style: 'font-weight: 600; margin-bottom: 6px; color: var(--accent);', text: 'Entrance Exams vs. Admission Pathways \u2014 Key Differences' }),
+      h('div', null,
+        h('b', { text: '\u2022 Entrance Exam: ' }),
+        h('span', { text: 'The standardized qualifying aptitude test (e.g. GATE, IIT-JAM, NIMCET, CUET-PG, TANCET, KEA-PGCET).' })),
+      h('div', { style: 'margin-top: 4px;' },
+        h('b', { text: '\u2022 Admission Pathway: ' }),
+        h('span', { text: 'The complete multi-stage admission route from the exam score through centralized counselling, seat matrix choice filling, and official quota allocation (e.g. GATE \u2192 CCMT Counselling \u2192 Seat Allotment).' })));
+    admBox.appendChild(diffExplainer);
 
-      p.admission_routes.forEach(function (ar) {
+    if (!admRoutes.length) {
+      admBox.appendChild(h('p', { class: 'muted', text: 'No centralized admission routes stored for this institution. Direct institutional admission, university departmental tests, or overseas application portals apply.' }));
+    } else {
+      admRoutes.forEach(function (ar) {
         var rItem = h('div', { class: 'route-item' });
         var headLine = (ar.degree_family || '').toUpperCase() + (ar.quota ? ' \u2014 ' + ar.quota : '');
         rItem.appendChild(h('div', { class: 'route-title', text: headLine }));
@@ -1041,10 +1078,10 @@ td.wrapcell { min-width: 12ch; }
           });
           rItem.appendChild(schWrap);
         }
-        admCard.appendChild(rItem);
+        admBox.appendChild(rItem);
       });
-      panels.overview.appendChild(section('Admission Pathways & Entrance Exams', admCard));
     }
+    panels.admissions.appendChild(section('Admission Pathways & 2026\u201327 Timeline', admBox));
     // warnings
     if (p.warnings && p.warnings.length) {
       var wb = h('div', { class: 'warnbox', role: 'alert' }, h('h2', { text: 'Warning' }));
@@ -1169,8 +1206,14 @@ td.wrapcell { min-width: 12ch; }
     }
 
     // tab bar
-    var tabDefs = [['overview', 'Overview'], ['recognition', 'Recognition (' + fmtNum(nRec) + ')'], ['names', 'Names & data']];
-    if (HOSTED) tabDefs.splice(2, 0, ['courses', coursesLabel(p)]);
+    var tabDefs = [['overview', 'Overview']];
+    if (HOSTED) tabDefs.push(['courses', coursesLabel(p)]);
+    tabDefs.push(['rankings', 'Rankings' + (rkList.length ? ' (' + rkList.length + ')' : '')]);
+    tabDefs.push(['fees', 'Tuition Fees' + (feesList.length ? ' (' + feesList.length + ')' : '')]);
+    tabDefs.push(['aid', 'Financial Aid' + (aidList.length ? ' (' + aidList.length + ')' : '')]);
+    tabDefs.push(['admissions', 'Admission Pathways' + (admRoutes.length ? ' (' + admRoutes.length + ')' : '')]);
+    tabDefs.push(['recognition', 'Recognition (' + fmtNum(nRec) + ')']);
+    tabDefs.push(['names', 'Names & data']);
     var tabBar = h('nav', { class: 'ptabs', role: 'tablist', 'aria-label': 'College details' });
     var tabBtns = {};
     var current = null;
