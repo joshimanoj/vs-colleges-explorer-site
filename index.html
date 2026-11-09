@@ -241,6 +241,26 @@ td.wrapcell { min-width: 12ch; }
 .pill.stemunc { background: var(--m-fuzzy-bg); color: var(--m-fuzzy-fg); }
 .pill.online { background: var(--m-llm-bg, var(--m-fuzzy-bg)); color: var(--m-llm-fg, var(--m-fuzzy-fg)); margin-left: 6px; }
 .coursemeta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+.rankings-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; }
+.pill.rank-nirf { background: #352613; color: #f7ca7a; border: 1px solid #6b4d24; padding: 4px 10px; font-weight: 600; border-radius: 6px; font-size: 0.85rem; }
+.pill.rank-qs { background: #132736; color: #87cfff; border: 1px solid #234d6c; padding: 4px 10px; font-weight: 600; border-radius: 6px; font-size: 0.85rem; }
+.pill.rank-the { background: #311827; color: #f896ca; border: 1px solid #5e2e4b; padding: 4px 10px; font-weight: 600; border-radius: 6px; font-size: 0.85rem; }
+.det-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-top: 14px; }
+.det-card h3 { margin: 0 0 10px; font-size: 1.05rem; color: var(--text); border: 0; padding: 0; }
+.aid-list { display: flex; flex-direction: column; gap: 8px; }
+.aid-item { background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+.aid-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+.aid-badge { background: #132e22; color: #87e0b2; border: 1px solid #24573f; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+.aid-title { font-weight: 600; font-size: 0.95rem; }
+.aid-sub { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+.route-item { background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 10px; }
+.route-item:last-child { margin-bottom: 0; }
+.route-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; color: var(--accent); }
+.pipeline-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+.pipeline-step { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 0.85rem; display: inline-flex; gap: 4px; align-items: center; }
+.pipeline-arrow { color: var(--muted); font-size: 1rem; font-weight: bold; }
+.schedule-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.schedule-chip { background: var(--accent-soft); color: var(--accent); border-radius: 4px; padding: 3px 8px; font-size: 0.8rem; border: 1px solid var(--border); }
 #profile { min-width: 0; max-width: 100%; }
 #checkview .tablewrap { margin-top: 12px; }
 #checkview td.num { text-align: right; white-space: nowrap; }
@@ -356,9 +376,9 @@ td.wrapcell { min-width: 12ch; }
       <ul class="results" id="results" role="listbox" aria-label="Search results"></ul>
       <p class="empty" id="noresults" hidden>No match. Try fewer words, or another spelling.</p>
     </section>
-  </section>
 
-  <article id="profile" hidden></article>
+    <article id="profile" hidden></article>
+  </section>
 
   <section id="aboutview" hidden></section>
 
@@ -812,7 +832,9 @@ td.wrapcell { min-width: 12ch; }
   function showProfile(id, tab) {
     searchSeq++;
     els.home.hidden = true;
-    if (els.searchview) els.searchview.hidden = true;
+    if (els.searchview) els.searchview.hidden = false;
+    els.searchform.hidden = false;
+    els.status.hidden = false;
     els.resview.hidden = true; els.credits.hidden = true; els.about.hidden = true; els.profile.hidden = false;
     if (profileUI && profileUI.id === id && currentId === id) { profileUI.select(tab); return; }   // same college: only the tab changes
     profileUI = null;
@@ -820,26 +842,22 @@ td.wrapcell { min-width: 12ch; }
     els.profile.textContent = '';
     els.profile.appendChild(h('p', { class: 'loading', text: 'Loading institution...' }));
     setStatus('');
-    window.scrollTo(0, 0);
     currentId = id;
     if (!meta) return; // loadAll calls route() again once meta is ready
     getProfile(id).then(function (p) {
       if (currentId !== id) return;
       if (profileUI) return;
-      if (!p) { els.profile.textContent = ''; els.profile.appendChild(h('p', { text: 'No institution with this ID.' })); backButton(); return; }
+      if (!p) { els.profile.textContent = ''; els.profile.appendChild(h('p', { text: 'No institution with this ID.' })); return; }
       renderProfile(p);
     }).catch(function (err) {
       if (err && err.handled) return;
       els.profile.textContent = '';
       els.profile.appendChild(h('p', { text: 'Could not load this institution. (' + err.message + ')' }));
-      backButton();
     });
   }
 
   var wantTab = null;   // tab named in the URL when the profile was requested
-  function backButton() {
-    els.profile.insertBefore(h('button', { type: 'button', class: 'back', text: 'Back to search', onclick: goBackFromProfile }), els.profile.firstChild);
-  }
+  function backButton() {}
 
   function section(title, node) {
     return h('section', null, h('h2', { text: title }), node);
@@ -909,18 +927,124 @@ td.wrapcell { min-width: 12ch; }
     if (F.website_url.value) facts.push(h('span', null, h('b', { text: 'Website' }), extLink(F.website_url.value, F.website_url.value.replace(/^https?:\/\//i, '').replace(/\/$/, ''))));
     if (F.short_name.value) facts.push(h('span', null, h('b', { text: 'Short name' }), F.short_name.value));
 
-    root.appendChild(h('button', { type: 'button', class: 'back', text: 'Back to search', onclick: goBackFromProfile }));
     var whereLine = [place, cc && countryName(cc)].filter(Boolean).join(', ');
     root.appendChild(h('header', { class: 'head' },
       h('h1', { text: disp }),
       canon && canon !== disp ? h('p', { class: 'sub', text: 'Official name: ' + canon }) : null,
       whereLine ? h('p', { class: 'sub where', text: whereLine }) : null,
       kind ? h('p', { class: 'sub', text: kind }) : null));
+
+    // Official rankings strip
+    if (p.rankings && p.rankings.length) {
+      var rstrip = h('div', { class: 'rankings-strip' });
+      p.rankings.forEach(function (rk) {
+        use(rk.source);
+        var cls = 'pill rank-' + (rk.source || '').toLowerCase();
+        var label = rk.source + ' ' + (rk.year || '') + ' \u00b7 ' + rk.series + ' #' + rk.rank;
+        rstrip.appendChild(h('span', { class: cls, text: label }));
+      });
+      root.appendChild(rstrip);
+    }
     document.title = disp + ' - College & Course Explorer';
 
     var panels = {};
     PTABS.forEach(function (t) { panels[t] = h('div', { class: 'ppanel', role: 'tabpanel', id: 'ppanel-' + t, hidden: '' }); });
     panels.overview.appendChild(h('div', { class: 'facts' }, facts));
+
+    // Tuition & Aid
+    var feesList = p.fees || [];
+    var aidList = (p.aid_policies && p.aid_policies.length) ? p.aid_policies :
+                  ((meta && meta.aid_policies && meta.aid_policies[cc]) ? meta.aid_policies[cc] : []);
+    if (feesList.length || aidList.length) {
+      var aidCard = h('div', { class: 'det-card' });
+      aidCard.appendChild(h('h3', { text: 'Tuition Fees & Financial Aid' }));
+
+      if (feesList.length) {
+        var fRows = feesList.map(function (f) {
+          var range = '';
+          var sym = f.currency === 'INR' ? '\u20b9' : (f.currency === 'GBP' ? '\u00a3' : (f.currency === 'EUR' ? '\u20ac' : (f.currency || '') + ' '));
+          if (f.min != null && f.max != null) {
+            range = sym + fmtNum(f.min) + ' \u2013 ' + sym + fmtNum(f.max);
+          } else if (f.min != null) {
+            range = sym + fmtNum(f.min);
+          } else if (f.max != null) {
+            range = 'Up to ' + sym + fmtNum(f.max);
+          }
+          if (f.period) range += ' / ' + f.period.replace('_', ' ');
+          var catLabel = f.category ? f.category.replace(/_/g, ' ') : 'General Domestic';
+          return h('tr', null,
+            h('td', { class: 'wrapcell', text: (f.degree_family || '').toUpperCase() }),
+            h('td', { class: 'wrapcell', text: catLabel }),
+            h('td', { class: 'mono', text: range }));
+        });
+        aidCard.appendChild(table(['Degree Family', 'Fee Category', 'Annual Tuition'], fRows));
+      }
+
+      if (aidList.length) {
+        var aBox = h('div', { class: 'aid-list', style: feesList.length ? 'margin-top: 14px;' : '' });
+        aBox.appendChild(h('div', { style: 'font-weight: 600; font-size: 0.9rem; color: var(--muted); margin-bottom: 4px;', text: 'Applicable Statutory Aid & Visa Rights' }));
+        aidList.forEach(function (ap) {
+          var val = '';
+          if (ap.amount) {
+            var sym = ap.currency === 'INR' ? '\u20b9' : (ap.currency || '') + ' ';
+            val = sym + fmtNum(ap.amount) + ' / month';
+          } else if (ap.work_rights_months) {
+            val = ap.work_rights_months + '-Month Post-Study Work Visa';
+          }
+          var item = h('div', { class: 'aid-item' },
+            h('div', { class: 'aid-head' },
+              h('span', { class: 'aid-badge', text: ap.benefit ? ap.benefit.replace(/_/g, ' ') : 'Statutory Policy' }),
+              val ? h('b', { style: 'color: var(--text);', text: val }) : null),
+            h('div', { class: 'aid-title', text: ap.name }),
+            ap.eligibility ? h('p', { class: 'aid-sub', text: ap.eligibility }) : null,
+            ap.authority ? h('p', { class: 'coursemeta', text: 'Authority: ' + ap.authority }) : null);
+          aBox.appendChild(item);
+        });
+        aidCard.appendChild(aBox);
+      }
+      panels.overview.appendChild(section('Tuition Fees & Financial Aid', aidCard));
+    }
+
+    // Admission Pathways & Exam Schedules
+    if (p.admission_routes && p.admission_routes.length) {
+      var admCard = h('div', { class: 'det-card' });
+      admCard.appendChild(h('h3', { text: 'Postgraduate Admission Pathways & 2026\u201327 Timeline' }));
+
+      p.admission_routes.forEach(function (ar) {
+        var rItem = h('div', { class: 'route-item' });
+        var headLine = (ar.degree_family || '').toUpperCase() + (ar.quota ? ' \u2014 ' + ar.quota : '');
+        rItem.appendChild(h('div', { class: 'route-title', text: headLine }));
+
+        var pflow = h('div', { class: 'pipeline-flow' });
+        (ar.pipeline || []).forEach(function (ch, idx) {
+          if (idx > 0) pflow.appendChild(h('span', { class: 'pipeline-arrow', text: '\u2192' }));
+          var roleTag = ch.role ? ' (' + ch.role.replace(/_/g, ' ') + ')' : '';
+          var chEl = h('div', { class: 'pipeline-step' },
+            ch.url ? extLink(ch.url, ch.channel_name) : h('span', { text: ch.channel_name }),
+            h('span', { class: 'muted', text: roleTag }));
+          pflow.appendChild(chEl);
+        });
+        rItem.appendChild(pflow);
+
+        // Schedules
+        var allSchedules = [];
+        (ar.pipeline || []).forEach(function (ch) {
+          (ch.schedules || []).forEach(function (sc) {
+            allSchedules.push({ channel: ch.channel_name, event: sc.event, start: sc.start_date, end: sc.end_date });
+          });
+        });
+        if (allSchedules.length) {
+          var schWrap = h('div', { class: 'schedule-chips' });
+          allSchedules.forEach(function (s) {
+            var dt = fmtDate(s.start) + (s.end ? ' \u2013 ' + fmtDate(s.end) : '');
+            schWrap.appendChild(h('span', { class: 'schedule-chip', text: s.channel + ': ' + s.event + ' (' + dt + ')' }));
+          });
+          rItem.appendChild(schWrap);
+        }
+        admCard.appendChild(rItem);
+      });
+      panels.overview.appendChild(section('Admission Pathways & Entrance Exams', admCard));
+    }
     // warnings
     if (p.warnings && p.warnings.length) {
       var wb = h('div', { class: 'warnbox', role: 'alert' }, h('h2', { text: 'Warning' }));
