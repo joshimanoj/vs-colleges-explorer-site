@@ -261,6 +261,17 @@ td.wrapcell { min-width: 12ch; }
 .pipeline-arrow { color: var(--muted); font-size: 1rem; font-weight: bold; }
 .schedule-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .schedule-chip { background: var(--accent-soft); color: var(--accent); border-radius: 4px; padding: 3px 8px; font-size: 0.8rem; border: 1px solid var(--border); }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.kpi-card { background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.kpi-card .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+.kpi-card .kpi-val { font-size: 1.35rem; font-weight: 700; color: var(--accent); }
+.kpi-card .kpi-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+.work-card { background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+.work-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+.badge-stem { background: #132e22; color: #87e0b2; border: 1px solid #24573f; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+.badge-dli { background: #1a2d42; color: #7cb7f5; border: 1px solid #284e75; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; font-family: var(--mono); }
+.badge-sponsor { background: #322513; color: #f5b971; border: 1px solid #63451e; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; }
+.badge-season { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
 #profile { min-width: 0; max-width: 100%; }
 #checkview .tablewrap { margin-top: 12px; }
 #checkview td.num { text-align: right; white-space: nowrap; }
@@ -418,7 +429,7 @@ td.wrapcell { min-width: 12ch; }
 
   var $ = function (id) { return document.getElementById(id); };
   var PROFILE_HASH = /^#i(\d+)(?:\/([a-z]+))?$/;
-  var PTABS = ['overview', 'courses', 'rankings', 'fees', 'aid', 'admissions', 'recognition', 'names'];
+  var PTABS = ['overview', 'courses', 'rankings', 'fees', 'aid', 'work_rights', 'placements', 'cycles', 'admissions', 'recognition', 'names'];
   var STATUS_LABEL = { 'no STEM PG': 'No STEM PG courses', 'thin (1-4)': '1-4 STEM PG courses', 'ok (5+)': '5+ STEM PG courses',
                        'intern list': 'On intern list', 'skipped': 'Skipped (decided)' };
   var STATUS_PILL = { 'no STEM PG': 'stemout', 'thin (1-4)': 'stemunc', 'ok (5+)': 'stemin' };
@@ -1031,6 +1042,109 @@ td.wrapcell { min-width: 12ch; }
     }
     panels.aid.appendChild(section('Statutory Aid & Work Authorization', aBox));
 
+    // TAB: Post-Study Work Rights
+    var wrList = p.work_rights || [];
+    var wrBox = h('div');
+    if (!wrList.length) {
+      wrBox.appendChild(h('p', { class: 'muted', text: 'No statutory post-study work authorization or visa rights recorded for this institution.' }));
+    } else {
+      wrBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Official post-study work rights, visa durations, Designated Learning Institution (DLI) registration, and UKVI sponsor tiers for international graduates.' }));
+      var wrListEl = h('div', { class: 'aid-list' });
+      wrList.forEach(function (wr) {
+        var durationText = wr.work_rights_months ? wr.work_rights_months + ' Months Work Rights' : '';
+        var headEl = h('div', { class: 'work-head' });
+        headEl.appendChild(h('div', { style: 'display: flex; gap: 6px; align-items: center; flex-wrap: wrap;' },
+          wr.stem_opt_eligible ? h('span', { class: 'badge-stem', text: 'STEM OPT Extension' }) : null,
+          wr.dli_number ? h('span', { class: 'badge-dli', text: 'DLI: ' + wr.dli_number }) : null,
+          wr.ukvi_tier ? h('span', { class: 'badge-sponsor', text: 'UKVI: ' + wr.ukvi_tier.replace(/_/g, ' ') }) : null));
+        if (durationText) headEl.appendChild(h('b', { style: 'font-size: 1.05rem; color: var(--accent);', text: durationText }));
+        
+        var card = h('div', { class: 'work-card' },
+          headEl,
+          h('div', { class: 'aid-title', text: (countryName(wr.country_code) || wr.country_code) + ' Postgraduate Work Rights' }),
+          wr.eligibility ? h('p', { class: 'aid-sub', style: 'margin-top: 6px;', text: wr.eligibility }) : null,
+          wr.url ? h('p', { class: 'coursemeta', style: 'margin-top: 6px;' }, extLink(wr.url, 'Official Immigration / Visa Policy Guidelines \u2197')) : null);
+        wrListEl.appendChild(card);
+      });
+      wrBox.appendChild(wrListEl);
+    }
+    panels.work_rights.appendChild(section('Post-Study Work Rights & Visa Regulations', wrBox));
+
+    // TAB: Placements & Median Salary
+    var plList = p.placements || [];
+    var plBox = h('div');
+    if (!plList.length) {
+      plBox.appendChild(h('p', { class: 'muted', text: 'No audited placement outcomes or statutory median salary disclosures stored for this institution.' }));
+    } else {
+      plBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Audited statutory postgraduate placement outcomes, cohort sizes, employment rates, and median salaries from official disclosures (NIRF DCS Section 3 / U.S. College Scorecard).' }));
+      
+      var latestPl = plList[0];
+      var kpiGrid = h('div', { class: 'kpi-grid' });
+      if (latestPl.median_salary) {
+        var salFormatted = '';
+        if (latestPl.currency === 'INR') {
+          salFormatted = '\u20b9' + (latestPl.median_salary / 100000).toFixed(1) + ' LPA';
+        } else if (latestPl.currency === 'USD') {
+          salFormatted = '$' + fmtNum(latestPl.median_salary) + ' / yr';
+        } else {
+          salFormatted = latestPl.currency + ' ' + fmtNum(latestPl.median_salary);
+        }
+        kpiGrid.appendChild(h('div', { class: 'kpi-card' },
+          h('div', { class: 'kpi-label', text: 'Median Starting Salary' }),
+          h('div', { class: 'kpi-val', text: salFormatted }),
+          h('div', { class: 'kpi-sub', text: latestPl.academic_year + ' Graduating Cohort' })));
+      }
+      if (latestPl.placement_rate_pct != null) {
+        kpiGrid.appendChild(h('div', { class: 'kpi-card' },
+          h('div', { class: 'kpi-label', text: 'Placement Rate' }),
+          h('div', { class: 'kpi-val', text: latestPl.placement_rate_pct + '%' }),
+          h('div', { class: 'kpi-sub', text: 'Campus Recruitment Rate' })));
+      }
+      if (latestPl.graduating_cohort) {
+        kpiGrid.appendChild(h('div', { class: 'kpi-card' },
+          h('div', { class: 'kpi-label', text: 'Graduating Cohort' }),
+          h('div', { class: 'kpi-val', text: fmtNum(latestPl.graduating_cohort) }),
+          h('div', { class: 'kpi-sub', text: latestPl.placed_cohort ? fmtNum(latestPl.placed_cohort) + ' Students Placed' : 'Total Students' })));
+      }
+      plBox.appendChild(kpiGrid);
+
+      var plRows = plList.map(function (pl) {
+        var sal = pl.median_salary ? (pl.currency === 'INR' ? '\u20b9' + fmtNum(pl.median_salary) : '$' + fmtNum(pl.median_salary)) : '\u2014';
+        var srcTag = pl.source_type === 'nirf_dcs' ? 'NIRF DCS Sec 3' : (pl.source_type === 'college_scorecard' ? 'College Scorecard' : pl.source_type);
+        return h('tr', null,
+          h('td', { class: 'wrapcell', text: (pl.academic_level || 'pg_2yr').toUpperCase().replace('_', ' ') }),
+          h('td', { class: 'mono', text: pl.academic_year || '' }),
+          h('td', { class: 'mono', style: 'text-align: right;', text: pl.graduating_cohort ? fmtNum(pl.graduating_cohort) : '\u2014' }),
+          h('td', { class: 'mono', style: 'text-align: right;', text: pl.placed_cohort ? fmtNum(pl.placed_cohort) : '\u2014' }),
+          h('td', { class: 'mono', style: 'text-align: right;', text: pl.placement_rate_pct != null ? pl.placement_rate_pct + '%' : '\u2014' }),
+          h('td', { class: 'mono', style: 'font-weight: 600; text-align: right;', text: sal }),
+          h('td', { class: 'wrapcell', text: srcTag }));
+      });
+      plBox.appendChild(table(['Level / Program', 'Cohort Year', 'Graduated', 'Placed', 'Placement %', 'Median Salary', 'Data Source'], plRows));
+    }
+    panels.placements.appendChild(section('Placement Outcomes & Median Salary', plBox));
+
+    // TAB: Intake Cycles & Application Deadlines
+    var cyList = p.admission_cycles || [];
+    var cyBox = h('div');
+    if (!cyList.length) {
+      cyBox.appendChild(h('p', { class: 'muted', text: 'No admission cycles or application deadline calendars recorded for this institution.' }));
+    } else {
+      cyBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Admissions intake terms, priority scholarship deadlines, and regular application cutoff dates.' }));
+      var cyRows = cyList.map(function (cy) {
+        return h('tr', null,
+          h('td', null, h('span', { class: 'badge-season', text: cy.term_season })),
+          h('td', { class: 'wrapcell', text: (cy.degree_family || '').toUpperCase() }),
+          h('td', { class: 'mono', text: cy.academic_year || '' }),
+          h('td', { class: 'mono', text: cy.application_open_date ? fmtDate(cy.application_open_date) : '\u2014' }),
+          h('td', { class: 'mono', text: cy.priority_scholarship_deadline ? fmtDate(cy.priority_scholarship_deadline) : '\u2014' }),
+          h('td', { class: 'mono', style: 'font-weight: 600; color: var(--accent);', text: cy.regular_deadline ? fmtDate(cy.regular_deadline) : '\u2014' }),
+          h('td', { class: 'mono', text: cy.term_start_month || '\u2014' }));
+      });
+      cyBox.appendChild(table(['Intake Season', 'Degree Family', 'Academic Year', 'Application Opens', 'Priority / Scholarship', 'Regular Deadline', 'Classes Begin'], cyRows));
+    }
+    panels.cycles.appendChild(section('Intake Cycles & Application Deadlines', cyBox));
+
     // TAB: Admission pathways & entrance exams
     var admRoutes = p.admission_routes || [];
     var admBox = h('div');
@@ -1211,6 +1325,9 @@ td.wrapcell { min-width: 12ch; }
     tabDefs.push(['rankings', 'Rankings' + (rkList.length ? ' (' + rkList.length + ')' : '')]);
     tabDefs.push(['fees', 'Tuition Fees' + (feesList.length ? ' (' + feesList.length + ')' : '')]);
     tabDefs.push(['aid', 'Financial Aid' + (aidList.length ? ' (' + aidList.length + ')' : '')]);
+    tabDefs.push(['work_rights', 'Work Rights' + (wrList.length ? ' (' + wrList.length + ')' : '')]);
+    tabDefs.push(['placements', 'Placements' + (plList.length ? ' (' + plList.length + ')' : '')]);
+    tabDefs.push(['cycles', 'Intake Cycles' + (cyList.length ? ' (' + cyList.length + ')' : '')]);
     tabDefs.push(['admissions', 'Admission Pathways' + (admRoutes.length ? ' (' + admRoutes.length + ')' : '')]);
     tabDefs.push(['recognition', 'Recognition (' + fmtNum(nRec) + ')']);
     tabDefs.push(['names', 'Names & data']);
