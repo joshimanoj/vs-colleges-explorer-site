@@ -1186,6 +1186,50 @@ td.wrapcell { min-width: 12ch; }
     var admBox = h('div');
     var pathways = p.admission_pathways || [];
 
+    var EXAM_DISPLAY = {
+      'GRE_GENERAL': 'GRE General Test',
+      'GRE_SUBJECT': 'GRE Subject Test',
+      'TOEFL_IBT': 'TOEFL iBT',
+      'IELTS_ACADEMIC': 'IELTS Academic',
+      'DUOLINGO_DET': 'Duolingo English Test (DET)',
+      'PTE_ACADEMIC': 'PTE Academic',
+      'GATE': 'GATE',
+      'GATE_CS': 'GATE (Computer Science)',
+      'GATE_DA': 'GATE (Data Science & AI)',
+      'GATE_EC': 'GATE (Electronics)',
+      'GATE_EE': 'GATE (Electrical)',
+      'GATE_ME': 'GATE (Mechanical)',
+      'GATE_CE': 'GATE (Civil)',
+      'GATE_CH': 'GATE (Chemical)',
+      'GATE_IN': 'GATE (Instrumentation)',
+      'CUET_PG': 'CUET PG',
+      'IIT_JAM': 'IIT JAM',
+      'CAT': 'CAT',
+      'GMAT': 'GMAT',
+      'STATE_POSTGRADUATE_CET': 'State PG CET',
+      'INSTITUTE_HIGHER_DEGREE_TEST': 'Institute Higher Degree Test',
+      'INSTITUTE_MANAGEMENT_MERIT': 'Institute Management Merit Channel',
+      'SPONSORED_WRITTEN_TEST': 'Sponsored Category Written Test',
+      'DIRECT_INSTITUTE_SELF_SPONSORED_TEST': 'Institute Self-Sponsored Written Test',
+      'CSIR_NET': 'CSIR-UGC NET / JRF',
+      'CSIR_UGC_NET': 'CSIR-UGC NET / JRF',
+      'CSIR_UGC_NET_JRF': 'CSIR-UGC NET / JRF',
+      'UGC_NET': 'UGC NET / JRF',
+      'STATE_LEVEL_RESEARCH_TEST': 'State Research Eligibility Test (PET / RET)',
+      'GATE_FOR_INDIAN_APPLICANTS': 'GATE (recognized for Indian degree holders)',
+      'APS_CERTIFICATE_INDIA': 'APS Certificate (German Academic Evaluation Centre - India)'
+    };
+    function fmtExamName(code) {
+      if (!code) return '';
+      if (EXAM_DISPLAY[code]) return EXAM_DISPLAY[code];
+      return code.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, function (l) { return l.toUpperCase(); });
+    }
+
+    var ENGLISH_EXAM_CODES = ['ENGLISH_LANGUAGE_PROFICIENCY', 'TOEFL_IBT', 'IELTS_ACADEMIC', 'DUOLINGO_DET', 'PTE_ACADEMIC'];
+    function isEnglishExam(code) {
+      return ENGLISH_EXAM_CODES.indexOf(code) >= 0;
+    }
+
     if (pathways.length) {
       pathways.forEach(function (pw) {
         var pwCard = h('div', { class: 'pathway-card' });
@@ -1195,39 +1239,115 @@ td.wrapcell { min-width: 12ch; }
           h('div', { class: 'q-title', text: '1. Which exams do I need to take?' }));
         
         var q1Content = h('div', { style: 'font-size: 0.9rem; line-height: 1.6;' });
-        if (pw.mandatory_exams && pw.mandatory_exams.length) {
-          var mandList = pw.mandatory_exams.map(function (me) { return me.replace(/_/g, ' '); }).join(', ');
-          q1Content.appendChild(h('div', { style: 'margin-bottom: 6px;' },
-            h('span', { text: 'Mandatory Requirements: ' + mandList })));
+
+        // Part A: Academic & Entrance Tests (Main Evaluative Exams)
+        var acadBlock = h('div', { style: 'margin-bottom: 12px;' });
+        acadBlock.appendChild(h('div', { class: 'coursemeta', style: 'margin-bottom: 6px;', text: 'Academic & Entrance Tests (Main Evaluative Exams):' }));
+
+        var hasAcad = false;
+
+        // 1. GRE status
+        if (pw.gre_requirement_status && pw.gre_requirement_status !== 'NOT_REQUIRED') {
+          hasAcad = true;
+          var greText = '';
+          var hasSubject = (pw.optional_exams || []).indexOf('GRE_SUBJECT') >= 0;
+          if (pw.gre_requirement_status === 'REQUIRED') {
+            greText = 'GRE General Test is required for all applicants' + (hasSubject ? ' (GRE Subject Test is required or strongly recommended for select departments such as Physics, Mathematics, and Chemistry).' : '.');
+          } else if (pw.gre_requirement_status === 'RECOMMENDED') {
+            greText = 'GRE General Test is recommended / strongly encouraged. High quantitative percentiles strengthen the competitive application' + (hasSubject ? ' (GRE Subject Test is optional or department-specific).' : '.');
+          } else if (pw.gre_requirement_status === 'OPTIONAL') {
+            greText = 'GRE General Test is optional (not mandatory; considered holistically if submitted)' + (hasSubject ? '. GRE Subject Test is optional / department-specific.' : '.');
+          }
+          if (greText) {
+            acadBlock.appendChild(h('div', { style: 'margin-bottom: 4px;' }, h('span', { text: '\u2022 ' + greText })));
+          }
         }
 
-        if (pw.alternative_exam_groups && pw.alternative_exam_groups.length) {
-          pw.alternative_exam_groups.forEach(function (ag) {
-            var examsStr = (ag.accepted_exams || []).map(function (ae) { return ae.replace(/_/g, ' '); }).join(' or ');
-            var agEl = h('div', { style: 'margin-bottom: 6px;' },
-              h('span', { text: ag.group_name + ' (' + (ag.requirement_type || 'ONE OF') + '): ' + examsStr }));
-            if (ag.notes) {
-              agEl.appendChild(h('div', { class: 'coursemeta', text: ag.notes }));
+        // 2. Non-English Mandatory Exams
+        var mandAcad = (pw.mandatory_exams || []).filter(function (e) { return !isEnglishExam(e); });
+        if (mandAcad.length) {
+          hasAcad = true;
+          var mandStr = mandAcad.map(fmtExamName).join(', ');
+          acadBlock.appendChild(h('div', { style: 'margin-bottom: 4px;' },
+            h('span', { text: '\u2022 Required Entrance Exam: ' + mandStr })));
+        }
+
+        // 3. Non-English Alternative Groups
+        (pw.alternative_exam_groups || []).forEach(function (ag) {
+          var nonEng = (ag.accepted_exams || []).filter(function (e) { return !isEnglishExam(e); });
+          if (nonEng.length) {
+            hasAcad = true;
+            var agStr = nonEng.map(fmtExamName).join(' or ');
+            var agText = '\u2022 ' + ag.group_name + ' (Any one required): ' + agStr;
+            if (ag.notes) agText += ' \u2014 ' + ag.notes;
+            acadBlock.appendChild(h('div', { style: 'margin-bottom: 4px;' }, h('span', { text: agText })));
+          }
+        });
+
+        // 4. Non-English Optional Exams (excluding GRE if already described)
+        var optAcad = (pw.optional_exams || []).filter(function (e) {
+          return !isEnglishExam(e) && e !== 'GRE_GENERAL' && e !== 'GRE_SUBJECT';
+        });
+        if (optAcad.length) {
+          hasAcad = true;
+          var optStr = optAcad.map(fmtExamName).join(', ');
+          acadBlock.appendChild(h('div', { style: 'margin-bottom: 4px;' },
+            h('span', { text: '\u2022 Additional Evaluative Tests: ' + optStr })));
+        }
+
+        if (!hasAcad) {
+          acadBlock.appendChild(h('div', { style: 'margin-bottom: 4px;' },
+            h('span', { text: '\u2022 GRE: Not required for admission. Selection is based on undergraduate academic record, letters of recommendation, and statement of purpose.' })));
+        }
+        q1Content.appendChild(acadBlock);
+
+        // Part B: English Language Proficiency (International Applicants)
+        var engBlock = h('div', { style: 'margin-top: 10px;' });
+        engBlock.appendChild(h('div', { class: 'coursemeta', style: 'margin-bottom: 6px;', text: 'English Language Proficiency (International Applicants):' }));
+
+        var engTests = [];
+        (pw.alternative_exam_groups || []).forEach(function (ag) {
+          (ag.accepted_exams || []).forEach(function (e) {
+            if (isEnglishExam(e) && e !== 'ENGLISH_LANGUAGE_PROFICIENCY') {
+              if (engTests.indexOf(e) < 0) engTests.push(e);
             }
-            q1Content.appendChild(agEl);
           });
+        });
+        if (!engTests.length && pw.english_test_min_score) {
+          for (var et in pw.english_test_min_score) {
+            if (engTests.indexOf(et) < 0) engTests.push(et);
+          }
         }
-
-        if (pw.optional_exams && pw.optional_exams.length) {
-          var optList = pw.optional_exams.map(function (oe) { return oe.replace(/_/g, ' '); }).join(', ');
-          q1Content.appendChild(h('div', { style: 'margin-bottom: 6px;' },
-            h('span', { text: 'Optional / Additional Tests: ' + optList })));
+        if (engTests.length) {
+          var engTestsFormatted = engTests.map(fmtExamName).join(', ');
+          engBlock.appendChild(h('div', { style: 'margin-bottom: 4px;' },
+            h('span', { text: 'Required for applicants whose prior education was not delivered in English. Any one approved test meeting the institutional threshold satisfies this condition:' })));
+          engBlock.appendChild(h('div', { style: 'margin-left: 12px; margin-bottom: 4px;' },
+            h('span', { text: 'Accepted Tests: ' + engTestsFormatted })));
+        } else if (pw.mandatory_exams && pw.mandatory_exams.indexOf('ENGLISH_LANGUAGE_PROFICIENCY') >= 0) {
+          engBlock.appendChild(h('div', { style: 'margin-bottom: 4px;' },
+            h('span', { text: 'Required for international applicants (TOEFL iBT, IELTS Academic, or PTE Academic).' })));
+        } else {
+          engBlock.appendChild(h('div', { style: 'margin-bottom: 4px;' },
+            h('span', { text: 'English test scores are not typically required for domestic / national admissions.' })));
         }
+        q1Content.appendChild(engBlock);
+        q1.appendChild(q1Content);
+        pwCard.appendChild(q1);
 
+        // Separate Section: Exemptions & Waivers
         if (pw.exemption_criteria && pw.exemption_criteria.length) {
+          var exBlock = h('div', { class: 'q-block' },
+            h('div', { class: 'q-title', text: 'Language Test Exemptions & Waivers' }));
+          var exIntro = h('p', { style: 'font-size: 0.9rem; line-height: 1.5; margin-bottom: 6px;', text: 'Applicants meeting any of the following conditions are eligible for a waiver of the English language testing requirement:' });
           var exList = h('ul', { style: 'margin: 4px 0 0 18px; padding: 0; font-size: 0.85rem; color: var(--muted); line-height: 1.5;' });
           pw.exemption_criteria.forEach(function (ex) {
             exList.appendChild(h('li', { text: ex }));
           });
-          q1Content.appendChild(h('div', { style: 'margin-top: 6px;' }, h('span', { text: 'Exemptions & Waivers:' }), exList));
+          exBlock.appendChild(exIntro);
+          exBlock.appendChild(exList);
+          pwCard.appendChild(exBlock);
         }
-        q1.appendChild(q1Content);
-        pwCard.appendChild(q1);
 
         // Q2: What typical score gets me in?
         var q2 = h('div', { class: 'q-block' },
@@ -1246,7 +1366,7 @@ td.wrapcell { min-width: 12ch; }
           var greComp = pw.gre_quant_competitive_min ? 'Quant \u2265 ' + pw.gre_quant_competitive_min : '\u2014';
           scoreRows.push(h('tr', null,
             h('td', { class: 'wrapcell', text: 'GRE Benchmark' }),
-            h('td', { class: 'mono', text: pw.gre_requirement_status }),
+            h('td', { class: 'mono', text: pw.gre_requirement_status.replace(/_/g, ' ') }),
             h('td', { class: 'mono', text: greComp })));
         }
 
@@ -1255,7 +1375,7 @@ td.wrapcell { min-width: 12ch; }
             var minS = pw.english_test_min_score[test];
             var compS = pw.english_test_competitive_score ? pw.english_test_competitive_score[test] : '\u2014';
             scoreRows.push(h('tr', null,
-              h('td', { class: 'wrapcell', text: test.replace(/_/g, ' ') }),
+              h('td', { class: 'wrapcell', text: fmtExamName(test) }),
               h('td', { class: 'mono', text: String(minS) }),
               h('td', { class: 'mono', text: String(compS) })));
           }
@@ -1266,7 +1386,7 @@ td.wrapcell { min-width: 12ch; }
             var mVal = pw.entrance_test_min_score[et];
             var cVal = pw.entrance_test_competitive_score ? pw.entrance_test_competitive_score[et] : '\u2014';
             scoreRows.push(h('tr', null,
-              h('td', { class: 'wrapcell', text: et.replace(/_/g, ' ') }),
+              h('td', { class: 'wrapcell', text: fmtExamName(et) }),
               h('td', { class: 'mono', text: String(mVal) }),
               h('td', { class: 'mono', text: String(cVal) })));
           }
@@ -1317,47 +1437,7 @@ td.wrapcell { min-width: 12ch; }
 
         admBox.appendChild(pwCard);
       });
-    }
-
-    var admRoutes = p.admission_routes || [];
-    if (admRoutes.length) {
-      admBox.appendChild(h('h3', { style: 'margin-top: 20px; margin-bottom: 10px;', text: 'Legacy Multi-Route Admission Pipeline & Schedules' }));
-      admRoutes.forEach(function (ar) {
-        var rItem = h('div', { class: 'route-item' });
-        var headLine = (ar.degree_family || '').toUpperCase() + (ar.quota ? ' \u2014 ' + ar.quota : '');
-        rItem.appendChild(h('div', { class: 'route-title', text: headLine }));
-
-        var pflow = h('div', { class: 'pipeline-flow' });
-        (ar.pipeline || []).forEach(function (ch, idx) {
-          if (idx > 0) pflow.appendChild(h('span', { class: 'pipeline-arrow', text: '\u2192' }));
-          var roleTag = ch.role ? ' (' + ch.role.replace(/_/g, ' ') + ')' : '';
-          var chEl = h('div', { class: 'pipeline-step' },
-            ch.url ? extLink(ch.url, ch.channel_name) : h('span', { text: ch.channel_name }),
-            h('span', { class: 'muted', text: roleTag }));
-          pflow.appendChild(chEl);
-        });
-        rItem.appendChild(pflow);
-
-        // Schedules
-        var allSchedules = [];
-        (ar.pipeline || []).forEach(function (ch) {
-          (ch.schedules || []).forEach(function (sc) {
-            allSchedules.push({ channel: ch.channel_name, event: sc.event, start: sc.start_date, end: sc.end_date });
-          });
-        });
-        if (allSchedules.length) {
-          var schRows = allSchedules.map(function (s) {
-            var dt = fmtDate(s.start) + (s.end ? ' \u2013 ' + fmtDate(s.end) : '');
-            return h('tr', null,
-              h('td', { text: s.channel }),
-              h('td', { text: s.event }),
-              h('td', { class: 'mono', text: dt }));
-          });
-          rItem.appendChild(h('div', { style: 'margin-top: 8px;' }, table(['Channel', 'Event', 'Dates'], schRows)));
-        }
-        admBox.appendChild(rItem);
-      });
-    } else if (!pathways.length) {
+    } else {
       admBox.appendChild(h('p', { class: 'muted', text: 'No admission pathways stored for this institution. Direct institutional admission applies.' }));
     }
     panels.admissions.appendChild(section('Admission Pathways & Entrance Exams', admBox, 'Student-centric postgraduate admission guidelines directly answering: which exams to take, target scores & category cutoffs, and selection pipeline stages.'));
