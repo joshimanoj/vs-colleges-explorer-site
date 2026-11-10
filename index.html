@@ -945,17 +945,6 @@ td.wrapcell { min-width: 12ch; }
       whereLine ? h('p', { class: 'sub where', text: whereLine }) : null,
       kind ? h('p', { class: 'sub', text: kind }) : null));
 
-    // Official rankings strip
-    if (p.rankings && p.rankings.length) {
-      var rstrip = h('div', { class: 'rankings-strip' });
-      p.rankings.forEach(function (rk) {
-        use(rk.source);
-        var cls = 'pill rank-' + (rk.source || '').toLowerCase();
-        var label = rk.source + ' ' + (rk.year || '') + ' \u00b7 ' + rk.series + ' #' + rk.rank;
-        rstrip.appendChild(h('button', { type: 'button', class: cls, style: 'cursor: pointer; font: inherit;', text: label, onclick: function () { select('rankings'); } }));
-      });
-      root.appendChild(rstrip);
-    }
     document.title = disp + ' - College & Course Explorer';
 
     var panels = {};
@@ -1148,15 +1137,17 @@ td.wrapcell { min-width: 12ch; }
     // TAB: Admission pathways & entrance exams
     var admRoutes = p.admission_routes || [];
     var admBox = h('div');
-    var diffExplainer = h('div', { class: 'diff-explainer', style: 'background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.9rem; line-height: 1.5;' },
-      h('div', { style: 'font-weight: 600; margin-bottom: 6px; color: var(--accent);', text: 'Entrance Exams vs. Admission Pathways \u2014 Key Differences' }),
-      h('div', null,
-        h('b', { text: '\u2022 Entrance Exam: ' }),
-        h('span', { text: 'The standardized qualifying aptitude test (e.g. GATE, IIT-JAM, NIMCET, CUET-PG, TANCET, KEA-PGCET).' })),
-      h('div', { style: 'margin-top: 4px;' },
-        h('b', { text: '\u2022 Admission Pathway: ' }),
-        h('span', { text: 'The complete multi-stage admission route from the exam score through centralized counselling, seat matrix choice filling, and official quota allocation (e.g. GATE \u2192 CCMT Counselling \u2192 Seat Allotment).' })));
-    admBox.appendChild(diffExplainer);
+    if (cc === 'IN') {
+      var diffExplainer = h('div', { class: 'diff-explainer', style: 'background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.9rem; line-height: 1.5;' },
+        h('div', { style: 'font-weight: 600; margin-bottom: 6px; color: var(--accent);', text: 'Entrance Exams vs. Admission Pathways \u2014 Key Differences' }),
+        h('div', null,
+          h('b', { text: '\u2022 Entrance Exam: ' }),
+          h('span', { text: 'The standardized qualifying aptitude test (e.g. GATE, IIT-JAM, NIMCET, CUET-PG, TANCET, KEA-PGCET).' })),
+        h('div', { style: 'margin-top: 4px;' },
+          h('b', { text: '\u2022 Admission Pathway: ' }),
+          h('span', { text: 'The complete multi-stage admission route from the exam score through centralized counselling, seat matrix choice filling, and official quota allocation (e.g. GATE \u2192 CCMT Counselling \u2192 Seat Allotment).' })));
+      admBox.appendChild(diffExplainer);
+    }
 
     if (!admRoutes.length) {
       admBox.appendChild(h('p', { class: 'muted', text: 'No centralized admission routes stored for this institution. Direct institutional admission, university departmental tests, or overseas application portals apply.' }));
