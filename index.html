@@ -241,10 +241,6 @@ td.wrapcell { min-width: 12ch; }
 .pill.stemunc { background: var(--m-fuzzy-bg); color: var(--m-fuzzy-fg); }
 .pill.online { background: var(--m-llm-bg, var(--m-fuzzy-bg)); color: var(--m-llm-fg, var(--m-fuzzy-fg)); margin-left: 6px; }
 .coursemeta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-.rankings-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; }
-.pill.rank-nirf { background: #352613; color: #f7ca7a; border: 1px solid #6b4d24; padding: 4px 10px; font-weight: 600; border-radius: 6px; font-size: 0.85rem; }
-.pill.rank-qs { background: #132736; color: #87cfff; border: 1px solid #234d6c; padding: 4px 10px; font-weight: 600; border-radius: 6px; font-size: 0.85rem; }
-.pill.rank-the { background: #311827; color: #f896ca; border: 1px solid #5e2e4b; padding: 4px 10px; font-weight: 600; border-radius: 6px; font-size: 0.85rem; }
 .det-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-top: 14px; }
 .det-card h3 { margin: 0 0 10px; font-size: 1.05rem; color: var(--text); border: 0; padding: 0; }
 .aid-list { display: flex; flex-direction: column; gap: 8px; }
@@ -266,31 +262,24 @@ td.wrapcell { min-width: 12ch; }
 .kpi-card .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
 .kpi-card .kpi-val { font-size: 1.35rem; font-weight: 700; color: var(--accent); }
 .kpi-card .kpi-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-.work-card { background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
-.work-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
-.badge-stem { background: #132e22; color: #87e0b2; border: 1px solid #24573f; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-.badge-dli { background: #1a2d42; color: #7cb7f5; border: 1px solid #284e75; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; font-family: var(--mono); }
-.badge-sponsor { background: #322513; color: #f5b971; border: 1px solid #63451e; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; }
-.badge-season { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-.pathway-card { background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-.pathway-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-.pathway-title { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
-.badge-archetype { background: #1c2438; color: #9bbcf5; border: 1px solid #314b78; border-radius: 4px; padding: 3px 8px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-.badge-portal { background: #2b1f38; color: #d4a5f5; border: 1px solid #5d3d7a; border-radius: 4px; padding: 3px 8px; font-size: 0.75rem; font-weight: 600; }
-.badge-mand { background: #3b1c1c; color: #ff9494; border: 1px solid #6e2f2f; border-radius: 4px; padding: 2px 7px; font-size: 0.75rem; font-weight: 600; font-family: var(--mono); }
-.badge-exam { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; font-size: 0.75rem; font-weight: 500; font-family: var(--mono); }
-.q-block { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
-.q-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-.q-title .q-num { background: var(--accent-soft); color: var(--accent); border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; flex-shrink: 0; }
-.score-badge { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; display: inline-flex; flex-direction: column; gap: 2px; }
-.score-badge .sb-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-.score-badge .sb-val { font-size: 1.05rem; font-weight: 700; color: var(--accent); }
-.stages-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-.stage-step { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
-.stage-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; flex-wrap: wrap; }
-.stage-mech { font-size: 0.85rem; color: var(--muted); line-height: 1.45; }
-.grad-aid-card { background: var(--surface-2, #1a2233); border: 1px solid #24573f; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-.grad-aid-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+/* Clean key-value facts list */
+.facts { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; font-size: 0.95rem; }
+.fact-row { display: flex; gap: 8px; align-items: baseline; }
+.fact-label { font-weight: 600; color: var(--muted); min-width: 120px; }
+.fact-val { color: var(--text); }
+
+/* Section heading with source tooltip */
+.sec-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin: 20px 0 14px; }
+.sec-head h2 { border-bottom: 0; margin: 0; padding: 0; font-size: 1.25rem; }
+.source-tip { font-size: 0.8rem; color: var(--muted); cursor: help; border-bottom: 1px dotted var(--muted); font-weight: 500; }
+.source-tip:hover, .source-tip:focus { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Homogenous, clean pathway card without multi-colored tags */
+.pathway-card { background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 18px; }
+.pathway-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.pathway-title { font-size: 1.15rem; font-weight: 700; color: var(--accent); }
+.q-block { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+.q-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
 #profile { min-width: 0; max-width: 100%; }
 #checkview .tablewrap { margin-top: 12px; }
 #checkview td.num { text-align: right; white-space: nowrap; }
@@ -889,8 +878,18 @@ td.wrapcell { min-width: 12ch; }
   var wantTab = null;   // tab named in the URL when the profile was requested
   function backButton() {}
 
-  function section(title, node) {
-    return h('section', null, h('h2', { text: title }), node);
+  function section(title, node, info) {
+    if (!info) return h('section', null, h('h2', { text: title }), node);
+    var tip = h('span', {
+      class: 'source-tip',
+      title: info,
+      tabindex: '0',
+      role: 'note',
+      'aria-label': info,
+      text: 'Where this data came from'
+    });
+    var hdr = h('div', { class: 'sec-head' }, h('h2', { text: title }), tip);
+    return h('section', null, hdr, node);
   }
   function table(headers, rows) {
     var thead = h('thead', null, h('tr', null, headers.map(function (x) { return h('th', { scope: 'col', text: x }); })));
@@ -950,12 +949,19 @@ td.wrapcell { min-width: 12ch; }
     var cc = F.country_code.value;
     var kind = [LEVEL_WORD[F.level.value] || F.level.value, F.subtype.value].filter(Boolean).join(', ');
     var facts = [];
-    if (kind) facts.push(h('span', null, h('b', { text: 'Type' }), kind));
-    if (place || cc) facts.push(h('span', null, h('b', { text: 'Where' }), [place, cc && countryName(cc)].filter(Boolean).join(', ')));
-    if (F.year_established.value) facts.push(h('span', null, h('b', { text: 'Founded' }), String(F.year_established.value)));
-    if (F.management.value) facts.push(h('span', null, h('b', { text: 'Management' }), F.management.value));
-    if (F.website_url.value) facts.push(h('span', null, h('b', { text: 'Website' }), extLink(F.website_url.value, F.website_url.value.replace(/^https?:\/\//i, '').replace(/\/$/, ''))));
-    if (F.short_name.value) facts.push(h('span', null, h('b', { text: 'Short name' }), F.short_name.value));
+    function addFact(label, val) {
+      if (!val) return;
+      facts.push(h('div', { class: 'fact-row' },
+        h('span', { class: 'fact-label', text: label + ': ' }),
+        h('span', { class: 'fact-val' }, val)));
+    }
+    if (kind) addFact('Type', kind);
+    var whereVal = [place, cc && countryName(cc)].filter(Boolean).join(', ');
+    if (whereVal) addFact('Where', whereVal);
+    if (F.year_established.value) addFact('Founded', String(F.year_established.value));
+    if (F.management.value) addFact('Management', F.management.value);
+    if (F.website_url.value) addFact('Website', extLink(F.website_url.value, F.website_url.value.replace(/^https?:\/\//i, '').replace(/\/$/, '')));
+    if (F.short_name.value) addFact('Short name', F.short_name.value);
 
     var whereLine = [place, cc && countryName(cc)].filter(Boolean).join(', ');
     root.appendChild(h('header', { class: 'head' },
@@ -968,7 +974,7 @@ td.wrapcell { min-width: 12ch; }
 
     var panels = {};
     PTABS.forEach(function (t) { panels[t] = h('div', { class: 'ppanel', role: 'tabpanel', id: 'ppanel-' + t, hidden: '' }); });
-    panels.overview.appendChild(h('div', { class: 'facts' }, facts));
+    panels.overview.appendChild(section('Overview', h('div', { class: 'facts' }, facts), 'Official institutional registration details, statutory management classifications, and location directory.'));
 
     // TAB: Rankings
     var rkList = p.rankings || [];
@@ -976,19 +982,17 @@ td.wrapcell { min-width: 12ch; }
     if (!rkList.length) {
       rkBox.appendChild(h('p', { class: 'muted', text: 'No official NIRF, QS, or THE ranking records stored for this institution.' }));
     } else {
-      rkBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Official institutional and subject rankings from statutory and global rankers: NIRF 2025 (India Ministry of Education), QS World University Rankings 2027, and Times Higher Education (THE) 2027.' }));
       var rkRows = rkList.map(function (rk) {
         use(rk.source);
-        var cls = 'pill rank-' + (rk.source || '').toLowerCase();
         return h('tr', null,
-          h('td', null, h('span', { class: cls, text: rk.source })),
+          h('td', { style: 'font-weight: 500;' }, rk.source),
           h('td', { class: 'mono', text: rk.year || '' }),
           h('td', { class: 'wrapcell', text: rk.series || '' }),
           h('td', { class: 'wrapcell', style: 'font-weight: 600;' }, 'Rank #' + rk.rank));
       });
       rkBox.appendChild(table(['Ranker', 'Year', 'Category / Subject Series', 'Rank'], rkRows));
     }
-    panels.rankings.appendChild(section('Official Rankings', rkBox));
+    panels.rankings.appendChild(section('Official Rankings', rkBox, 'Official institutional and subject rankings from statutory and global rankers: NIRF 2025 (India Ministry of Education), QS World University Rankings 2027, and Times Higher Education (THE) 2027.'));
 
     // TAB: Tuition fees
     var feesList = p.fees || [];
@@ -996,7 +1000,6 @@ td.wrapcell { min-width: 12ch; }
     if (!feesList.length) {
       fBox.appendChild(h('p', { class: 'muted', text: 'No regulated tuition fee schedule stored for this institution.' }));
     } else {
-      fBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Annual tuition fee bands as mandated by state fee regulatory committees, official prospectuses, or national regulatory bodies (CRICOS, DAAD, IPEDS).' }));
       var fRows = feesList.map(function (f) {
         var range = '';
         var sym = f.currency === 'INR' ? '\u20b9' : (f.currency === 'GBP' ? '\u00a3' : (f.currency === 'EUR' ? '\u20ac' : (f.currency || '') + ' '));
@@ -1017,7 +1020,7 @@ td.wrapcell { min-width: 12ch; }
       fBox.appendChild(table(['Degree Family', 'Fee Category / Quota', 'Annual Tuition Range'], fRows));
       fBox.appendChild(h('p', { class: 'layout-note', text: 'Amounts represent statutory tuition fees and exclude optional hostel, mess, and one-time deposits.' }));
     }
-    panels.fees.appendChild(section('Regulated Annual Tuition Fees', fBox));
+    panels.fees.appendChild(section('Regulated Annual Tuition Fees', fBox, 'Annual tuition fee bands as mandated by state fee regulatory committees, official prospectuses, or national regulatory bodies (CRICOS, DAAD, IPEDS).'));
 
     // TAB: Financial aid
     var rawAidList = (p.aid_policies && p.aid_policies.length) ? p.aid_policies :
@@ -1029,48 +1032,43 @@ td.wrapcell { min-width: 12ch; }
 
     if (p.central_graduate_policies) {
       var cgp = p.central_graduate_policies;
-      var cgpCard = h('div', { class: 'grad-aid-card' });
-      var cgpHead = h('div', { class: 'grad-aid-head' },
-        h('div', { style: 'display: flex; gap: 8px; align-items: center; flex-wrap: wrap;' },
-          h('span', { class: 'badge-stem', text: 'Graduate Assistantship Policy' }),
-          cgp.remission_type ? h('span', { class: 'aid-badge', text: cgp.remission_type.replace(/_/g, ' ') }) : null,
-          cgp.stem_cip_verified ? h('span', { class: 'badge-dli', text: 'STEM CIP Verified' }) : null),
-        cgp.tuition_remission_pct != null ? h('b', { style: 'color: #87e0b2; font-size: 1.1rem;', text: cgp.tuition_remission_pct + '% Tuition Remission' }) : null);
-      cgpCard.appendChild(cgpHead);
-
-      var cgpKpi = h('div', { class: 'kpi-grid', style: 'margin-bottom: 12px;' });
+      var cgpBox = h('div', { class: 'det-card', style: 'margin-bottom: 16px;' });
+      cgpBox.appendChild(h('h3', { style: 'margin-top: 0; margin-bottom: 10px;', text: 'Central Graduate Assistantship & Tuition Policy' }));
+      
+      var cgpRows = [];
+      if (cgp.tuition_remission_pct != null) {
+        cgpRows.push(['Tuition Remission', cgp.tuition_remission_pct + '% (' + (cgp.remission_type || 'full tuition waiver').replace(/_/g, ' ') + ')']);
+      }
       if (cgp.stipend_min_annual != null) {
         var stSym = cgp.stipend_currency === 'INR' ? '\u20b9' : (cgp.stipend_currency === 'GBP' ? '\u00a3' : (cgp.stipend_currency === 'EUR' ? '\u20ac' : '$'));
         var stRange = stSym + fmtNum(cgp.stipend_min_annual) + (cgp.stipend_max_annual ? ' \u2013 ' + fmtNum(cgp.stipend_max_annual) : '') + ' / ' + (cgp.stipend_period || 'yr');
-        cgpKpi.appendChild(h('div', { class: 'kpi-card' },
-          h('div', { class: 'kpi-label', text: 'Stipend Scale (GTA / GRA)' }),
-          h('div', { class: 'kpi-val', style: 'font-size: 1.15rem;', text: stRange }),
-          h('div', { class: 'kpi-sub', text: (cgp.standard_hours_per_week || 20) + ' hrs/wk standard duty' })));
+        cgpRows.push(['Graduate Stipend (GTA / GRA)', stRange + ' (' + (cgp.standard_hours_per_week || 20) + ' hrs/wk standard duty)']);
       }
       if (cgp.health_insurance_subsidy_pct != null) {
-        cgpKpi.appendChild(h('div', { class: 'kpi-card' },
-          h('div', { class: 'kpi-label', text: 'Health Insurance Subsidy' }),
-          h('div', { class: 'kpi-val', text: cgp.health_insurance_subsidy_pct + '%' }),
-          h('div', { class: 'kpi-sub', text: 'University Health Plan' })));
+        cgpRows.push(['Health Insurance Subsidy', cgp.health_insurance_subsidy_pct + '% covered by university plan']);
       }
       if (cgp.total_credit_hours_min != null) {
-        cgpKpi.appendChild(h('div', { class: 'kpi-card' },
-          h('div', { class: 'kpi-label', text: 'Program Credit Hours' }),
-          h('div', { class: 'kpi-val', text: cgp.total_credit_hours_min + (cgp.total_credit_hours_max ? '\u2013' + cgp.total_credit_hours_max : '') }),
-          h('div', { class: 'kpi-sub', text: cgp.credit_system || 'Credits' })));
+        cgpRows.push(['Program Credit Hours', cgp.total_credit_hours_min + (cgp.total_credit_hours_max ? ' \u2013 ' + cgp.total_credit_hours_max : '') + ' ' + (cgp.credit_system || 'credits')]);
       }
-      cgpCard.appendChild(cgpKpi);
+      if (cgp.stem_cip_verified != null) {
+        cgpRows.push(['STEM CIP Eligibility', cgp.stem_cip_verified ? 'Verified SEVP STEM Eligible' : 'Standard Degree']);
+      }
+      
+      var cgpTableRows = cgpRows.map(function (r) {
+        return h('tr', null, h('td', { style: 'font-weight: 600; width: 220px;', text: r[0] }), h('td', { text: r[1] }));
+      });
+      cgpBox.appendChild(table(['Policy Dimension', 'Institutional Provision'], cgpTableRows));
 
       if (cgp.assistantship_policy_summary) {
-        cgpCard.appendChild(h('p', { style: 'font-size: 0.9rem; line-height: 1.5; margin-bottom: 8px;', text: cgp.assistantship_policy_summary }));
+        cgpBox.appendChild(h('p', { class: 'muted', style: 'margin-top: 10px; line-height: 1.5;', text: cgp.assistantship_policy_summary }));
       }
       var cgpLinks = [];
-      if (cgp.central_funding_url) cgpLinks.push(extLink(cgp.central_funding_url, 'Central Graduate Funding & Assistantship Bulletin \u2197'));
-      if (cgp.central_catalog_url) cgpLinks.push(extLink(cgp.central_catalog_url, 'Central Academic Catalog \u2197'));
+      if (cgp.central_funding_url) cgpLinks.push(extLink(cgp.central_funding_url, 'Graduate Funding & Assistantship Bulletin \u2197'));
+      if (cgp.central_catalog_url) cgpLinks.push(extLink(cgp.central_catalog_url, 'Academic Catalog \u2197'));
       if (cgpLinks.length) {
-        cgpCard.appendChild(h('div', { style: 'display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; font-size: 0.85rem;' }, cgpLinks));
+        cgpBox.appendChild(h('div', { style: 'display: flex; gap: 14px; margin-top: 8px; font-size: 0.85rem;' }, cgpLinks));
       }
-      aBox.appendChild(cgpCard);
+      aBox.appendChild(cgpBox);
     }
 
     if (!aidList.length && !p.central_graduate_policies) {
@@ -1082,28 +1080,19 @@ td.wrapcell { min-width: 12ch; }
       } else {
         aBox.appendChild(h('p', { class: 'muted', text: 'No statutory financial aid or government fellowship policies recorded for this institution.' }));
       }
-    } else {
-      aBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Statutory government fellowships, research stipends, and institutional aid applicable in ' + (countryName(cc) || cc) + '.' }));
-      var aListEl = h('div', { class: 'aid-list' });
-      aidList.forEach(function (ap) {
-        var val = '';
-        if (ap.amount) {
-          var sym = ap.currency === 'INR' ? '\u20b9' : (ap.currency || '') + ' ';
-          val = sym + fmtNum(ap.amount) + ' / month';
-        }
-        var item = h('div', { class: 'aid-item' },
-          h('div', { class: 'aid-head' },
-            h('span', { class: 'aid-badge', text: ap.benefit ? ap.benefit.replace(/_/g, ' ') : 'Statutory Policy' }),
-            val ? h('b', { style: 'font-size: 1.05rem; color: var(--text);', text: val }) : null),
-          h('div', { class: 'aid-title', text: ap.name }),
-          ap.degree_family ? h('p', { class: 'coursemeta', text: 'Target Degree: ' + ap.degree_family.toUpperCase() }) : null,
-          ap.eligibility ? h('p', { class: 'aid-sub', style: 'margin-top: 4px;', text: ap.eligibility }) : null,
-          ap.authority ? h('p', { class: 'coursemeta', text: 'Administering Authority: ' + ap.authority }) : null);
-        aListEl.appendChild(item);
+    } else if (aidList.length) {
+      var aRows = aidList.map(function (ap) {
+        var val = ap.amount ? (ap.currency === 'INR' ? '\u20b9' : (ap.currency || '') + ' ') + fmtNum(ap.amount) + ' / month' : '\u2014';
+        return h('tr', null,
+          h('td', { style: 'font-weight: 500;', text: ap.name }),
+          h('td', { text: (ap.degree_family || 'All STEM').toUpperCase() }),
+          h('td', { style: 'font-weight: 600;', text: val }),
+          h('td', { class: 'wrapcell', text: ap.eligibility || '\u2014' }),
+          h('td', { text: ap.authority || '\u2014' }));
       });
-      aBox.appendChild(aListEl);
+      aBox.appendChild(table(['Scholarship / Fellowship', 'Degree Family', 'Stipend Amount', 'Eligibility Criteria', 'Authority'], aRows));
     }
-    panels.aid.appendChild(section('Financial Aid & Scholarships', aBox));
+    panels.aid.appendChild(section('Financial Aid & Scholarships', aBox, 'Statutory government fellowships, research stipends, and central university Graduate Assistantship policies.'));
 
     // TAB: Post-Study Work Rights
     var wrList = p.work_rights || [];
@@ -1111,27 +1100,21 @@ td.wrapcell { min-width: 12ch; }
     if (!wrList.length) {
       wrBox.appendChild(h('p', { class: 'muted', text: 'No statutory post-study work authorization or visa rights recorded for this institution.' }));
     } else {
-      wrBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Official post-study work rights, visa durations, Designated Learning Institution (DLI) registration, and UKVI sponsor tiers for international graduates.' }));
-      var wrListEl = h('div', { class: 'aid-list' });
-      wrList.forEach(function (wr) {
-        var durationText = wr.work_rights_months ? wr.work_rights_months + ' Months Work Rights' : '';
-        var headEl = h('div', { class: 'work-head' });
-        headEl.appendChild(h('div', { style: 'display: flex; gap: 6px; align-items: center; flex-wrap: wrap;' },
-          wr.stem_opt_eligible ? h('span', { class: 'badge-stem', text: 'STEM OPT Extension' }) : null,
-          wr.dli_number ? h('span', { class: 'badge-dli', text: 'DLI: ' + wr.dli_number }) : null,
-          wr.ukvi_tier ? h('span', { class: 'badge-sponsor', text: 'UKVI: ' + wr.ukvi_tier.replace(/_/g, ' ') }) : null));
-        if (durationText) headEl.appendChild(h('b', { style: 'font-size: 1.05rem; color: var(--accent);', text: durationText }));
-        
-        var card = h('div', { class: 'work-card' },
-          headEl,
-          h('div', { class: 'aid-title', text: (countryName(wr.country_code) || wr.country_code) + ' Postgraduate Work Rights' }),
-          wr.eligibility ? h('p', { class: 'aid-sub', style: 'margin-top: 6px;', text: wr.eligibility }) : null,
-          wr.url ? h('p', { class: 'coursemeta', style: 'margin-top: 6px;' }, extLink(wr.url, 'Official Immigration / Visa Policy Guidelines \u2197')) : null);
-        wrListEl.appendChild(card);
+      var wrRows = wrList.map(function (wr) {
+        var dur = wr.work_rights_months ? wr.work_rights_months + ' months' : '\u2014';
+        var dli = wr.dli_number || (wr.ukvi_tier ? wr.ukvi_tier.replace(/_/g, ' ') : '\u2014');
+        var opt = wr.stem_opt_eligible ? 'Eligible' : '\u2014';
+        return h('tr', null,
+          h('td', { style: 'font-weight: 500;', text: countryName(wr.country_code) || wr.country_code }),
+          h('td', { style: 'font-weight: 600;', text: dur }),
+          h('td', { text: opt }),
+          h('td', { class: 'mono', text: dli }),
+          h('td', { class: 'wrapcell', text: wr.eligibility || '\u2014' }),
+          h('td', null, wr.url ? extLink(wr.url, 'Official Policy \u2197') : '\u2014'));
       });
-      wrBox.appendChild(wrListEl);
+      wrBox.appendChild(table(['Country / Region', 'Post-Study Work Duration', 'STEM Extension', 'Sponsor / DLI ID', 'Eligibility Rules', 'Official Regulation'], wrRows));
     }
-    panels.work_rights.appendChild(section('Post-Study Work Rights & Visa Regulations', wrBox));
+    panels.work_rights.appendChild(section('Post-Study Work Rights & Visa Regulations', wrBox, 'Official statutory post-study work rights, visa durations, Designated Learning Institution (DLI) registration, and UKVI sponsor tiers.'));
 
     // TAB: Placements & Median Salary
     var plList = p.placements || [];
@@ -1139,8 +1122,6 @@ td.wrapcell { min-width: 12ch; }
     if (!plList.length) {
       plBox.appendChild(h('p', { class: 'muted', text: 'No audited placement outcomes or statutory median salary disclosures stored for this institution.' }));
     } else {
-      plBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Audited statutory postgraduate placement outcomes, cohort sizes, employment rates, and median salaries from official disclosures (NIRF DCS / U.S. College Scorecard / UK HESA / Canada StatCan / Australia QILT / Germany Destatis).' }));
-      
       var srcMap = {
         'nirf_dcs': 'NIRF DCS Sec 3',
         'college_scorecard': 'College Scorecard',
@@ -1205,7 +1186,7 @@ td.wrapcell { min-width: 12ch; }
       });
       plBox.appendChild(table(['Level / Program', 'Cohort Year', 'Graduated', 'Placed', 'Placement %', 'Median Salary', 'Data Source'], plRows));
     }
-    panels.placements.appendChild(section('Placement Outcomes & Median Salary', plBox));
+    panels.placements.appendChild(section('Placement Outcomes & Median Salary', plBox, 'Audited statutory postgraduate placement outcomes, cohort sizes, employment rates, and median salaries from official disclosures (NIRF DCS / U.S. College Scorecard / UK HESA / Canada StatCan / Australia QILT / Germany Destatis).'));
 
     // TAB: Intake Cycles & Application Deadlines
     var cyList = p.admission_cycles || [];
@@ -1213,10 +1194,9 @@ td.wrapcell { min-width: 12ch; }
     if (!cyList.length) {
       cyBox.appendChild(h('p', { class: 'muted', text: 'No admission cycles or application deadline calendars recorded for this institution.' }));
     } else {
-      cyBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Admissions intake terms, priority scholarship deadlines, and regular application cutoff dates.' }));
       var cyRows = cyList.map(function (cy) {
         return h('tr', null,
-          h('td', null, h('span', { class: 'badge-season', text: cy.term_season })),
+          h('td', { style: 'font-weight: 500;', text: cy.term_season }),
           h('td', { class: 'wrapcell', text: (cy.degree_family || '').toUpperCase() }),
           h('td', { class: 'mono', text: cy.academic_year || '' }),
           h('td', { class: 'mono', text: cy.application_open_date ? fmtDate(cy.application_open_date) : '\u2014' }),
@@ -1226,15 +1206,13 @@ td.wrapcell { min-width: 12ch; }
       });
       cyBox.appendChild(table(['Intake Season', 'Degree Family', 'Academic Year', 'Application Opens', 'Priority / Scholarship', 'Regular Deadline', 'Classes Begin'], cyRows));
     }
-    panels.cycles.appendChild(section('Intake Cycles & Application Deadlines', cyBox));
+    panels.cycles.appendChild(section('Intake Cycles & Application Deadlines', cyBox, 'Admissions intake terms, priority scholarship deadlines, and regular application cutoff dates.'));
 
     // TAB: Admission pathways & entrance exams
     var admBox = h('div');
     var pathways = p.admission_pathways || [];
 
     if (pathways.length) {
-      admBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 16px;', text: 'Student-centric postgraduate admission guidelines directly answering: which exams to take, target scores & category cutoffs, and selection pipeline stages.' }));
-
       pathways.forEach(function (pw) {
         var pwCard = h('div', { class: 'pathway-card' });
         
@@ -1242,9 +1220,9 @@ td.wrapcell { min-width: 12ch; }
         var pwHead = h('div', { class: 'pathway-head' });
         var headLeft = h('div', null,
           h('div', { class: 'pathway-title', text: pw.pathway_name }),
-          h('div', { style: 'display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap;' },
-            h('span', { class: 'badge-archetype', text: (pw.selection_archetype || '').replace(/_/g, ' ') }),
-            pw.counselling_portal ? h('span', { class: 'badge-portal', text: pw.counselling_portal }) : null));
+          h('div', { class: 'muted', style: 'margin-top: 4px; font-size: 0.9rem;' },
+            'Selection Model: ' + (pw.selection_archetype || '').replace(/_/g, ' ') +
+            (pw.counselling_portal ? ' \u2022 Counselling: ' + pw.counselling_portal : '')));
         pwHead.appendChild(headLeft);
         if (pw.portal_url) {
           pwHead.appendChild(extLink(pw.portal_url, 'Official Admission Portal \u2197'));
@@ -1253,45 +1231,38 @@ td.wrapcell { min-width: 12ch; }
 
         // Q1: Which exams do I need to take?
         var q1 = h('div', { class: 'q-block' },
-          h('div', { class: 'q-title' },
-            h('span', { class: 'q-num', text: '1' }),
-            h('span', { text: 'Which exams do I need to take?' })));
+          h('div', { class: 'q-title', text: '1. Which exams do I need to take?' }));
         
-        var q1Content = h('div', { style: 'font-size: 0.9rem; line-height: 1.5;' });
+        var q1Content = h('div', { style: 'font-size: 0.9rem; line-height: 1.6;' });
         if (pw.mandatory_exams && pw.mandatory_exams.length) {
-          var mRow = h('div', { style: 'display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;' },
-            h('b', { text: 'Mandatory Requirements: ' }));
-          pw.mandatory_exams.forEach(function (me) {
-            mRow.appendChild(h('span', { class: 'badge-mand', text: me.replace(/_/g, ' ') }));
-          });
-          q1Content.appendChild(mRow);
+          var mandList = pw.mandatory_exams.map(function (me) { return me.replace(/_/g, ' '); }).join(', ');
+          q1Content.appendChild(h('div', { style: 'margin-bottom: 6px;' },
+            h('b', { text: 'Mandatory Requirements: ' }),
+            h('span', { text: mandList })));
         }
 
         if (pw.alternative_exam_groups && pw.alternative_exam_groups.length) {
           pw.alternative_exam_groups.forEach(function (ag) {
-            var agRow = h('div', { style: 'margin-bottom: 8px;' },
-              h('b', { text: ag.group_name + ' (Requirement: ' + (ag.requirement_type || 'ONE OF') + '): ' }));
-            (ag.accepted_exams || []).forEach(function (ae) {
-              agRow.appendChild(h('span', { class: 'badge-exam', style: 'margin-right: 6px;', text: ae.replace(/_/g, ' ') }));
-            });
+            var examsStr = (ag.accepted_exams || []).map(function (ae) { return ae.replace(/_/g, ' '); }).join(' or ');
+            var agEl = h('div', { style: 'margin-bottom: 6px;' },
+              h('b', { text: ag.group_name + ' (' + (ag.requirement_type || 'ONE OF') + '): ' }),
+              h('span', { text: examsStr }));
             if (ag.notes) {
-              agRow.appendChild(h('p', { class: 'coursemeta', style: 'margin-top: 3px;', text: ag.notes }));
+              agEl.appendChild(h('div', { class: 'coursemeta', text: ag.notes }));
             }
-            q1Content.appendChild(agRow);
+            q1Content.appendChild(agEl);
           });
         }
 
         if (pw.optional_exams && pw.optional_exams.length) {
-          var optRow = h('div', { style: 'display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;' },
-            h('span', { class: 'muted', text: 'Optional / Additional Tests: ' }));
-          pw.optional_exams.forEach(function (oe) {
-            optRow.appendChild(h('span', { class: 'badge-exam', text: oe.replace(/_/g, ' ') }));
-          });
-          q1Content.appendChild(optRow);
+          var optList = pw.optional_exams.map(function (oe) { return oe.replace(/_/g, ' '); }).join(', ');
+          q1Content.appendChild(h('div', { style: 'margin-bottom: 6px;' },
+            h('b', { text: 'Optional / Additional Tests: ' }),
+            h('span', { text: optList })));
         }
 
         if (pw.exemption_criteria && pw.exemption_criteria.length) {
-          var exList = h('ul', { style: 'margin: 6px 0 0 16px; padding: 0; font-size: 0.85rem; color: var(--muted); line-height: 1.4;' });
+          var exList = h('ul', { style: 'margin: 4px 0 0 18px; padding: 0; font-size: 0.85rem; color: var(--muted); line-height: 1.5;' });
           pw.exemption_criteria.forEach(function (ex) {
             exList.appendChild(h('li', { text: ex }));
           });
@@ -1302,87 +1273,87 @@ td.wrapcell { min-width: 12ch; }
 
         // Q2: What typical score gets me in?
         var q2 = h('div', { class: 'q-block' },
-          h('div', { class: 'q-title' },
-            h('span', { class: 'q-num', text: '2' }),
-            h('span', { text: 'What typical score gets me in?' })));
+          h('div', { class: 'q-title', text: '2. What typical score gets me in?' }));
 
-        var q2Grid = h('div', { class: 'kpi-grid', style: 'margin-bottom: 8px;' });
+        var scoreRows = [];
         if (pw.gpa_min_eligibility != null) {
-          var gpaComp = pw.gpa_competitive_min != null ? pw.gpa_competitive_min + (pw.gpa_competitive_max ? ' \u2013 ' + pw.gpa_competitive_max : '') : 'Competitive Target';
-          q2Grid.appendChild(h('div', { class: 'score-badge' },
-            h('span', { class: 'sb-label', text: 'Undergraduate GPA (Scale ' + (pw.gpa_scale || '4.0') + ')' }),
-            h('span', { class: 'sb-val', text: 'Floor: ' + pw.gpa_min_eligibility + ' | Admit: ' + gpaComp })));
+          var gpaComp = pw.gpa_competitive_min != null ? pw.gpa_competitive_min + (pw.gpa_competitive_max ? ' \u2013 ' + pw.gpa_competitive_max : '') : '\u2014';
+          scoreRows.push(h('tr', null,
+            h('td', { class: 'wrapcell', text: 'Undergraduate GPA (Scale ' + (pw.gpa_scale || '4.0') + ')' }),
+            h('td', { class: 'mono', text: String(pw.gpa_min_eligibility) }),
+            h('td', { class: 'mono', text: gpaComp })));
         }
 
         if (pw.gre_requirement_status && pw.gre_requirement_status !== 'NOT_REQUIRED') {
-          var greText = pw.gre_requirement_status;
-          if (pw.gre_quant_competitive_min) greText += ' (Quant \u2265 ' + pw.gre_quant_competitive_min + ')';
-          q2Grid.appendChild(h('div', { class: 'score-badge' },
-            h('span', { class: 'sb-label', text: 'GRE Benchmark' }),
-            h('span', { class: 'sb-val', text: greText })));
+          var greComp = pw.gre_quant_competitive_min ? 'Quant \u2265 ' + pw.gre_quant_competitive_min : '\u2014';
+          scoreRows.push(h('tr', null,
+            h('td', { class: 'wrapcell', text: 'GRE Benchmark' }),
+            h('td', { class: 'mono', text: pw.gre_requirement_status }),
+            h('td', { class: 'mono', text: greComp })));
         }
 
         if (pw.english_test_min_score && Object.keys(pw.english_test_min_score).length) {
-          var engChips = [];
           for (var test in pw.english_test_min_score) {
             var minS = pw.english_test_min_score[test];
-            var compS = pw.english_test_competitive_score ? pw.english_test_competitive_score[test] : null;
-            engChips.push(test.replace(/_/g, ' ') + ': ' + minS + (compS ? ' (Target: ' + compS + ')' : ''));
+            var compS = pw.english_test_competitive_score ? pw.english_test_competitive_score[test] : '\u2014';
+            scoreRows.push(h('tr', null,
+              h('td', { class: 'wrapcell', text: test.replace(/_/g, ' ') }),
+              h('td', { class: 'mono', text: String(minS) }),
+              h('td', { class: 'mono', text: String(compS) })));
           }
-          q2Grid.appendChild(h('div', { class: 'score-badge' },
-            h('span', { class: 'sb-label', text: 'English Test Floors & Targets' }),
-            h('span', { class: 'sb-val', style: 'font-size: 0.9rem;', text: engChips.join(' | ') })));
         }
 
         if (pw.entrance_test_min_score && Object.keys(pw.entrance_test_min_score).length) {
-          var entChips = [];
           for (var et in pw.entrance_test_min_score) {
             var mVal = pw.entrance_test_min_score[et];
-            var cVal = pw.entrance_test_competitive_score ? pw.entrance_test_competitive_score[et] : null;
-            entChips.push(et.replace(/_/g, ' ') + ' Floor: ' + mVal + (cVal ? ' | Typical: ' + cVal : ''));
+            var cVal = pw.entrance_test_competitive_score ? pw.entrance_test_competitive_score[et] : '\u2014';
+            scoreRows.push(h('tr', null,
+              h('td', { class: 'wrapcell', text: et.replace(/_/g, ' ') }),
+              h('td', { class: 'mono', text: String(mVal) }),
+              h('td', { class: 'mono', text: String(cVal) })));
           }
-          q2Grid.appendChild(h('div', { class: 'score-badge' },
-            h('span', { class: 'sb-label', text: 'Entrance Test Benchmarks' }),
-            h('span', { class: 'sb-val', style: 'font-size: 0.9rem;', text: entChips.join(' | ') })));
         }
-        q2.appendChild(q2Grid);
+        if (scoreRows.length) {
+          q2.appendChild(table(['Assessment / Test Dimension', 'Minimum Eligibility Floor', 'Typical Competitive Target'], scoreRows));
+        }
 
         if (pw.category_cutoffs && Object.keys(pw.category_cutoffs).length) {
-          var catRow = h('div', { style: 'font-size: 0.85rem; margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;' },
-            h('b', { text: 'Category Score Targets: ' }));
+          var catRows = [];
           for (var cat in pw.category_cutoffs) {
             var cObj = pw.category_cutoffs[cat];
-            var cStr = '';
+            var cDetails = [];
             for (var metric in cObj) {
-              cStr += (cStr ? ', ' : '') + metric.replace(/_/g, ' ') + ': ' + cObj[metric];
+              cDetails.push(metric.replace(/_/g, ' ') + ': ' + cObj[metric]);
             }
-            catRow.appendChild(h('span', { class: 'badge-exam', text: cat + ' (' + cStr + ')' }));
+            catRows.push(h('tr', null,
+              h('td', { style: 'font-weight: 500;', text: cat }),
+              h('td', { class: 'wrapcell', text: cDetails.join(', ') })));
           }
-          q2.appendChild(catRow);
+          q2.appendChild(h('div', { style: 'margin-top: 10px;' },
+            h('div', { class: 'coursemeta', style: 'margin-bottom: 6px; font-weight: 600;', text: 'Category-Specific Cutoffs & Score Targets' }),
+            table(['Category', 'Cutoff Floor / Target Details'], catRows)));
         }
         pwCard.appendChild(q2);
 
         // Q3: What is the selection process?
         var q3 = h('div', { class: 'q-block' },
-          h('div', { class: 'q-title' },
-            h('span', { class: 'q-num', text: '3' }),
-            h('span', { text: 'What is the selection process?' })));
+          h('div', { class: 'q-title', text: '3. What is the selection process?' }));
 
         if (pw.process_summary) {
           q3.appendChild(h('p', { style: 'font-size: 0.9rem; line-height: 1.5; margin-bottom: 10px;', text: pw.process_summary }));
         }
 
         if (pw.selection_stages && pw.selection_stages.length) {
-          var stList = h('div', { class: 'stages-list' });
-          pw.selection_stages.forEach(function (st) {
-            stList.appendChild(h('div', { class: 'stage-step' },
-              h('div', { class: 'stage-head' },
-                h('span', { text: 'Stage ' + st.stage_number + ': ' + st.stage_name }),
-                st.timeline_typical ? h('span', { class: 'badge-season', text: st.timeline_typical }) : null),
-              st.focus ? h('div', { style: 'font-weight: 500; font-size: 0.85rem; color: var(--accent); margin-bottom: 2px;', text: 'Focus: ' + st.focus }) : null,
-              h('div', { class: 'stage-mech', text: st.mechanics })));
+          var stRows = pw.selection_stages.map(function (st) {
+            return h('tr', null,
+              h('td', { class: 'mono', text: 'Stage ' + st.stage_number }),
+              h('td', { style: 'font-weight: 500;', text: st.stage_name }),
+              h('td', { class: 'mono', text: st.timeline_typical || '\u2014' }),
+              h('td', { class: 'wrapcell' },
+                st.focus ? h('div', { style: 'font-weight: 500; margin-bottom: 2px;', text: st.focus }) : null,
+                h('div', { style: 'font-size: 0.85rem; color: var(--muted);', text: st.mechanics })));
           });
-          q3.appendChild(stList);
+          q3.appendChild(table(['Stage', 'Stage Name', 'Timeline', 'Evaluation Focus & Mechanics'], stRows));
         }
         pwCard.appendChild(q3);
 
@@ -1417,19 +1388,21 @@ td.wrapcell { min-width: 12ch; }
           });
         });
         if (allSchedules.length) {
-          var schWrap = h('div', { class: 'schedule-chips' });
-          allSchedules.forEach(function (s) {
+          var schRows = allSchedules.map(function (s) {
             var dt = fmtDate(s.start) + (s.end ? ' \u2013 ' + fmtDate(s.end) : '');
-            schWrap.appendChild(h('span', { class: 'schedule-chip', text: s.channel + ': ' + s.event + ' (' + dt + ')' }));
+            return h('tr', null,
+              h('td', { style: 'font-weight: 500;', text: s.channel }),
+              h('td', { text: s.event }),
+              h('td', { class: 'mono', text: dt }));
           });
-          rItem.appendChild(schWrap);
+          rItem.appendChild(h('div', { style: 'margin-top: 8px;' }, table(['Channel', 'Event', 'Dates'], schRows)));
         }
         admBox.appendChild(rItem);
       });
     } else if (!pathways.length) {
       admBox.appendChild(h('p', { class: 'muted', text: 'No admission pathways stored for this institution. Direct institutional admission applies.' }));
     }
-    panels.admissions.appendChild(section('Admission Pathways & 2026\u201327 Timeline', admBox));
+    panels.admissions.appendChild(section('Admission Pathways & Entrance Exams', admBox, 'Student-centric postgraduate admission guidelines directly answering: which exams to take, target scores & category cutoffs, and selection pipeline stages.'));
     // warnings
     if (p.warnings && p.warnings.length) {
       var wb = h('div', { class: 'warnbox', role: 'alert' }, h('h2', { text: 'Warning' }));
@@ -1461,7 +1434,7 @@ td.wrapcell { min-width: 12ch; }
         r.text ? h('div', { text: r.text }) : null,
         h('div', { class: 'src', text: line })));
     });
-    panels.recognition.appendChild(recBox);
+    panels.recognition.appendChild(section('Statutory Recognitions & Accreditations', recBox, 'Statutory accreditations and approvals from official bodies (UGC, NAAC, NBA, AICTE, NMC, Bar Council).'));
     var nRec = ordered.length;
     panels.courses.appendChild(HOSTED ? coursesPanel(p) : h('span'));
 
@@ -1621,21 +1594,21 @@ td.wrapcell { min-width: 12ch; }
     var nameBox = h('input', { type: 'search', placeholder: 'Filter courses by name...', 'aria-label': 'Filter courses by name', autocomplete: 'off' });
     var count = h('span', { class: 'count' });
     var tbody = h('tbody');
-    var thead = h('thead', null, h('tr', null, ['Course', 'Degree', 'Level'].concat(hasCampus ? ['Campus'] : [], ['Subject', 'STEM', 'Source']).map(function (x) { return h('th', { scope: 'col', text: x }); })));
+    var thead = h('thead', null, h('tr', null, ['Course', 'Degree', 'Level'].concat(hasCampus ? ['Campus'] : [], ['Subject', 'STEM']).map(function (x) { return h('th', { scope: 'col', text: x }); })));
     var none = h('p', { class: 'muted', text: 'No courses match.' });
     var rowEls = list.map(function (c) {
       var note = nbaNote(c[5], c[9]);
       var cells = [
-        h('td', { class: 'wrapcell' }, c[0], c[7] === 'online' ? h('span', { class: 'pill online', text: 'Online' }) : null,
+        h('td', { class: 'wrapcell' }, c[0], c[7] === 'online' ? h('span', { class: 'muted', text: ' (Online)' }) : null,
           c[6] ? h('div', { class: 'coursemeta', text: 'Awarded by: ' + c[6] }) : null,
           note ? h('div', { class: 'coursemeta', text: note }) : null),
         h('td', { text: c[1] || '' }),
         h('td', { text: LEVEL_NAME[c[2]] || c[2] })];
       if (hasCampus) cells.push(h('td', { class: 'wrapcell', text: c[8] || '' }));
+      var stemText = c[4] === 'IN' ? 'STEM' : (c[4] === 'OUT' ? 'Non-STEM' : '\u2014');
       return { c: c, key: norm(c[0]), el: h.apply(null, ['tr', null].concat(cells, [
         h('td', { class: 'wrapcell', text: c[3] || '' }),
-        h('td', null, stemBadge(c[4])),
-        h('td', { class: 'mono', text: (c[5] || '').replace(/,/g, ', ') })])) };
+        h('td', { text: stemText })])) };
     });
     function apply() {
       var q = norm(nameBox.value.trim()), n = 0;
