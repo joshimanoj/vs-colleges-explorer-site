@@ -1001,21 +1001,29 @@ td.wrapcell { min-width: 12ch; }
     panels.fees.appendChild(section('Regulated Annual Tuition Fees', fBox));
 
     // TAB: Financial aid
-    var aidList = (p.aid_policies && p.aid_policies.length) ? p.aid_policies :
+    var rawAidList = (p.aid_policies && p.aid_policies.length) ? p.aid_policies :
                   ((meta && meta.aid_policies && meta.aid_policies[cc]) ? meta.aid_policies[cc] : []);
+    var aidList = rawAidList.filter(function (ap) {
+      return ap.benefit !== 'work_authorization' && ap.type !== 'post_study_work_visa' && !ap.work_rights_months;
+    });
     var aBox = h('div');
     if (!aidList.length) {
-      aBox.appendChild(h('p', { class: 'muted', text: 'No statutory financial aid, stipend, or post-study work visa policies recorded for this jurisdiction.' }));
+      if (cc !== 'IN') {
+        aBox.appendChild(h('div', { class: 'det-card', style: 'margin-top: 0;' },
+          h('h3', { text: 'Institutional Scholarships & Graduate Assistantships' }),
+          h('p', { class: 'muted', style: 'line-height: 1.5;', text: 'For institutions in ' + (countryName(cc) || cc) + ', financial aid (Graduate Teaching Assistantships [GTA], Graduate Research Assistantships [GRA] with tuition remission + stipends, and departmental merit awards) is administered directly by individual academic departments and university graduate schools.' }),
+          h('p', { class: 'layout-note', style: 'margin-top: 10px;', text: 'Post-study visa permissions (such as OPT / STEM extension) are categorized under the Work Rights tab.' })));
+      } else {
+        aBox.appendChild(h('p', { class: 'muted', text: 'No statutory financial aid or government fellowship policies recorded for this institution.' }));
+      }
     } else {
-      aBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Statutory government fellowships, research stipends, and post-study work authorization visa rights applicable in ' + (countryName(cc) || cc) + '.' }));
+      aBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Statutory government fellowships, research stipends, and institutional aid applicable in ' + (countryName(cc) || cc) + '.' }));
       var aListEl = h('div', { class: 'aid-list' });
       aidList.forEach(function (ap) {
         var val = '';
         if (ap.amount) {
           var sym = ap.currency === 'INR' ? '\u20b9' : (ap.currency || '') + ' ';
           val = sym + fmtNum(ap.amount) + ' / month';
-        } else if (ap.work_rights_months) {
-          val = ap.work_rights_months + '-Month Post-Study Work Visa';
         }
         var item = h('div', { class: 'aid-item' },
           h('div', { class: 'aid-head' },
@@ -1029,7 +1037,7 @@ td.wrapcell { min-width: 12ch; }
       });
       aBox.appendChild(aListEl);
     }
-    panels.aid.appendChild(section('Statutory Aid & Work Authorization', aBox));
+    panels.aid.appendChild(section('Financial Aid & Scholarships', aBox));
 
     // TAB: Post-Study Work Rights
     var wrList = p.work_rights || [];
