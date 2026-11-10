@@ -268,18 +268,19 @@ td.wrapcell { min-width: 12ch; }
 .fact-label { font-weight: 600; color: var(--muted); min-width: 120px; }
 .fact-val { color: var(--text); }
 
-/* Section heading with source tooltip */
+/* Section heading with collapsible source info */
 .sec-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin: 20px 0 14px; }
 .sec-head h2 { border-bottom: 0; margin: 0; padding: 0; font-size: 1.25rem; }
-.source-tip { font-size: 0.8rem; color: var(--muted); cursor: help; border-bottom: 1px dotted var(--muted); font-weight: 500; }
-.source-tip:hover, .source-tip:focus { color: var(--accent); border-bottom-color: var(--accent); }
+.source-tip { font-size: 0.85rem; }
+.source-tip summary { cursor: pointer; color: var(--accent); font-weight: 500; user-select: none; }
+.source-tip summary:hover { text-decoration: underline; }
+.source-tip-content { margin: 8px 0 0; padding: 8px 12px; background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; color: var(--text); line-height: 1.4; }
 
 /* Homogenous, clean pathway card without multi-colored tags */
-.pathway-card { background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 18px; }
-.pathway-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-.pathway-title { font-size: 1.15rem; font-weight: 700; color: var(--accent); }
-.q-block { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
-.q-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.pathway-card { background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 18px; }
+.q-block { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.q-block:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.q-title { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 8px; }
 #profile { min-width: 0; max-width: 100%; }
 #checkview .tablewrap { margin-top: 12px; }
 #checkview td.num { text-align: right; white-space: nowrap; }
@@ -880,14 +881,9 @@ td.wrapcell { min-width: 12ch; }
 
   function section(title, node, info) {
     if (!info) return h('section', null, h('h2', { text: title }), node);
-    var tip = h('span', {
-      class: 'source-tip',
-      title: info,
-      tabindex: '0',
-      role: 'note',
-      'aria-label': info,
-      text: 'Where this data came from'
-    });
+    var tip = h('details', { class: 'source-tip' },
+      h('summary', { text: 'Where this data came from' }),
+      h('p', { class: 'source-tip-content', text: info }));
     var hdr = h('div', { class: 'sec-head' }, h('h2', { text: title }), tip);
     return h('section', null, hdr, node);
   }
@@ -1150,28 +1146,6 @@ td.wrapcell { min-width: 12ch; }
         return curr + ' ' + fmtNum(amt);
       }
 
-      var latestPl = plList[0];
-      var kpiGrid = h('div', { class: 'kpi-grid' });
-      if (latestPl.median_salary) {
-        kpiGrid.appendChild(h('div', { class: 'kpi-card' },
-          h('div', { class: 'kpi-label', text: 'Median Starting Salary' }),
-          h('div', { class: 'kpi-val', text: formatSalary(latestPl.median_salary, latestPl.currency) }),
-          h('div', { class: 'kpi-sub', text: latestPl.academic_year + ' Graduating Cohort' })));
-      }
-      if (latestPl.placement_rate_pct != null) {
-        kpiGrid.appendChild(h('div', { class: 'kpi-card' },
-          h('div', { class: 'kpi-label', text: 'Placement Rate' }),
-          h('div', { class: 'kpi-val', text: latestPl.placement_rate_pct + '%' }),
-          h('div', { class: 'kpi-sub', text: 'Campus Recruitment Rate' })));
-      }
-      if (latestPl.graduating_cohort) {
-        kpiGrid.appendChild(h('div', { class: 'kpi-card' },
-          h('div', { class: 'kpi-label', text: 'Graduating Cohort' }),
-          h('div', { class: 'kpi-val', text: fmtNum(latestPl.graduating_cohort) }),
-          h('div', { class: 'kpi-sub', text: latestPl.placed_cohort ? fmtNum(latestPl.placed_cohort) + ' Students Placed' : 'Total Students' })));
-      }
-      plBox.appendChild(kpiGrid);
-
       var plRows = plList.map(function (pl) {
         var sal = formatSalary(pl.median_salary, pl.currency);
         var srcTag = srcMap[pl.source_type] || pl.source_type;
@@ -1215,19 +1189,6 @@ td.wrapcell { min-width: 12ch; }
     if (pathways.length) {
       pathways.forEach(function (pw) {
         var pwCard = h('div', { class: 'pathway-card' });
-        
-        // Header
-        var pwHead = h('div', { class: 'pathway-head' });
-        var headLeft = h('div', null,
-          h('div', { class: 'pathway-title', text: pw.pathway_name }),
-          h('div', { class: 'muted', style: 'margin-top: 4px; font-size: 0.9rem;' },
-            'Selection Model: ' + (pw.selection_archetype || '').replace(/_/g, ' ') +
-            (pw.counselling_portal ? ' \u2022 Counselling: ' + pw.counselling_portal : '')));
-        pwHead.appendChild(headLeft);
-        if (pw.portal_url) {
-          pwHead.appendChild(extLink(pw.portal_url, 'Official Admission Portal \u2197'));
-        }
-        pwCard.appendChild(pwHead);
 
         // Q1: Which exams do I need to take?
         var q1 = h('div', { class: 'q-block' },
@@ -1237,16 +1198,14 @@ td.wrapcell { min-width: 12ch; }
         if (pw.mandatory_exams && pw.mandatory_exams.length) {
           var mandList = pw.mandatory_exams.map(function (me) { return me.replace(/_/g, ' '); }).join(', ');
           q1Content.appendChild(h('div', { style: 'margin-bottom: 6px;' },
-            h('b', { text: 'Mandatory Requirements: ' }),
-            h('span', { text: mandList })));
+            h('span', { text: 'Mandatory Requirements: ' + mandList })));
         }
 
         if (pw.alternative_exam_groups && pw.alternative_exam_groups.length) {
           pw.alternative_exam_groups.forEach(function (ag) {
             var examsStr = (ag.accepted_exams || []).map(function (ae) { return ae.replace(/_/g, ' '); }).join(' or ');
             var agEl = h('div', { style: 'margin-bottom: 6px;' },
-              h('b', { text: ag.group_name + ' (' + (ag.requirement_type || 'ONE OF') + '): ' }),
-              h('span', { text: examsStr }));
+              h('span', { text: ag.group_name + ' (' + (ag.requirement_type || 'ONE OF') + '): ' + examsStr }));
             if (ag.notes) {
               agEl.appendChild(h('div', { class: 'coursemeta', text: ag.notes }));
             }
@@ -1257,8 +1216,7 @@ td.wrapcell { min-width: 12ch; }
         if (pw.optional_exams && pw.optional_exams.length) {
           var optList = pw.optional_exams.map(function (oe) { return oe.replace(/_/g, ' '); }).join(', ');
           q1Content.appendChild(h('div', { style: 'margin-bottom: 6px;' },
-            h('b', { text: 'Optional / Additional Tests: ' }),
-            h('span', { text: optList })));
+            h('span', { text: 'Optional / Additional Tests: ' + optList })));
         }
 
         if (pw.exemption_criteria && pw.exemption_criteria.length) {
@@ -1266,7 +1224,7 @@ td.wrapcell { min-width: 12ch; }
           pw.exemption_criteria.forEach(function (ex) {
             exList.appendChild(h('li', { text: ex }));
           });
-          q1Content.appendChild(h('div', { style: 'margin-top: 6px;' }, h('b', { text: 'Exemptions & Waivers:' }), exList));
+          q1Content.appendChild(h('div', { style: 'margin-top: 6px;' }, h('span', { text: 'Exemptions & Waivers:' }), exList));
         }
         q1.appendChild(q1Content);
         pwCard.appendChild(q1);
@@ -1326,11 +1284,11 @@ td.wrapcell { min-width: 12ch; }
               cDetails.push(metric.replace(/_/g, ' ') + ': ' + cObj[metric]);
             }
             catRows.push(h('tr', null,
-              h('td', { style: 'font-weight: 500;', text: cat }),
+              h('td', { text: cat }),
               h('td', { class: 'wrapcell', text: cDetails.join(', ') })));
           }
           q2.appendChild(h('div', { style: 'margin-top: 10px;' },
-            h('div', { class: 'coursemeta', style: 'margin-bottom: 6px; font-weight: 600;', text: 'Category-Specific Cutoffs & Score Targets' }),
+            h('div', { class: 'coursemeta', style: 'margin-bottom: 6px;', text: 'Category-Specific Cutoffs & Score Targets' }),
             table(['Category', 'Cutoff Floor / Target Details'], catRows)));
         }
         pwCard.appendChild(q2);
@@ -1347,10 +1305,10 @@ td.wrapcell { min-width: 12ch; }
           var stRows = pw.selection_stages.map(function (st) {
             return h('tr', null,
               h('td', { class: 'mono', text: 'Stage ' + st.stage_number }),
-              h('td', { style: 'font-weight: 500;', text: st.stage_name }),
+              h('td', { text: st.stage_name }),
               h('td', { class: 'mono', text: st.timeline_typical || '\u2014' }),
               h('td', { class: 'wrapcell' },
-                st.focus ? h('div', { style: 'font-weight: 500; margin-bottom: 2px;', text: st.focus }) : null,
+                st.focus ? h('div', { style: 'margin-bottom: 2px;', text: st.focus }) : null,
                 h('div', { style: 'font-size: 0.85rem; color: var(--muted);', text: st.mechanics })));
           });
           q3.appendChild(table(['Stage', 'Stage Name', 'Timeline', 'Evaluation Focus & Mechanics'], stRows));
@@ -1391,7 +1349,7 @@ td.wrapcell { min-width: 12ch; }
           var schRows = allSchedules.map(function (s) {
             var dt = fmtDate(s.start) + (s.end ? ' \u2013 ' + fmtDate(s.end) : '');
             return h('tr', null,
-              h('td', { style: 'font-weight: 500;', text: s.channel }),
+              h('td', { text: s.channel }),
               h('td', { text: s.event }),
               h('td', { class: 'mono', text: dt }));
           });
@@ -1423,17 +1381,21 @@ td.wrapcell { min-width: 12ch; }
       recs.forEach(function (r, i) { if (p.recognitions[i][0] === b) ordered.push(r); });
     });
     recs.forEach(function (r, i) { if (BODY_ORDER.indexOf(p.recognitions[i][0]) < 0) ordered.push(r); });
-    var recBox = h('div', { class: 'recs' });
-    if (!ordered.length) recBox.appendChild(h('p', { class: 'muted', text: 'No recognitions stored for this institution.' }));
-    ordered.forEach(function (r) {
-      use(r.src);
-      var line = 'Source: ' + srcName(r.src) + (r.asOf ? '. As of ' + fmtDate(r.asOf) : '') + '.';
-      recBox.appendChild(h('div', { class: 'rec' },
-        h('div', { class: 'body', text: r.body }),
-        h('div', { class: 'main', text: r.main }),
-        r.text ? h('div', { text: r.text }) : null,
-        h('div', { class: 'src', text: line })));
-    });
+    var recBox = h('div');
+    if (!ordered.length) {
+      recBox.appendChild(h('p', { class: 'muted', text: 'No recognitions stored for this institution.' }));
+    } else {
+      var recRows = ordered.map(function (r) {
+        use(r.src);
+        var srcLine = srcName(r.src) + (r.asOf ? ' (' + fmtDate(r.asOf) + ')' : '');
+        return h('tr', null,
+          h('td', { class: 'wrapcell', text: r.body }),
+          h('td', { class: 'wrapcell', text: r.main }),
+          h('td', { class: 'wrapcell', text: r.text || '\u2014' }),
+          h('td', { class: 'wrapcell', text: srcLine }));
+      });
+      recBox.appendChild(table(['Authority / Body', 'Status / Accreditation', 'Details / Validity', 'Data Source'], recRows));
+    }
     panels.recognition.appendChild(section('Statutory Recognitions & Accreditations', recBox, 'Statutory accreditations and approvals from official bodies (UGC, NAAC, NBA, AICTE, NMC, Bar Council).'));
     var nRec = ordered.length;
     panels.courses.appendChild(HOSTED ? coursesPanel(p) : h('span'));
@@ -1529,14 +1491,16 @@ td.wrapcell { min-width: 12ch; }
     // tab bar
     var tabDefs = [['overview', 'Overview']];
     if (HOSTED) tabDefs.push(['courses', coursesLabel(p)]);
-    tabDefs.push(['rankings', 'Rankings' + (rkList.length ? ' (' + rkList.length + ')' : '')]);
-    tabDefs.push(['fees', 'Tuition Fees' + (feesList.length ? ' (' + feesList.length + ')' : '')]);
-    tabDefs.push(['aid', 'Financial Aid' + (aidList.length ? ' (' + aidList.length + ')' : '')]);
-    tabDefs.push(['work_rights', 'Work Rights' + (wrList.length ? ' (' + wrList.length + ')' : '')]);
-    tabDefs.push(['placements', 'Placements' + (plList.length ? ' (' + plList.length + ')' : '')]);
-    tabDefs.push(['cycles', 'Intake Cycles' + (cyList.length ? ' (' + cyList.length + ')' : '')]);
-    tabDefs.push(['admissions', 'Admission Pathways' + (admRoutes.length ? ' (' + admRoutes.length + ')' : '')]);
-    tabDefs.push(['recognition', 'Recognition (' + fmtNum(nRec) + ')']);
+    tabDefs.push(['rankings', 'Rankings']);
+    tabDefs.push(['fees', 'Tuition Fees']);
+    tabDefs.push(['aid', 'Financial Aid']);
+    if (cc !== 'IN') {
+      tabDefs.push(['work_rights', 'Work Rights']);
+    }
+    tabDefs.push(['placements', 'Placements']);
+    tabDefs.push(['cycles', 'Intake Cycles']);
+    tabDefs.push(['admissions', 'Admission Pathways']);
+    tabDefs.push(['recognition', 'Recognition']);
     tabDefs.push(['names', 'Names & data']);
     var tabBar = h('nav', { class: 'ptabs', role: 'tablist', 'aria-label': 'College details' });
     var tabBtns = {};
@@ -1591,12 +1555,9 @@ td.wrapcell { min-width: 12ch; }
     var box = h('div', null, h('p', { class: 'covline', text: coverageLine(p.coverage) }));
     if (!list.length) { box.appendChild(h('p', { class: 'muted', text: 'No PG courses stored for this college.' })); return box; }
     var hasCampus = list.some(function (c) { return c[8]; });
-    var nameBox = h('input', { type: 'search', placeholder: 'Filter courses by name...', 'aria-label': 'Filter courses by name', autocomplete: 'off' });
-    var count = h('span', { class: 'count' });
     var tbody = h('tbody');
     var thead = h('thead', null, h('tr', null, ['Course', 'Degree', 'Level'].concat(hasCampus ? ['Campus'] : [], ['Subject', 'STEM']).map(function (x) { return h('th', { scope: 'col', text: x }); })));
-    var none = h('p', { class: 'muted', text: 'No courses match.' });
-    var rowEls = list.map(function (c) {
+    list.forEach(function (c) {
       var note = nbaNote(c[5], c[9]);
       var cells = [
         h('td', { class: 'wrapcell' }, c[0], c[7] === 'online' ? h('span', { class: 'muted', text: ' (Online)' }) : null,
@@ -1606,25 +1567,11 @@ td.wrapcell { min-width: 12ch; }
         h('td', { text: LEVEL_NAME[c[2]] || c[2] })];
       if (hasCampus) cells.push(h('td', { class: 'wrapcell', text: c[8] || '' }));
       var stemText = c[4] === 'IN' ? 'STEM' : (c[4] === 'OUT' ? 'Non-STEM' : '\u2014');
-      return { c: c, key: norm(c[0]), el: h.apply(null, ['tr', null].concat(cells, [
-        h('td', { class: 'wrapcell', text: c[3] || '' }),
-        h('td', { text: stemText })])) };
+      cells.push(h('td', { class: 'wrapcell', text: c[3] || '' }));
+      cells.push(h('td', { text: stemText }));
+      tbody.appendChild(h.apply(null, ['tr', null].concat(cells)));
     });
-    function apply() {
-      var q = norm(nameBox.value.trim()), n = 0;
-      tbody.textContent = '';
-      rowEls.forEach(function (r) {
-        if (q && r.key.indexOf(q) < 0) return;
-        tbody.appendChild(r.el); n++;
-      });
-      count.textContent = 'Showing ' + fmtNum(n) + ' of ' + fmtNum(list.length);
-      none.hidden = n > 0;
-    }
-    nameBox.addEventListener('input', apply);
-    box.appendChild(h('div', { class: 'ctools' }, nameBox, count));
     box.appendChild(h('div', { class: 'tablewrap', tabindex: '0', role: 'region', 'aria-label': 'Table, scrolls sideways' }, h('table', null, thead, tbody)));
-    box.appendChild(none);
-    apply();
     return box;
   }
 
