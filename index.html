@@ -272,6 +272,25 @@ td.wrapcell { min-width: 12ch; }
 .badge-dli { background: #1a2d42; color: #7cb7f5; border: 1px solid #284e75; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; font-family: var(--mono); }
 .badge-sponsor { background: #322513; color: #f5b971; border: 1px solid #63451e; border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; }
 .badge-season { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+.pathway-card { background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+.pathway-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.pathway-title { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+.badge-archetype { background: #1c2438; color: #9bbcf5; border: 1px solid #314b78; border-radius: 4px; padding: 3px 8px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+.badge-portal { background: #2b1f38; color: #d4a5f5; border: 1px solid #5d3d7a; border-radius: 4px; padding: 3px 8px; font-size: 0.75rem; font-weight: 600; }
+.badge-mand { background: #3b1c1c; color: #ff9494; border: 1px solid #6e2f2f; border-radius: 4px; padding: 2px 7px; font-size: 0.75rem; font-weight: 600; font-family: var(--mono); }
+.badge-exam { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; font-size: 0.75rem; font-weight: 500; font-family: var(--mono); }
+.q-block { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.q-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.q-title .q-num { background: var(--accent-soft); color: var(--accent); border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; flex-shrink: 0; }
+.score-badge { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; display: inline-flex; flex-direction: column; gap: 2px; }
+.score-badge .sb-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.score-badge .sb-val { font-size: 1.05rem; font-weight: 700; color: var(--accent); }
+.stages-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.stage-step { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+.stage-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; flex-wrap: wrap; }
+.stage-mech { font-size: 0.85rem; color: var(--muted); line-height: 1.45; }
+.grad-aid-card { background: var(--surface-2, #1a2233); border: 1px solid #24573f; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+.grad-aid-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 #profile { min-width: 0; max-width: 100%; }
 #checkview .tablewrap { margin-top: 12px; }
 #checkview td.num { text-align: right; white-space: nowrap; }
@@ -1007,7 +1026,54 @@ td.wrapcell { min-width: 12ch; }
       return ap.benefit !== 'work_authorization' && ap.type !== 'post_study_work_visa' && !ap.work_rights_months;
     });
     var aBox = h('div');
-    if (!aidList.length) {
+
+    if (p.central_graduate_policies) {
+      var cgp = p.central_graduate_policies;
+      var cgpCard = h('div', { class: 'grad-aid-card' });
+      var cgpHead = h('div', { class: 'grad-aid-head' },
+        h('div', { style: 'display: flex; gap: 8px; align-items: center; flex-wrap: wrap;' },
+          h('span', { class: 'badge-stem', text: 'Graduate Assistantship Policy' }),
+          cgp.remission_type ? h('span', { class: 'aid-badge', text: cgp.remission_type.replace(/_/g, ' ') }) : null,
+          cgp.stem_cip_verified ? h('span', { class: 'badge-dli', text: 'STEM CIP Verified' }) : null),
+        cgp.tuition_remission_pct != null ? h('b', { style: 'color: #87e0b2; font-size: 1.1rem;', text: cgp.tuition_remission_pct + '% Tuition Remission' }) : null);
+      cgpCard.appendChild(cgpHead);
+
+      var cgpKpi = h('div', { class: 'kpi-grid', style: 'margin-bottom: 12px;' });
+      if (cgp.stipend_min_annual != null) {
+        var stSym = cgp.stipend_currency === 'INR' ? '\u20b9' : (cgp.stipend_currency === 'GBP' ? '\u00a3' : (cgp.stipend_currency === 'EUR' ? '\u20ac' : '$'));
+        var stRange = stSym + fmtNum(cgp.stipend_min_annual) + (cgp.stipend_max_annual ? ' \u2013 ' + fmtNum(cgp.stipend_max_annual) : '') + ' / ' + (cgp.stipend_period || 'yr');
+        cgpKpi.appendChild(h('div', { class: 'kpi-card' },
+          h('div', { class: 'kpi-label', text: 'Stipend Scale (GTA / GRA)' }),
+          h('div', { class: 'kpi-val', style: 'font-size: 1.15rem;', text: stRange }),
+          h('div', { class: 'kpi-sub', text: (cgp.standard_hours_per_week || 20) + ' hrs/wk standard duty' })));
+      }
+      if (cgp.health_insurance_subsidy_pct != null) {
+        cgpKpi.appendChild(h('div', { class: 'kpi-card' },
+          h('div', { class: 'kpi-label', text: 'Health Insurance Subsidy' }),
+          h('div', { class: 'kpi-val', text: cgp.health_insurance_subsidy_pct + '%' }),
+          h('div', { class: 'kpi-sub', text: 'University Health Plan' })));
+      }
+      if (cgp.total_credit_hours_min != null) {
+        cgpKpi.appendChild(h('div', { class: 'kpi-card' },
+          h('div', { class: 'kpi-label', text: 'Program Credit Hours' }),
+          h('div', { class: 'kpi-val', text: cgp.total_credit_hours_min + (cgp.total_credit_hours_max ? '\u2013' + cgp.total_credit_hours_max : '') }),
+          h('div', { class: 'kpi-sub', text: cgp.credit_system || 'Credits' })));
+      }
+      cgpCard.appendChild(cgpKpi);
+
+      if (cgp.assistantship_policy_summary) {
+        cgpCard.appendChild(h('p', { style: 'font-size: 0.9rem; line-height: 1.5; margin-bottom: 8px;', text: cgp.assistantship_policy_summary }));
+      }
+      var cgpLinks = [];
+      if (cgp.central_funding_url) cgpLinks.push(extLink(cgp.central_funding_url, 'Central Graduate Funding & Assistantship Bulletin \u2197'));
+      if (cgp.central_catalog_url) cgpLinks.push(extLink(cgp.central_catalog_url, 'Central Academic Catalog \u2197'));
+      if (cgpLinks.length) {
+        cgpCard.appendChild(h('div', { style: 'display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; font-size: 0.85rem;' }, cgpLinks));
+      }
+      aBox.appendChild(cgpCard);
+    }
+
+    if (!aidList.length && !p.central_graduate_policies) {
       if (cc !== 'IN') {
         aBox.appendChild(h('div', { class: 'det-card', style: 'margin-top: 0;' },
           h('h3', { text: 'Institutional Scholarships & Graduate Assistantships' }),
@@ -1073,22 +1139,42 @@ td.wrapcell { min-width: 12ch; }
     if (!plList.length) {
       plBox.appendChild(h('p', { class: 'muted', text: 'No audited placement outcomes or statutory median salary disclosures stored for this institution.' }));
     } else {
-      plBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Audited statutory postgraduate placement outcomes, cohort sizes, employment rates, and median salaries from official disclosures (NIRF DCS Section 3 / U.S. College Scorecard).' }));
+      plBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 14px;', text: 'Audited statutory postgraduate placement outcomes, cohort sizes, employment rates, and median salaries from official disclosures (NIRF DCS / U.S. College Scorecard / UK HESA / Canada StatCan / Australia QILT / Germany Destatis).' }));
       
+      var srcMap = {
+        'nirf_dcs': 'NIRF DCS Sec 3',
+        'college_scorecard': 'College Scorecard',
+        'hesa_graduate_outcomes': 'UK HESA Graduate Outcomes',
+        'statcan_psis': 'Statistics Canada PSIS',
+        'qilt_gos': 'Australia QILT GOS',
+        'destatis_dzhw': 'Germany Destatis/DZHW',
+        'cbs_roa': 'Netherlands CBS/ROA',
+        'hea_ireland': 'Ireland HEA Survey',
+        'uka_sweden': 'Sweden UK\u00c4 Registry',
+        'swiss_bfs': 'Swiss BFS Survey',
+        'moe_singapore_ges': 'Singapore MOE GES'
+      };
+
+      function formatSalary(amt, curr) {
+        if (!amt) return '\u2014';
+        if (curr === 'INR') return '\u20b9' + (amt / 100000).toFixed(1) + ' LPA';
+        if (curr === 'USD') return '$' + fmtNum(amt) + ' / yr';
+        if (curr === 'GBP') return '\u00a3' + fmtNum(amt) + ' / yr';
+        if (curr === 'EUR') return '\u20ac' + fmtNum(amt) + ' / yr';
+        if (curr === 'CAD') return 'C$' + fmtNum(amt) + ' / yr';
+        if (curr === 'AUD') return 'A$' + fmtNum(amt) + ' / yr';
+        if (curr === 'CHF') return 'CHF ' + fmtNum(amt) + ' / yr';
+        if (curr === 'SEK') return fmtNum(amt) + ' SEK / yr';
+        if (curr === 'SGD') return 'S$' + fmtNum(amt) + ' / yr';
+        return curr + ' ' + fmtNum(amt);
+      }
+
       var latestPl = plList[0];
       var kpiGrid = h('div', { class: 'kpi-grid' });
       if (latestPl.median_salary) {
-        var salFormatted = '';
-        if (latestPl.currency === 'INR') {
-          salFormatted = '\u20b9' + (latestPl.median_salary / 100000).toFixed(1) + ' LPA';
-        } else if (latestPl.currency === 'USD') {
-          salFormatted = '$' + fmtNum(latestPl.median_salary) + ' / yr';
-        } else {
-          salFormatted = latestPl.currency + ' ' + fmtNum(latestPl.median_salary);
-        }
         kpiGrid.appendChild(h('div', { class: 'kpi-card' },
           h('div', { class: 'kpi-label', text: 'Median Starting Salary' }),
-          h('div', { class: 'kpi-val', text: salFormatted }),
+          h('div', { class: 'kpi-val', text: formatSalary(latestPl.median_salary, latestPl.currency) }),
           h('div', { class: 'kpi-sub', text: latestPl.academic_year + ' Graduating Cohort' })));
       }
       if (latestPl.placement_rate_pct != null) {
@@ -1106,8 +1192,8 @@ td.wrapcell { min-width: 12ch; }
       plBox.appendChild(kpiGrid);
 
       var plRows = plList.map(function (pl) {
-        var sal = pl.median_salary ? (pl.currency === 'INR' ? '\u20b9' + fmtNum(pl.median_salary) : '$' + fmtNum(pl.median_salary)) : '\u2014';
-        var srcTag = pl.source_type === 'nirf_dcs' ? 'NIRF DCS Sec 3' : (pl.source_type === 'college_scorecard' ? 'College Scorecard' : pl.source_type);
+        var sal = formatSalary(pl.median_salary, pl.currency);
+        var srcTag = srcMap[pl.source_type] || pl.source_type;
         return h('tr', null,
           h('td', { class: 'wrapcell', text: (pl.academic_level || 'pg_2yr').toUpperCase().replace('_', ' ') }),
           h('td', { class: 'mono', text: pl.academic_year || '' }),
@@ -1143,23 +1229,170 @@ td.wrapcell { min-width: 12ch; }
     panels.cycles.appendChild(section('Intake Cycles & Application Deadlines', cyBox));
 
     // TAB: Admission pathways & entrance exams
-    var admRoutes = p.admission_routes || [];
     var admBox = h('div');
-    if (cc === 'IN') {
-      var diffExplainer = h('div', { class: 'diff-explainer', style: 'background: var(--surface-2, #1a2233); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.9rem; line-height: 1.5;' },
-        h('div', { style: 'font-weight: 600; margin-bottom: 6px; color: var(--accent);', text: 'Entrance Exams vs. Admission Pathways \u2014 Key Differences' }),
-        h('div', null,
-          h('b', { text: '\u2022 Entrance Exam: ' }),
-          h('span', { text: 'The standardized qualifying aptitude test (e.g. GATE, IIT-JAM, NIMCET, CUET-PG, TANCET, KEA-PGCET).' })),
-        h('div', { style: 'margin-top: 4px;' },
-          h('b', { text: '\u2022 Admission Pathway: ' }),
-          h('span', { text: 'The complete multi-stage admission route from the exam score through centralized counselling, seat matrix choice filling, and official quota allocation (e.g. GATE \u2192 CCMT Counselling \u2192 Seat Allotment).' })));
-      admBox.appendChild(diffExplainer);
+    var pathways = p.admission_pathways || [];
+
+    if (pathways.length) {
+      admBox.appendChild(h('p', { class: 'muted', style: 'margin-bottom: 16px;', text: 'Student-centric postgraduate admission guidelines directly answering: which exams to take, target scores & category cutoffs, and selection pipeline stages.' }));
+
+      pathways.forEach(function (pw) {
+        var pwCard = h('div', { class: 'pathway-card' });
+        
+        // Header
+        var pwHead = h('div', { class: 'pathway-head' });
+        var headLeft = h('div', null,
+          h('div', { class: 'pathway-title', text: pw.pathway_name }),
+          h('div', { style: 'display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap;' },
+            h('span', { class: 'badge-archetype', text: (pw.selection_archetype || '').replace(/_/g, ' ') }),
+            pw.counselling_portal ? h('span', { class: 'badge-portal', text: pw.counselling_portal }) : null));
+        pwHead.appendChild(headLeft);
+        if (pw.portal_url) {
+          pwHead.appendChild(extLink(pw.portal_url, 'Official Admission Portal \u2197'));
+        }
+        pwCard.appendChild(pwHead);
+
+        // Q1: Which exams do I need to take?
+        var q1 = h('div', { class: 'q-block' },
+          h('div', { class: 'q-title' },
+            h('span', { class: 'q-num', text: '1' }),
+            h('span', { text: 'Which exams do I need to take?' })));
+        
+        var q1Content = h('div', { style: 'font-size: 0.9rem; line-height: 1.5;' });
+        if (pw.mandatory_exams && pw.mandatory_exams.length) {
+          var mRow = h('div', { style: 'display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;' },
+            h('b', { text: 'Mandatory Requirements: ' }));
+          pw.mandatory_exams.forEach(function (me) {
+            mRow.appendChild(h('span', { class: 'badge-mand', text: me.replace(/_/g, ' ') }));
+          });
+          q1Content.appendChild(mRow);
+        }
+
+        if (pw.alternative_exam_groups && pw.alternative_exam_groups.length) {
+          pw.alternative_exam_groups.forEach(function (ag) {
+            var agRow = h('div', { style: 'margin-bottom: 8px;' },
+              h('b', { text: ag.group_name + ' (Requirement: ' + (ag.requirement_type || 'ONE OF') + '): ' }));
+            (ag.accepted_exams || []).forEach(function (ae) {
+              agRow.appendChild(h('span', { class: 'badge-exam', style: 'margin-right: 6px;', text: ae.replace(/_/g, ' ') }));
+            });
+            if (ag.notes) {
+              agRow.appendChild(h('p', { class: 'coursemeta', style: 'margin-top: 3px;', text: ag.notes }));
+            }
+            q1Content.appendChild(agRow);
+          });
+        }
+
+        if (pw.optional_exams && pw.optional_exams.length) {
+          var optRow = h('div', { style: 'display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;' },
+            h('span', { class: 'muted', text: 'Optional / Additional Tests: ' }));
+          pw.optional_exams.forEach(function (oe) {
+            optRow.appendChild(h('span', { class: 'badge-exam', text: oe.replace(/_/g, ' ') }));
+          });
+          q1Content.appendChild(optRow);
+        }
+
+        if (pw.exemption_criteria && pw.exemption_criteria.length) {
+          var exList = h('ul', { style: 'margin: 6px 0 0 16px; padding: 0; font-size: 0.85rem; color: var(--muted); line-height: 1.4;' });
+          pw.exemption_criteria.forEach(function (ex) {
+            exList.appendChild(h('li', { text: ex }));
+          });
+          q1Content.appendChild(h('div', { style: 'margin-top: 6px;' }, h('b', { text: 'Exemptions & Waivers:' }), exList));
+        }
+        q1.appendChild(q1Content);
+        pwCard.appendChild(q1);
+
+        // Q2: What typical score gets me in?
+        var q2 = h('div', { class: 'q-block' },
+          h('div', { class: 'q-title' },
+            h('span', { class: 'q-num', text: '2' }),
+            h('span', { text: 'What typical score gets me in?' })));
+
+        var q2Grid = h('div', { class: 'kpi-grid', style: 'margin-bottom: 8px;' });
+        if (pw.gpa_min_eligibility != null) {
+          var gpaComp = pw.gpa_competitive_min != null ? pw.gpa_competitive_min + (pw.gpa_competitive_max ? ' \u2013 ' + pw.gpa_competitive_max : '') : 'Competitive Target';
+          q2Grid.appendChild(h('div', { class: 'score-badge' },
+            h('span', { class: 'sb-label', text: 'Undergraduate GPA (Scale ' + (pw.gpa_scale || '4.0') + ')' }),
+            h('span', { class: 'sb-val', text: 'Floor: ' + pw.gpa_min_eligibility + ' | Admit: ' + gpaComp })));
+        }
+
+        if (pw.gre_requirement_status && pw.gre_requirement_status !== 'NOT_REQUIRED') {
+          var greText = pw.gre_requirement_status;
+          if (pw.gre_quant_competitive_min) greText += ' (Quant \u2265 ' + pw.gre_quant_competitive_min + ')';
+          q2Grid.appendChild(h('div', { class: 'score-badge' },
+            h('span', { class: 'sb-label', text: 'GRE Benchmark' }),
+            h('span', { class: 'sb-val', text: greText })));
+        }
+
+        if (pw.english_test_min_score && Object.keys(pw.english_test_min_score).length) {
+          var engChips = [];
+          for (var test in pw.english_test_min_score) {
+            var minS = pw.english_test_min_score[test];
+            var compS = pw.english_test_competitive_score ? pw.english_test_competitive_score[test] : null;
+            engChips.push(test.replace(/_/g, ' ') + ': ' + minS + (compS ? ' (Target: ' + compS + ')' : ''));
+          }
+          q2Grid.appendChild(h('div', { class: 'score-badge' },
+            h('span', { class: 'sb-label', text: 'English Test Floors & Targets' }),
+            h('span', { class: 'sb-val', style: 'font-size: 0.9rem;', text: engChips.join(' | ') })));
+        }
+
+        if (pw.entrance_test_min_score && Object.keys(pw.entrance_test_min_score).length) {
+          var entChips = [];
+          for (var et in pw.entrance_test_min_score) {
+            var mVal = pw.entrance_test_min_score[et];
+            var cVal = pw.entrance_test_competitive_score ? pw.entrance_test_competitive_score[et] : null;
+            entChips.push(et.replace(/_/g, ' ') + ' Floor: ' + mVal + (cVal ? ' | Typical: ' + cVal : ''));
+          }
+          q2Grid.appendChild(h('div', { class: 'score-badge' },
+            h('span', { class: 'sb-label', text: 'Entrance Test Benchmarks' }),
+            h('span', { class: 'sb-val', style: 'font-size: 0.9rem;', text: entChips.join(' | ') })));
+        }
+        q2.appendChild(q2Grid);
+
+        if (pw.category_cutoffs && Object.keys(pw.category_cutoffs).length) {
+          var catRow = h('div', { style: 'font-size: 0.85rem; margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;' },
+            h('b', { text: 'Category Score Targets: ' }));
+          for (var cat in pw.category_cutoffs) {
+            var cObj = pw.category_cutoffs[cat];
+            var cStr = '';
+            for (var metric in cObj) {
+              cStr += (cStr ? ', ' : '') + metric.replace(/_/g, ' ') + ': ' + cObj[metric];
+            }
+            catRow.appendChild(h('span', { class: 'badge-exam', text: cat + ' (' + cStr + ')' }));
+          }
+          q2.appendChild(catRow);
+        }
+        pwCard.appendChild(q2);
+
+        // Q3: What is the selection process?
+        var q3 = h('div', { class: 'q-block' },
+          h('div', { class: 'q-title' },
+            h('span', { class: 'q-num', text: '3' }),
+            h('span', { text: 'What is the selection process?' })));
+
+        if (pw.process_summary) {
+          q3.appendChild(h('p', { style: 'font-size: 0.9rem; line-height: 1.5; margin-bottom: 10px;', text: pw.process_summary }));
+        }
+
+        if (pw.selection_stages && pw.selection_stages.length) {
+          var stList = h('div', { class: 'stages-list' });
+          pw.selection_stages.forEach(function (st) {
+            stList.appendChild(h('div', { class: 'stage-step' },
+              h('div', { class: 'stage-head' },
+                h('span', { text: 'Stage ' + st.stage_number + ': ' + st.stage_name }),
+                st.timeline_typical ? h('span', { class: 'badge-season', text: st.timeline_typical }) : null),
+              st.focus ? h('div', { style: 'font-weight: 500; font-size: 0.85rem; color: var(--accent); margin-bottom: 2px;', text: 'Focus: ' + st.focus }) : null,
+              h('div', { class: 'stage-mech', text: st.mechanics })));
+          });
+          q3.appendChild(stList);
+        }
+        pwCard.appendChild(q3);
+
+        admBox.appendChild(pwCard);
+      });
     }
 
-    if (!admRoutes.length) {
-      admBox.appendChild(h('p', { class: 'muted', text: 'No centralized admission routes stored for this institution. Direct institutional admission, university departmental tests, or overseas application portals apply.' }));
-    } else {
+    var admRoutes = p.admission_routes || [];
+    if (admRoutes.length) {
+      admBox.appendChild(h('h3', { style: 'margin-top: 20px; margin-bottom: 10px;', text: 'Legacy Multi-Route Admission Pipeline & Schedules' }));
       admRoutes.forEach(function (ar) {
         var rItem = h('div', { class: 'route-item' });
         var headLine = (ar.degree_family || '').toUpperCase() + (ar.quota ? ' \u2014 ' + ar.quota : '');
@@ -1193,6 +1426,8 @@ td.wrapcell { min-width: 12ch; }
         }
         admBox.appendChild(rItem);
       });
+    } else if (!pathways.length) {
+      admBox.appendChild(h('p', { class: 'muted', text: 'No admission pathways stored for this institution. Direct institutional admission applies.' }));
     }
     panels.admissions.appendChild(section('Admission Pathways & 2026\u201327 Timeline', admBox));
     // warnings
