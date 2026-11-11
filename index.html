@@ -1168,10 +1168,38 @@ td.wrapcell { min-width: 12ch; }
     if (!cyList.length) {
       cyBox.appendChild(h('p', { class: 'muted', text: 'No admission cycles or application deadline calendars recorded for this institution.' }));
     } else {
-      var cyRows = cyList.map(function (cy) {
+      var cyGroups = [];
+      var cyMap = {};
+      cyList.forEach(function (cy) {
+        var key = [
+          cy.term_season || '',
+          cy.academic_year || '',
+          cy.application_open_date || '',
+          cy.priority_scholarship_deadline || '',
+          cy.regular_deadline || '',
+          cy.term_start_month || ''
+        ].join('|');
+        if (!cyMap[key]) {
+          cyMap[key] = {
+            term_season: cy.term_season,
+            academic_year: cy.academic_year,
+            application_open_date: cy.application_open_date,
+            priority_scholarship_deadline: cy.priority_scholarship_deadline,
+            regular_deadline: cy.regular_deadline,
+            term_start_month: cy.term_start_month,
+            families: []
+          };
+          cyGroups.push(cyMap[key]);
+        }
+        var fam = (cy.degree_family || '').toUpperCase();
+        if (fam && cyMap[key].families.indexOf(fam) < 0) {
+          cyMap[key].families.push(fam);
+        }
+      });
+      var cyRows = cyGroups.map(function (cy) {
         return h('tr', null,
           h('td', { style: 'font-weight: 500;', text: cy.term_season }),
-          h('td', { class: 'wrapcell', text: (cy.degree_family || '').toUpperCase() }),
+          h('td', { class: 'wrapcell', text: cy.families.join(', ') }),
           h('td', { class: 'mono', text: cy.academic_year || '' }),
           h('td', { class: 'mono', text: cy.application_open_date ? fmtDate(cy.application_open_date) : '\u2014' }),
           h('td', { class: 'mono', text: cy.priority_scholarship_deadline ? fmtDate(cy.priority_scholarship_deadline) : '\u2014' }),
@@ -1234,11 +1262,12 @@ td.wrapcell { min-width: 12ch; }
       pathways.forEach(function (pw) {
         var pwCard = h('div', { class: 'pathway-card' });
 
-        // Q1: Which exams do I need to take?
-        var q1 = h('div', { class: 'q-block' },
-          h('div', { class: 'q-title', text: '1. Which exams do I need to take?' }));
-        
-        var q1Content = h('div', { style: 'font-size: 0.9rem; line-height: 1.6;' });
+        // Q1: Which exams do I need to take? (collapsed shared country / archetype requirements)
+        var q1 = h('div', { class: 'q-block' });
+        var q1Det = h('details', { style: 'font-size: 0.9rem;' },
+          h('summary', { class: 'q-title', style: 'cursor: pointer; margin-bottom: 0;', text: '1. Which exams do I need to take? (Shared country / archetype requirements)' }));
+
+        var q1Content = h('div', { style: 'font-size: 0.9rem; line-height: 1.6; margin-top: 8px;' });
 
         // Part A: Academic & Entrance Tests (Main Evaluative Exams)
         var acadBlock = h('div', { style: 'margin-bottom: 12px;' });
@@ -1332,7 +1361,8 @@ td.wrapcell { min-width: 12ch; }
             h('span', { text: 'English test scores are not typically required for domestic / national admissions.' })));
         }
         q1Content.appendChild(engBlock);
-        q1.appendChild(q1Content);
+        q1Det.appendChild(q1Content);
+        q1.appendChild(q1Det);
         pwCard.appendChild(q1);
 
         // Separate Section: Exemptions & Waivers (collapsed shared archetype baseline)
