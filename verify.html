@@ -1,0 +1,987 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VigyanShaala — Central Graduate Policy Verification Portal</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --border: #dce2ec;
+      --text: #172336;
+      --muted: #5a687c;
+      --accent: #1f4e78;
+      --accent-soft: #eaf1f8;
+      --ok: #146c43;
+      --ok-bg: #e7f6ee;
+      --warn: #8a5300;
+      --warn-bg: #fff5e0;
+      --err: #b42318;
+      --err-bg: #fef0ee;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header.topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .topbar h1 { margin: 0; font-size: 17px; font-weight: 600; }
+    .topbar .sub { font-size: 12px; opacity: 0.88; margin-top: 2px; }
+    .top-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 8px 13px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .btn-primary { background: #1a7f37; color: #fff; }
+    .btn-primary:hover { background: #14682d; }
+    .btn-light { background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.3); }
+    .btn-light:hover { background: rgba(255,255,255,0.25); }
+    .btn-outline { background: #fff; color: var(--accent); border-color: var(--border); }
+    .btn-outline:hover { background: var(--accent-soft); }
+    .btn-warn { background: var(--warn-bg); color: var(--warn); border-color: #f0cf85; }
+    .btn-warn:hover { background: #ffebc2; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      min-height: calc(100vh - 60px);
+    }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      aside.sidebar { max-height: 360px; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+    aside.sidebar {
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 60px);
+      position: sticky;
+      top: 60px;
+    }
+    .sidebar-head {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e6ebf2;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-fill { height: 100%; background: #1a7f37; width: 0%; transition: width 0.2s; }
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .sidebar-head input, .sidebar-head select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .tab-btn {
+      flex: 1 1 auto;
+      padding: 5px 6px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: var(--muted);
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .uni-list {
+      overflow-y: auto;
+      flex: 1;
+      padding: 6px;
+    }
+    .uni-item {
+      padding: 9px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      margin-bottom: 4px;
+    }
+    .uni-item:hover { background: #f4f7fb; }
+    .uni-item.active { background: var(--accent-soft); border-color: #9dc0e3; }
+    .uni-item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+    .uni-name { font-size: 13px; font-weight: 600; }
+    .uni-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .pill {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 99px;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    .pill-pending { background: #edf2f7; color: #475569; }
+    .pill-done { background: var(--ok-bg); color: var(--ok); }
+    .pill-flagged { background: var(--warn-bg); color: var(--warn); }
+    .pill-batch1 { background: #fde8e8; color: #9b1c1c; }
+    .pill-batch2 { background: #e8f1fc; color: #1e429f; }
+
+    main.workspace {
+      padding: 20px 24px 90px;
+      max-width: 980px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .notice {
+      background: #fffbeb;
+      border: 1px solid #f5d061;
+      color: #6b4700;
+      border-radius: var(--radius);
+      padding: 11px 14px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 2px rgba(16,24,40,0.03);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #edf1f7;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+    .card-title { font-size: 15px; font-weight: 700; color: var(--accent); margin: 0; }
+    .card-hint { font-size: 12px; color: var(--muted); margin: 0; }
+    .hero-title { margin: 0 0 6px; font-size: 21px; }
+    .hero-sub { color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .search-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .search-links a {
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 7px 11px;
+      border-radius: 6px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      background: #f8fafd;
+    }
+    .search-links a:hover { background: var(--accent-soft); border-color: #9dc0e3; }
+    .search-links a.primary-site { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    @media (max-width: 720px) {
+      .grid-2, .grid-4 { grid-template-columns: 1fr; }
+    }
+    label.field-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: #24344d;
+    }
+    .help-text {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    input[type="text"], input[type="number"], input[type="url"], select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 13.5px;
+      font-family: inherit;
+      background: #fff;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid rgba(31, 78, 120, 0.2);
+      border-color: var(--accent);
+    }
+    .subbox {
+      background: #f8fafc;
+      border: 1px solid #e4eaf2;
+      border-radius: 8px;
+      padding: 13px;
+      margin-top: 12px;
+    }
+    .subbox-title { font-size: 13px; font-weight: 700; margin: 0 0 8px; color: #1e293b; }
+    .radio-stack { display: flex; flex-direction: column; gap: 7px; }
+    .radio-opt {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 12.5px;
+    }
+    .radio-opt:hover { border-color: #9dc0e3; }
+    .radio-opt input { margin-top: 3px; }
+    .radio-opt strong { display: block; color: var(--text); }
+    .radio-opt span { color: var(--muted); font-size: 11.5px; }
+
+    .validation-msg {
+      margin-top: 6px;
+      font-size: 12px;
+      padding: 6px 9px;
+      border-radius: 6px;
+      display: none;
+    }
+    .validation-msg.err { display: block; background: var(--err-bg); color: var(--err); border: 1px solid #f5c2be; }
+    .validation-msg.ok { display: block; background: var(--ok-bg); color: var(--ok); border: 1px solid #a7dfbf; }
+    .validation-msg.warn { display: block; background: var(--warn-bg); color: var(--warn); border: 1px solid #f0cf85; }
+
+    .sticky-footer {
+      position: fixed;
+      bottom: 0;
+      left: 330px;
+      right: 0;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(6px);
+      border-top: 1px solid var(--border);
+      padding: 11px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      z-index: 25;
+    }
+    @media (max-width: 960px) { .sticky-footer { left: 0; } }
+    .status-toast { font-size: 12.5px; font-weight: 600; }
+    .hidden-input { display: none; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Graduate Policy Verification Portal</h1>
+      <div class="sub">157 Remaining Core Abroad Universities &middot; Official Sites + Google Search Only</div>
+    </div>
+    <div class="top-actions">
+      <button type="button" class="btn btn-light" id="btnRestoreCsv">Import Saved CSV</button>
+      <input type="file" id="csvFileInput" accept=".csv" class="hidden-input" />
+      <button type="button" class="btn btn-primary" id="btnDownloadCsv">Download Progress CSV</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <div class="stats-row">
+          <span id="statSummary">Loading queue...</span>
+          <span id="statPct">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <input type="text" id="searchInput" placeholder="Search university, ID, country..." />
+        <select id="countryFilter">
+          <option value="">All Countries</option>
+        </select>
+        <div class="tabs" id="filterTabs">
+          <button type="button" class="tab-btn active" data-filter="all">All</button>
+          <button type="button" class="tab-btn" data-filter="pending">Pending</button>
+          <button type="button" class="tab-btn" data-filter="1_unreachable">Batch 1</button>
+          <button type="button" class="tab-btn" data-filter="2_baseline">Batch 2</button>
+          <button type="button" class="tab-btn" data-filter="done">Done</button>
+        </div>
+      </div>
+      <div class="uni-list" id="uniList"></div>
+    </aside>
+
+    <main class="workspace" id="workspace">
+      <div class="notice">
+        <strong>Verification Rule:</strong> Find every number yourself using the <strong>Official Website</strong> and <strong>Google Search</strong> links below &mdash; <strong>do not use AI tools or third-party ranking blogs</strong>. Every pasted URL and <code>evidence_quote</code> is fetched live and word-checked when imported into the database.
+      </div>
+
+      <div class="card" id="heroCard">
+        <h2 class="hero-title" id="heroName">Select a university</h2>
+        <div class="hero-sub" id="heroMeta"></div>
+        <div class="search-links" id="searchLinks"></div>
+      </div>
+
+      <form id="verifyForm" novalidate>
+        <!-- SECTION 1: MASTER'S PROGRAMS -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Section 1 &mdash; Master's Programs (Coursework MS vs Research MS)</h3>
+              <p class="card-hint">Taught Master's (MEng, coursework MSc, MBA) often charge tuition with little/no funding; thesis/research Master's may offer stipends or waivers.</p>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label class="field-label" for="tuition_currency">Tuition Currency</label>
+              <input type="text" id="tuition_currency" maxlength="3" placeholder="e.g. USD, GBP, EUR, CAD, AUD" />
+              <div class="help-text">Pre-filled for this country. Change only if the school bills in another currency.</div>
+            </div>
+            <div>
+              <label class="field-label" for="tuition_period">Billing Cycle (`tuition_period`)</label>
+              <select id="tuition_period">
+                <option value="">-- Select billing cycle --</option>
+                <option value="per_year">Per Year (Annual fee)</option>
+                <option value="per_semester">Per Semester (2 semesters/year)</option>
+                <option value="per_term">Per Quarter / Term (3-4 terms/year)</option>
+                <option value="per_credit">Per Credit / Unit (cost per credit hour)</option>
+                <option value="per_program">Total Program Fee (entire degree cost)</option>
+                <option value="none">Tuition-Free / Nominal Admin Fee Only (e.g., Germany €0)</option>
+              </select>
+              <div class="help-text">Must match the unit used for the tuition numbers you enter below.</div>
+            </div>
+          </div>
+
+          <div class="subbox">
+            <div class="subbox-title">1A. Coursework / Taught Master's Tuition & Funding</div>
+            <div class="grid-2">
+              <div>
+                <label class="field-label" for="cw_ms_tuition_min">Lowest International Tuition (`cw_ms_tuition_min`)</label>
+                <input type="number" step="any" min="0" id="cw_ms_tuition_min" placeholder="Number only (leave blank if per-course)" />
+              </div>
+              <div>
+                <label class="field-label" for="cw_ms_tuition_max">Highest International Tuition (`cw_ms_tuition_max`)</label>
+                <input type="number" step="any" min="0" id="cw_ms_tuition_max" placeholder="Leave blank if flat rate or per-course" />
+              </div>
+            </div>
+            <div class="help-text"><strong>Important:</strong> Many UK, Australian, and Canadian universities charge a different fee per course inside a fee finder instead of one central table. If no central min/max exists, <strong>leave both boxes blank</strong> and paste the fee-finder URL in Section 4.</div>
+
+            <div style="margin-top: 12px;">
+              <label class="field-label">Coursework Master's Funding Policy (`cw_ms_funding`)</label>
+              <div class="radio-stack" id="cwFundingGroup">
+                <label class="radio-opt">
+                  <input type="radio" name="cw_ms_funding" value="self_funded" />
+                  <div><strong>Student pays full tuition (Self-funded)</strong><span>No central assistantships or tuition waivers for coursework Master's students.</span></div>
+                </label>
+                <label class="radio-opt">
+                  <input type="radio" name="cw_ms_funding" value="rare_hourly_only" />
+                  <div><strong>Rare hourly campus jobs only (No tuition waiver)</strong><span>Students may apply for hourly grader/lab jobs, but tuition is NOT waived.</span></div>
+                </label>
+                <label class="radio-opt">
+                  <input type="radio" name="cw_ms_funding" value="competitive_merit_or_dept" />
+                  <div><strong>Partial scholarships or rare competitive TA/RA</strong><span>Merit fee discounts or occasional departmental aid exist, not guaranteed.</span></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="subbox">
+            <div class="subbox-title">1B. Research / Thesis Master's Funding</div>
+            <label class="field-label">Research Master's Funding Policy (`res_ms_funding`)</label>
+            <div class="radio-stack" id="rmFundingGroup">
+              <label class="radio-opt">
+                <input type="radio" name="res_ms_funding" value="full_guaranteed_or_standard" />
+                <div><strong>Fully funded is standard</strong><span>Thesis MS students routinely receive RA/TA funding with tuition waiver + stipend.</span></div>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="res_ms_funding" value="competitive_merit_or_dept" />
+                <div><strong>Partial / competitive scholarships or departmental RA/TA</strong><span>Available depending on supervisor grants or department budget.</span></div>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="res_ms_funding" value="rare_hourly_only" />
+                <div><strong>Hourly jobs only (No tuition waiver)</strong><span>Paid hourly without waiving international tuition fees.</span></div>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="res_ms_funding" value="self_funded" />
+                <div><strong>Student pays full tuition</strong><span>No regular research Master's funding package.</span></div>
+              </label>
+            </div>
+            <div style="margin-top: 10px; max-width: 340px;">
+              <label class="field-label" for="res_ms_stipend_annual">Research Master's Annual Stipend (`res_ms_stipend_annual`)</label>
+              <input type="number" step="any" min="0" id="res_ms_stipend_annual" placeholder="Annual amount in local currency (optional)" />
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION 2: PHD / DOCTORAL -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Section 2 &mdash; PhD / Doctoral Programs</h3>
+              <p class="card-hint">Many US/CA PhDs waive tuition for TA/RAs; public EU PhDs (Germany, Netherlands, Sweden, Switzerland) are often tuition-free salaried jobs.</p>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom: 12px;">
+            <div>
+              <label class="field-label" for="phd_tuition_annual_or_sem">PhD Sticker Tuition (`phd_tuition_annual_or_sem`)</label>
+              <input type="number" step="any" min="0" id="phd_tuition_annual_or_sem" placeholder="Enter 0 if tuition-free; blank if varies" />
+              <div class="help-text">Published international PhD tuition before waivers (matching `tuition_period`). Enter <strong>0</strong> if tuition-free.</div>
+            </div>
+            <div>
+              <label class="field-label" for="phd_stipend_annual">PhD Annual Stipend / Salary (`phd_stipend_annual`)</label>
+              <input type="number" step="any" min="0" id="phd_stipend_annual" placeholder="Minimum or standard annual amount" />
+              <div class="help-text">Numbers only in local currency (convert 9-mo or monthly only if stated clearly, otherwise note in remarks).</div>
+            </div>
+          </div>
+
+          <label class="field-label">PhD Funding Status (`phd_funding`)</label>
+          <div class="radio-stack">
+            <label class="radio-opt">
+              <input type="radio" name="phd_funding" value="full_guaranteed_or_standard" />
+              <div><strong>Fully funded is standard (Waiver + Stipend or Salaried PhD)</strong><span>Most/all PhDs get tuition waived or are paid university research employees.</span></div>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="phd_funding" value="competitive_merit_or_dept" />
+              <div><strong>Competitive scholarships / supervisor grants (Common in UK/AU)</strong><span>Fees + stipend are awarded competitively rather than guaranteed on admission.</span></div>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="phd_funding" value="self_funded" />
+              <div><strong>Mostly self-funded</strong><span>University does not centrally fund international doctoral candidates.</span></div>
+            </label>
+          </div>
+        </section>
+
+        <!-- SECTION 3: ENGLISH REQUIREMENTS -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Section 3 &mdash; English Language Test Requirements</h3>
+              <p class="card-hint">Fill university-wide minimum scores. Leave a box blank if that test is not accepted or only set per-department.</p>
+            </div>
+          </div>
+
+          <div class="subbox-title">Admission Minimums (Overall Score Required to Apply)</div>
+          <div class="grid-4">
+            <div>
+              <label class="field-label" for="toefl_min">TOEFL iBT Min (0-120)</label>
+              <input type="number" step="1" min="0" max="120" id="toefl_min" placeholder="e.g. 80" />
+            </div>
+            <div>
+              <label class="field-label" for="ielts_min">IELTS Min (0-9)</label>
+              <input type="number" step="0.5" min="0" max="9" id="ielts_min" placeholder="e.g. 6.5" />
+            </div>
+            <div>
+              <label class="field-label" for="det_min">Duolingo DET Min (0-160)</label>
+              <input type="number" step="5" min="0" max="160" id="det_min" placeholder="e.g. 115" />
+            </div>
+            <div>
+              <label class="field-label" for="pte_min">PTE Academic Min (0-90)</label>
+              <input type="number" step="1" min="0" max="90" id="pte_min" placeholder="e.g. 58" />
+            </div>
+          </div>
+
+          <div class="subbox" style="margin-top: 14px;">
+            <div class="subbox-title">Teaching Assistant (TA) Oral English Minimums (Only if Teaching)</div>
+            <div class="grid-2">
+              <div>
+                <label class="field-label" for="toefl_ta_speaking_min">TOEFL TA Speaking Min (0-30)</label>
+                <input type="number" step="1" min="0" max="30" id="toefl_ta_speaking_min" placeholder="e.g. 23 or 26" />
+              </div>
+              <div>
+                <label class="field-label" for="ielts_ta_speaking_min">IELTS TA Speaking Min (0-9)</label>
+                <input type="number" step="0.5" min="0" max="9" id="ielts_ta_speaking_min" placeholder="e.g. 7.0" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION 4: OFFICIAL PROOF -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Section 4 &mdash; Official Proof (URLs + Exact Verbatim Quote)</h3>
+              <p class="card-hint">Must be central university pages (not single-department pages like <code>cs.</code> or third-party sites like Shiksha/TopUniversities).</p>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div>
+              <label class="field-label" for="tuition_url">Official Central Tuition / Fees URL (`tuition_url`)</label>
+              <input type="url" id="tuition_url" placeholder="https://bursar.university.edu/tuition-and-fees" />
+              <div class="validation-msg" id="msg_tuition_url"></div>
+            </div>
+            <div>
+              <label class="field-label" for="funding_url">Official Graduate Funding / Stipend URL (`funding_url`)</label>
+              <input type="url" id="funding_url" placeholder="https://gradschool.university.edu/funding" />
+              <div class="validation-msg" id="msg_funding_url"></div>
+            </div>
+            <div>
+              <label class="field-label" for="english_url">Official English Requirements URL (`english_url`)</label>
+              <input type="url" id="english_url" placeholder="https://gradschool.university.edu/admissions/english-proficiency" />
+              <div class="validation-msg" id="msg_english_url"></div>
+            </div>
+            <div>
+              <label class="field-label" for="evidence_quote">Verbatim Evidence Quote (`evidence_quote` &mdash; Required)</label>
+              <textarea id="evidence_quote" rows="3" placeholder="Copy-paste 1-2 exact sentences directly from one of the official pages above proving tuition/funding/English cutoffs..."></textarea>
+              <div class="help-text" id="quoteCount">0 characters (minimum 20 exact verbatim characters required; do not paraphrase).</div>
+              <div class="validation-msg" id="msg_evidence_quote"></div>
+            </div>
+            <div>
+              <label class="field-label" for="intern_notes">Notes / Remarks (Optional)</label>
+              <input type="text" id="intern_notes" placeholder="e.g. Fees vary per Master's program (fee finder linked); 12-mo stipend listed" />
+            </div>
+          </div>
+
+          <div class="validation-msg" id="formErrorBox" style="margin-top: 12px;"></div>
+        </section>
+      </form>
+    </main>
+  </div>
+
+  <div class="sticky-footer">
+    <div class="status-toast" id="saveToast">Ready</div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <button type="button" class="btn btn-warn" id="btnFlagBlocked">Still Unreachable / Flag</button>
+      <button type="button" class="btn btn-outline" id="btnSaveDraft">Save Draft</button>
+      <button type="button" class="btn btn-primary" id="btnSaveNext">Verify, Save &amp; Next &rarr;</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "vs_intern_verify_v1";
+    const EXPORT_HEADERS = [
+      "institution_id","priority_batch","country_code","state","university_name",
+      "official_website","why_needs_check","tuition_currency","tuition_period",
+      "cw_ms_tuition_min","cw_ms_tuition_max","cw_ms_funding","res_ms_funding",
+      "res_ms_stipend_annual","phd_tuition_annual_or_sem","phd_funding","phd_stipend_annual",
+      "toefl_min","toefl_ta_speaking_min","ielts_min","ielts_ta_speaking_min",
+      "det_min","pte_min","tuition_url","funding_url","english_url",
+      "evidence_quote","checked_date","intern_notes"
+    ];
+    const DEPT_RE = /(^https?:\/\/(cs|ece|me|chem|bio|math|physics|dept)\.|\/(ece|me|chem|bio|math|physics|cee|dept)\/|\/department-of-)/i;
+    const BLOCKED_DOMAINS = [
+      "chatgpt.com", "openai.com", "claude.ai", "anthropic.com", "perplexity.ai",
+      "gemini.google.com", "poe.com", "topuniversities.com", "timeshighereducation.com",
+      "mastersportal.com", "phdportal.com", "studyportals.com", "shiksha.com",
+      "yocket.com", "idp.com", "collegedunia.com", "leverageedu.com", "usnews.com",
+      "niche.com", "wikipedia.org", "reddit.com", "quora.com", "hotcoursesabroad.com"
+    ];
+
+    let rows = [];
+    let saved = {};
+    let activeId = null;
+    let activeFilter = "all";
+    let openedAt = Date.now();
+
+    function loadStorage() {
+      try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+      catch { saved = {}; }
+    }
+    function saveStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+    }
+
+    function getHost(url) {
+      try { return new URL(url).hostname.replace(/^www\./i, "").toLowerCase(); }
+      catch { return ""; }
+    }
+    function rootDomain(host) {
+      const parts = host.split(".");
+      if (parts.length <= 2) return host;
+      const sld = parts[parts.length - 2];
+      if (["ac", "edu", "co", "gov", "org"].includes(sld) && parts.length >= 3) {
+        return parts.slice(-3).join(".");
+      }
+      return parts.slice(-2).join(".");
+    }
+
+    function checkUrlField(val, officialSite) {
+      const s = (val || "").trim();
+      if (!s) return { ok: true, level: "", text: "" };
+      if (!/^https?:\/\//i.test(s)) {
+        return { ok: false, level: "err", text: "URL must start with https:// or http://" };
+      }
+      const host = getHost(s);
+      if (!host) return { ok: false, level: "err", text: "Invalid URL format." };
+      if (DEPT_RE.test(s)) {
+        return { ok: false, level: "err", text: "Single-department URLs (/cs/, /ece/, /dept/, etc.) are rejected. Use a central Grad School / Bursar / Admissions page." };
+      }
+      for (const bad of BLOCKED_DOMAINS) {
+        if (host === bad || host.endsWith("." + bad)) {
+          return { ok: false, level: "err", text: `Blocked domain (${bad}). Only official university websites are allowed.` };
+        }
+      }
+      const uniRoot = rootDomain(getHost(officialSite));
+      const urlRoot = rootDomain(host);
+      if (uniRoot && urlRoot && uniRoot !== urlRoot) {
+        return { ok: true, level: "warn", text: `Note: domain (${host}) differs from main website (${uniRoot}). Make sure this is an official university/government portal.` };
+      }
+      return { ok: true, level: "ok", text: `Official domain verified (${host}).` };
+    }
+
+    function setMsg(elId, level, text) {
+      const el = document.getElementById(elId);
+      el.className = "validation-msg" + (level ? " " + level : "");
+      el.textContent = text || "";
+    }
+
+    function getRowState(row) {
+      const rec = saved[String(row.institution_id)];
+      if (!rec) return "pending";
+      return rec._status || "pending";
+    }
+
+    function populateCountries() {
+      const sel = document.getElementById("countryFilter");
+      const countries = [...new Set(rows.map(r => r.country_code))].sort();
+      sel.innerHTML = '<option value="">All Countries (' + countries.length + ')</option>' +
+        countries.map(c => `<option value="${c}">${c}</option>`).join("");
+    }
+
+    function updateProgress() {
+      const total = rows.length || 1;
+      let done = 0, flagged = 0;
+      for (const r of rows) {
+        const st = getRowState(r);
+        if (st === "done") done++;
+        else if (st === "flagged") flagged++;
+      }
+      const pct = Math.round((done / total) * 100);
+      document.getElementById("statSummary").textContent = `${done} Done · ${flagged} Flagged · ${total - done} Left`;
+      document.getElementById("statPct").textContent = `${pct}%`;
+      document.getElementById("progressFill").style.width = `${pct}%`;
+    }
+
+    function renderList() {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      const cc = document.getElementById("countryFilter").value;
+      const list = document.getElementById("uniList");
+      const filtered = rows.filter(r => {
+        const st = getRowState(r);
+        if (activeFilter === "pending" && st !== "pending") return false;
+        if (activeFilter === "done" && st !== "done") return false;
+        if (activeFilter === "1_unreachable" && r.priority_batch !== "1_unreachable") return false;
+        if (activeFilter === "2_baseline" && r.priority_batch !== "2_baseline") return false;
+        if (cc && r.country_code !== cc) return false;
+        if (q) {
+          const hay = `${r.university_name} ${r.country_code} ${r.state} ${r.institution_id}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      list.innerHTML = "";
+      for (const r of filtered) {
+        const st = getRowState(r);
+        const div = document.createElement("div");
+        div.className = "uni-item" + (r.institution_id === activeId ? " active" : "");
+        const stPill = st === "done"
+          ? '<span class="pill pill-done">Done</span>'
+          : (st === "flagged" ? '<span class="pill pill-flagged">Flagged</span>' : '<span class="pill pill-pending">Todo</span>');
+        const bPill = r.priority_batch === "1_unreachable"
+          ? '<span class="pill pill-batch1">B1</span>'
+          : '<span class="pill pill-batch2">B2</span>';
+        div.innerHTML = `
+          <div class="uni-item-top">
+            <div class="uni-name">${escapeHtml(r.university_name)}</div>
+            ${stPill}
+          </div>
+          <div class="uni-meta">${bPill} ${escapeHtml(r.country_code)} ${r.state ? "&middot; " + escapeHtml(r.state) : ""} &middot; ID ${r.institution_id}</div>
+        `;
+        div.onclick = () => selectUniversity(r.institution_id);
+        list.appendChild(div);
+      }
+      updateProgress();
+    }
+
+    function escapeHtml(s) {
+      return String(s || "").replace(/[&<>"']/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[m]));
+    }
+
+    function currentRow() {
+      return rows.find(r => r.institution_id === activeId) || null;
+    }
+
+    function selectUniversity(id) {
+      activeId = id;
+      openedAt = Date.now();
+      const row = currentRow();
+      if (!row) return;
+      const rec = saved[String(id)] || {};
+
+      document.getElementById("heroName").textContent = row.university_name;
+      const bLabel = row.priority_batch === "1_unreachable"
+        ? '<span class="pill pill-batch1">Batch 1: Blocked/Timed Out</span>'
+        : '<span class="pill pill-batch2">Batch 2: Baseline Check</span>';
+      document.getElementById("heroMeta").innerHTML = `
+        ${bLabel}
+        <span><strong>Country:</strong> ${escapeHtml(row.country_code)}${row.state ? " (" + escapeHtml(row.state) + ")" : ""}</span>
+        <span><strong>ID:</strong> ${row.institution_id}</span>
+        <span><strong>Reason:</strong> ${escapeHtml(row.why_needs_check)}</span>
+      `;
+
+      const host = getHost(row.official_website);
+      const siteFilter = host ? `site:${rootDomain(host)} ` : `"${row.university_name}" `;
+      const qBase = encodeURIComponent(siteFilter + "graduate tuition fees international");
+      const qFund = encodeURIComponent(siteFilter + "graduate assistantship stipend tuition waiver PhD");
+      const qEng = encodeURIComponent(siteFilter + "graduate admission TOEFL IELTS minimum");
+      const linksEl = document.getElementById("searchLinks");
+      linksEl.innerHTML = `
+        ${row.official_website ? `<a class="primary-site" href="${escapeHtml(row.official_website)}" target="_blank" rel="noopener noreferrer">Open Official Website &nearr;</a>` : ""}
+        <a href="https://www.google.com/search?q=${qBase}" target="_blank" rel="noopener noreferrer">Google: Tuition &amp; Fees &nearr;</a>
+        <a href="https://www.google.com/search?q=${qFund}" target="_blank" rel="noopener noreferrer">Google: PhD Stipend / Waiver &nearr;</a>
+        <a href="https://www.google.com/search?q=${qEng}" target="_blank" rel="noopener noreferrer">Google: TOEFL / IELTS &nearr;</a>
+      `;
+
+      const textFields = [
+        "tuition_currency","tuition_period","cw_ms_tuition_min","cw_ms_tuition_max",
+        "res_ms_stipend_annual","phd_tuition_annual_or_sem","phd_stipend_annual",
+        "toefl_min","toefl_ta_speaking_min","ielts_min","ielts_ta_speaking_min",
+        "det_min","pte_min","tuition_url","funding_url","english_url","evidence_quote","intern_notes"
+      ];
+      for (const k of textFields) {
+        const el = document.getElementById(k);
+        if (el) el.value = rec[k] !== undefined ? rec[k] : (k === "tuition_currency" ? (row.tuition_currency || "") : "");
+      }
+      for (const radioName of ["cw_ms_funding", "res_ms_funding", "phd_funding"]) {
+        const val = rec[radioName] || "";
+        document.querySelectorAll(`input[name="${radioName}"]`).forEach(r => { r.checked = (r.value === val); });
+      }
+
+      refreshFieldChecks();
+      setMsg("formErrorBox", "", "");
+      document.getElementById("saveToast").textContent = rec._status === "done"
+        ? `Saved on ${rec.checked_date || "earlier"}`
+        : "Viewing university #" + id;
+      renderList();
+    }
+
+    function readFormData(row) {
+      const data = {
+        institution_id: row.institution_id,
+        priority_batch: row.priority_batch,
+        country_code: row.country_code,
+        state: row.state,
+        university_name: row.university_name,
+        official_website: row.official_website,
+        why_needs_check: row.why_needs_check,
+        checked_date: new Date().toISOString().slice(0, 10),
+      };
+      const textFields = [
+        "tuition_currency","tuition_period","cw_ms_tuition_min","cw_ms_tuition_max",
+        "res_ms_stipend_annual","phd_tuition_annual_or_sem","phd_stipend_annual",
+        "toefl_min","toefl_ta_speaking_min","ielts_min","ielts_ta_speaking_min",
+        "det_min","pte_min","tuition_url","funding_url","english_url","evidence_quote","intern_notes"
+      ];
+      for (const k of textFields) {
+        data[k] = (document.getElementById(k).value || "").trim();
+      }
+      data.tuition_currency = data.tuition_currency.toUpperCase();
+      for (const radioName of ["cw_ms_funding", "res_ms_funding", "phd_funding"]) {
+        const checked = document.querySelector(`input[name="${radioName}"]:checked`);
+        data[radioName] = checked ? checked.value : "";
+      }
+      return data;
+    }
+
+    function refreshFieldChecks() {
+      const row = currentRow();
+      if (!row) return;
+      for (const k of ["tuition_url", "funding_url", "english_url"]) {
+        const res = checkUrlField(document.getElementById(k).value, row.official_website);
+        setMsg("msg_" + k, res.level, res.text);
+      }
+      const q = (document.getElementById("evidence_quote").value || "").trim();
+      document.getElementById("quoteCount").textContent = `${q.length} characters (minimum 20 exact verbatim characters required; do not paraphrase).`;
+      if (q && q.length < 20) {
+        setMsg("msg_evidence_quote", "err", "Evidence quote is too short. Copy-paste 1-2 complete verbatim sentences from the official webpage.");
+      } else {
+        setMsg("msg_evidence_quote", "", "");
+      }
+    }
+
+    function validateBeforeComplete(data, row) {
+      const errs = [];
+      const u1 = checkUrlField(data.tuition_url, row.official_website);
+      const u2 = checkUrlField(data.funding_url, row.official_website);
+      const u3 = checkUrlField(data.english_url, row.official_website);
+      if (!u1.ok || !u2.ok || !u3.ok) errs.push("Fix invalid or blocked URL(s) in Section 4.");
+      if (!data.tuition_url && !data.funding_url && !data.english_url) {
+        errs.push("Paste at least one official URL in Section 4.");
+      }
+      if (data.evidence_quote.length < 20) {
+        errs.push("Paste an exact verbatim quote (>= 20 characters) in Section 4.");
+      }
+      if (data.cw_ms_tuition_min && data.cw_ms_tuition_max && Number(data.cw_ms_tuition_min) > Number(data.cw_ms_tuition_max)) {
+        errs.push("Coursework MS Min tuition cannot exceed Max tuition.");
+      }
+      if ((data.cw_ms_tuition_min || data.cw_ms_tuition_max || data.phd_tuition_annual_or_sem) && !data.tuition_period) {
+        errs.push("Select a Tuition Billing Cycle in Section 1.");
+      }
+      return errs;
+    }
+
+    function persistCurrent(status, advanceNext) {
+      const row = currentRow();
+      if (!row) return;
+      const data = readFormData(row);
+      if (status === "done") {
+        const errs = validateBeforeComplete(data, row);
+        if (errs.length) {
+          setMsg("formErrorBox", "err", errs.join(" "));
+          return;
+        }
+      }
+      const elapsedSec = Math.round((Date.now() - openedAt) / 1000);
+      const prevRec = saved[String(row.institution_id)] || {};
+      data._status = status;
+      data._time_spent_sec = (prevRec._time_spent_sec || 0) + elapsedSec;
+      saved[String(row.institution_id)] = data;
+      saveStorage();
+      setMsg("formErrorBox", "ok", status === "done" ? "Saved and verified locally!" : "Draft saved locally.");
+      document.getElementById("saveToast").textContent = `${row.university_name} saved (${status})`;
+      renderList();
+
+      if (advanceNext) {
+        const nextRow = rows.find(r => r.institution_id !== row.institution_id && getRowState(r) === "pending");
+        if (nextRow) selectUniversity(nextRow.institution_id);
+      }
+    }
+
+    function csvEscape(v) {
+      const s = v === undefined || v === null ? "" : String(v);
+      return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+
+    function downloadCsv() {
+      const lines = [EXPORT_HEADERS.join(",")];
+      for (const row of rows) {
+        const rec = saved[String(row.institution_id)] || {};
+        const merged = { ...row, ...rec };
+        if (merged._status === "flagged" && !(merged.intern_notes || "").includes("[FLAGGED")) {
+          merged.intern_notes = `[FLAGGED_UNREACHABLE] ${merged.intern_notes || ""}`.trim();
+        }
+        lines.push(EXPORT_HEADERS.map(h => csvEscape(merged[h] ?? "")).join(","));
+      }
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `intern_central_grad_progress_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    function parseCsv(text) {
+      const out = [];
+      let row = [], cell = "", inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (inQuotes) {
+          if (ch === '"' && text[i+1] === '"') { cell += '"'; i++; }
+          else if (ch === '"') inQuotes = false;
+          else cell += ch;
+        } else {
+          if (ch === '"') inQuotes = true;
+          else if (ch === ',') { row.push(cell); cell = ""; }
+          else if (ch === '\n' || ch === '\r') {
+            if (ch === '\r' && text[i+1] === '\n') i++;
+            row.push(cell); out.push(row); row = []; cell = "";
+          } else cell += ch;
+        }
+      }
+      if (cell.length || row.length) { row.push(cell); out.push(row); }
+      return out;
+    }
+
+    function importSavedCsv(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const parsed = parseCsv(String(reader.result || ""));
+        if (parsed.length < 2) return;
+        const headers = parsed[0].map(h => h.trim());
+        let restored = 0;
+        for (let i = 1; i < parsed.length; i++) {
+          const vals = parsed[i];
+          const obj = {};
+          headers.forEach((h, idx) => { obj[h] = vals[idx] || ""; });
+          const id = parseInt(obj.institution_id, 10);
+          if (!id) continue;
+          const hasProof = (obj.evidence_quote || "").trim().length >= 20 && (obj.tuition_url || obj.funding_url || obj.english_url);
+          if (hasProof) {
+            obj._status = "done";
+            saved[String(id)] = obj;
+            restored++;
+          } else if ((obj.intern_notes || "").includes("[FLAGGED_UNREACHABLE]")) {
+            obj._status = "flagged";
+            saved[String(id)] = obj;
+            restored++;
+          }
+        }
+        saveStorage();
+        if (activeId) selectUniversity(activeId);
+        renderList();
+        alert(`Restored ${restored} completed/flagged rows from CSV.`);
+      };
+      reader.readAsText(file);
+    }
+
+    async function boot() {
+      loadStorage();
+      const resp = await fetch("verify_data.json");
+      rows = await resp.json();
+      populateCountries();
+      const firstPending = rows.find(r => getRowState(r) === "pending") || rows[0];
+      if (firstPending) selectUniversity(firstPending.institution_id);
+      renderList();
+    }
+
+    document.getElementById("searchInput").addEventListener("input", renderList);
+    document.getElementById("countryFilter").addEventListener("change", renderList);
+    document.querySelectorAll("#filterTabs .tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#filterTabs .tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeFilter = btn.dataset.filter;
+        renderList();
+      });
+    });
+    ["tuition_url","funding_url","english_url","evidence_quote"].forEach(id => {
+      document.getElementById(id).addEventListener("input", refreshFieldChecks);
+    });
+    document.getElementById("btnSaveNext").addEventListener("click", () => persistCurrent("done", true));
+    document.getElementById("btnSaveDraft").addEventListener("click", () => persistCurrent("pending", false));
+    document.getElementById("btnFlagBlocked").addEventListener("click", () => persistCurrent("flagged", true));
+    document.getElementById("btnDownloadCsv").addEventListener("click", downloadCsv);
+    document.getElementById("btnRestoreCsv").addEventListener("click", () => document.getElementById("csvFileInput").click());
+    document.getElementById("csvFileInput").addEventListener("change", e => {
+      if (e.target.files[0]) importSavedCsv(e.target.files[0]);
+    });
+
+    boot();
+  </script>
+</body>
+</html>
