@@ -634,45 +634,65 @@
         <section class="card">
           <div class="card-header">
             <div>
-              <h3 class="card-title">Section 4 &mdash; Official Proof (URLs + Exact Quote)</h3>
-              <p class="card-hint">Paste links to official central university pages only (no single-department pages or ranking/study-abroad blogs).</p>
+              <h3 class="card-title">Section 4 &mdash; Official Proof (URLs + Short Copied Quotes)</h3>
+              <p class="card-hint">You do <strong>not</strong> need to quote whole pages or every field &mdash; paste just <strong>1 short exact sentence/line</strong> from each official page you used (Tuition, Funding, or English). Leave a quote blank if that section had no info; at least 1 URL + quote is required.</p>
             </div>
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 12px;">
-            <div>
+            <div class="subbox" style="margin-top: 0;">
+              <div class="subbox-title">4A. Tuition / Fees Proof</div>
               <div class="label-row">
                 <label class="field-label" for="tuition_url">Official Tuition &amp; Fees Page URL</label>
                 <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Full link to the central Bursar, Registrar, or International Graduate Tuition webpage (or PDF).<span class="tip-ex"><strong>Example:</strong> <code>https://bursar.university.edu/tuition-and-fees</code></span><span class="tip-opts">Never paste a single-department URL (like <code>cs.</code> or <code>/ece/</code>) or third-party sites like Shiksha/TopUniversities.</span></span></span>
               </div>
               <input type="url" id="tuition_url" placeholder="https://bursar.university.edu/tuition-and-fees" />
               <div class="validation-msg" id="msg_tuition_url"></div>
+
+              <div class="label-row" style="margin-top: 10px;">
+                <label class="field-label" for="quote_tuition">Exact Line Copied From Tuition Page</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> 1 exact sentence or table line copy-pasted from the Tuition URL showing the international Master's/PhD fee.<span class="tip-ex"><strong>Example:</strong> <code>&ldquo;Non-resident graduate tuition for 2026-27 is $17,364 per semester.&rdquo;</code></span><span class="tip-opts">Leave blank if you didn't find a tuition page. Do not rewrite or summarize.</span></span></span>
+              </div>
+              <textarea id="quote_tuition" rows="2" placeholder="Paste 1 exact line from the Tuition page (optional if no tuition page used)..."></textarea>
             </div>
-            <div>
+
+            <div class="subbox" style="margin-top: 0;">
+              <div class="subbox-title">4B. Graduate Funding / PhD Stipend Proof</div>
               <div class="label-row">
                 <label class="field-label" for="funding_url">Official Graduate Funding / Stipend URL</label>
                 <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Link to the central Graduate School funding, assistantship, or scholarship policy page.<span class="tip-ex"><strong>Example:</strong> <code>https://gradschool.university.edu/funding</code></span></span></span>
               </div>
               <input type="url" id="funding_url" placeholder="https://gradschool.university.edu/funding" />
               <div class="validation-msg" id="msg_funding_url"></div>
+
+              <div class="label-row" style="margin-top: 10px;">
+                <label class="field-label" for="quote_funding">Exact Line Copied From Funding Page</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> 1 exact sentence copy-pasted from the Funding URL confirming PhD/Master's waivers or stipend.<span class="tip-ex"><strong>Example:</strong> <code>&ldquo;All full-time PhD students receive full tuition remission plus a $48,000 12-month stipend.&rdquo;</code></span><span class="tip-opts">Leave blank if no central funding page exists.</span></span></span>
+              </div>
+              <textarea id="quote_funding" rows="2" placeholder="Paste 1 exact line from the Funding page (optional if none)..."></textarea>
             </div>
-            <div>
+
+            <div class="subbox" style="margin-top: 0;">
+              <div class="subbox-title">4C. English Language Scores Proof</div>
               <div class="label-row">
                 <label class="field-label" for="english_url">Official English Requirements URL</label>
                 <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Link to the central Graduate Admissions English language requirements page.<span class="tip-ex"><strong>Example:</strong> <code>https://gradschool.university.edu/admissions/english-proficiency</code></span></span></span>
               </div>
               <input type="url" id="english_url" placeholder="https://gradschool.university.edu/admissions/english-proficiency" />
               <div class="validation-msg" id="msg_english_url"></div>
-            </div>
-            <div>
-              <div class="label-row">
-                <label class="field-label" for="evidence_quote">Exact Quote Copied From the Official Page (Required)</label>
-                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Highlight and copy-paste 1–2 exact sentences straight from one of the official pages you linked above proving the numbers entered.<span class="tip-ex"><strong>Example:</strong> <code>&ldquo;Graduate assistants on 0.50 FTE appointments receive full tuition remission plus a minimum 12-month stipend of $32,000.&rdquo;</code></span><span class="tip-opts">Must be at least 20 exact verbatim characters. Do not rewrite or paraphrase &mdash; our import check verifies this exact text on the live page.</span></span></span>
+
+              <div class="label-row" style="margin-top: 10px;">
+                <label class="field-label" for="quote_english">Exact Line Copied From English Requirements Page</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> 1 exact sentence copy-pasted from the English page proving TOEFL / IELTS / TA Speaking minimums.<span class="tip-ex"><strong>Example:</strong> <code>&ldquo;Minimum TOEFL iBT 80 or IELTS Academic 6.5 required; ITAs require TOEFL Speaking 26.&rdquo;</code></span><span class="tip-opts">Leave blank if no central cutoff was listed.</span></span></span>
               </div>
-              <textarea id="evidence_quote" rows="3" placeholder="Copy-paste 1-2 exact sentences directly from one of the official pages above..."></textarea>
-              <div class="help-text" id="quoteCount">0 characters (minimum 20 exact verbatim characters required).</div>
+              <textarea id="quote_english" rows="2" placeholder="Paste 1 exact line from the English page (optional if none)..."></textarea>
+            </div>
+
+            <div>
+              <div class="help-text" id="quoteCount">Combined quote length: 0 characters (minimum 20 exact verbatim characters across at least one box above).</div>
               <div class="validation-msg" id="msg_evidence_quote"></div>
             </div>
+
             <div>
               <div class="label-row">
                 <label class="field-label" for="intern_notes">Notes / Remarks (Optional)</label>
@@ -887,11 +907,21 @@
         "tuition_currency","tuition_period","cw_ms_tuition_min","cw_ms_tuition_max",
         "res_ms_stipend_annual","phd_tuition_annual_or_sem","phd_stipend_annual",
         "toefl_min","toefl_ta_speaking_min","ielts_min","ielts_ta_speaking_min",
-        "det_min","pte_min","tuition_url","funding_url","english_url","evidence_quote","intern_notes"
+        "det_min","pte_min","tuition_url","funding_url","english_url",
+        "quote_tuition","quote_funding","quote_english","intern_notes"
       ];
+      const legacyParts = (rec.evidence_quote && !rec.quote_tuition && !rec.quote_funding && !rec.quote_english)
+        ? String(rec.evidence_quote).split(/\s*\|\s*/)
+        : null;
       for (const k of textFields) {
         const el = document.getElementById(k);
-        if (el) el.value = rec[k] !== undefined ? rec[k] : (k === "tuition_currency" ? (row.tuition_currency || "") : "");
+        if (!el) continue;
+        if (rec[k] !== undefined) el.value = rec[k];
+        else if (k === "tuition_currency") el.value = row.tuition_currency || "";
+        else if (legacyParts && k === "quote_tuition") el.value = legacyParts[0] || "";
+        else if (legacyParts && k === "quote_funding") el.value = legacyParts[1] || "";
+        else if (legacyParts && k === "quote_english") el.value = legacyParts[2] || "";
+        else el.value = "";
       }
       for (const radioName of ["cw_ms_funding", "res_ms_funding", "phd_funding"]) {
         const val = rec[radioName] || "";
@@ -904,6 +934,13 @@
         ? `Saved on ${rec.checked_date || "earlier"}`
         : "Viewing university #" + id;
       renderList();
+    }
+
+    function combinedQuoteFromInputs() {
+      return ["quote_tuition", "quote_funding", "quote_english"]
+        .map(id => (document.getElementById(id).value || "").trim())
+        .filter(Boolean)
+        .join(" | ");
     }
 
     function readFormData(row) {
@@ -921,11 +958,13 @@
         "tuition_currency","tuition_period","cw_ms_tuition_min","cw_ms_tuition_max",
         "res_ms_stipend_annual","phd_tuition_annual_or_sem","phd_stipend_annual",
         "toefl_min","toefl_ta_speaking_min","ielts_min","ielts_ta_speaking_min",
-        "det_min","pte_min","tuition_url","funding_url","english_url","evidence_quote","intern_notes"
+        "det_min","pte_min","tuition_url","funding_url","english_url",
+        "quote_tuition","quote_funding","quote_english","intern_notes"
       ];
       for (const k of textFields) {
         data[k] = (document.getElementById(k).value || "").trim();
       }
+      data.evidence_quote = [data.quote_tuition, data.quote_funding, data.quote_english].filter(Boolean).join(" | ");
       data.tuition_currency = data.tuition_currency.toUpperCase();
       for (const radioName of ["cw_ms_funding", "res_ms_funding", "phd_funding"]) {
         const checked = document.querySelector(`input[name="${radioName}"]:checked`);
@@ -941,10 +980,10 @@
         const res = checkUrlField(document.getElementById(k).value, row.official_website);
         setMsg("msg_" + k, res.level, res.text);
       }
-      const q = (document.getElementById("evidence_quote").value || "").trim();
-      document.getElementById("quoteCount").textContent = `${q.length} characters (minimum 20 exact verbatim characters required).`;
+      const q = combinedQuoteFromInputs();
+      document.getElementById("quoteCount").textContent = `Combined quote length: ${q.length} characters (minimum 20 exact verbatim characters across at least one box above).`;
       if (q && q.length < 20) {
-        setMsg("msg_evidence_quote", "err", "Evidence quote is too short. Copy-paste 1-2 complete verbatim sentences from the official webpage.");
+        setMsg("msg_evidence_quote", "err", "Quote is too short. Copy-paste at least 1 complete sentence from one of the official webpages above.");
       } else {
         setMsg("msg_evidence_quote", "", "");
       }
@@ -1113,7 +1152,7 @@
         renderList();
       });
     });
-    ["tuition_url","funding_url","english_url","evidence_quote"].forEach(id => {
+    ["tuition_url","funding_url","english_url","quote_tuition","quote_funding","quote_english"].forEach(id => {
       document.getElementById(id).addEventListener("input", refreshFieldChecks);
     });
     document.getElementById("btnSaveNext").addEventListener("click", () => persistCurrent("done", true));
