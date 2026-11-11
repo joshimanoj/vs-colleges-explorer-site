@@ -1335,17 +1335,19 @@ td.wrapcell { min-width: 12ch; }
         q1.appendChild(q1Content);
         pwCard.appendChild(q1);
 
-        // Separate Section: Exemptions & Waivers
+        // Separate Section: Exemptions & Waivers (collapsed shared archetype baseline)
         if (pw.exemption_criteria && pw.exemption_criteria.length) {
-          var exBlock = h('div', { class: 'q-block' },
-            h('div', { class: 'q-title', text: 'Language Test Exemptions & Waivers' }));
-          var exIntro = h('p', { style: 'font-size: 0.9rem; line-height: 1.5; margin-bottom: 6px;', text: 'Applicants meeting any of the following conditions are eligible for a waiver of the English language testing requirement:' });
+          var exBlock = h('div', { class: 'q-block' });
+          var exDet = h('details', { style: 'font-size: 0.9rem;' },
+            h('summary', { style: 'cursor: pointer; color: var(--text);', text: 'Language Test Exemptions & Waivers (Shared archetype conditions)' }));
+          var exIntro = h('p', { style: 'font-size: 0.85rem; color: var(--muted); line-height: 1.5; margin: 8px 0 6px;', text: 'Applicants meeting any of the following conditions may qualify for a waiver of the English language testing requirement:' });
           var exList = h('ul', { style: 'margin: 4px 0 0 18px; padding: 0; font-size: 0.85rem; color: var(--muted); line-height: 1.5;' });
           pw.exemption_criteria.forEach(function (ex) {
             exList.appendChild(h('li', { text: ex }));
           });
-          exBlock.appendChild(exIntro);
-          exBlock.appendChild(exList);
+          exDet.appendChild(exIntro);
+          exDet.appendChild(exList);
+          exBlock.appendChild(exDet);
           pwCard.appendChild(exBlock);
         }
 
@@ -1413,29 +1415,36 @@ td.wrapcell { min-width: 12ch; }
         }
         pwCard.appendChild(q2);
 
-        // Q3: What is the selection process?
+        // Q3: What is the selection process? (shared archetype reference + collapsed stages)
         var q3 = h('div', { class: 'q-block' },
           h('div', { class: 'q-title', text: '3. What is the selection process?' }));
 
         if (pw.archetype_name) {
-          q3.appendChild(h('div', { style: 'font-size: 0.85rem; color: var(--muted); margin-bottom: 6px;', text: 'Selection Pipeline Archetype: ' + pw.archetype_name }));
+          q3.appendChild(h('div', { style: 'font-size: 0.9rem; margin-bottom: 4px;', text: 'Archetype: ' + pw.archetype_name }));
+        }
+        if (pw.counselling_portal) {
+          q3.appendChild(h('div', { style: 'font-size: 0.85rem; color: var(--muted); margin-bottom: 4px;', text: 'Counselling Portal: ' + pw.counselling_portal }));
         }
 
-        if (pw.process_summary) {
-          q3.appendChild(h('p', { style: 'font-size: 0.9rem; line-height: 1.5; margin-bottom: 10px;', text: pw.process_summary }));
-        }
-
-        if (pw.selection_stages && pw.selection_stages.length) {
-          var stRows = pw.selection_stages.map(function (st) {
-            return h('tr', null,
-              h('td', { class: 'mono', text: 'Stage ' + st.stage_number }),
-              h('td', { text: st.stage_name }),
-              h('td', { class: 'mono', text: st.timeline_typical || '\u2014' }),
-              h('td', { class: 'wrapcell' },
-                st.focus ? h('div', { style: 'margin-bottom: 2px;', text: st.focus }) : null,
-                h('div', { style: 'font-size: 0.85rem; color: var(--muted);', text: st.mechanics })));
-          });
-          q3.appendChild(table(['Stage', 'Stage Name', 'Timeline', 'Evaluation Focus & Mechanics'], stRows));
+        if (pw.process_summary || (pw.selection_stages && pw.selection_stages.length)) {
+          var q3Det = h('details', { style: 'margin-top: 8px; font-size: 0.9rem;' },
+            h('summary', { style: 'cursor: pointer; color: var(--muted);', text: 'View standard archetype stages & timeline (' + (pw.selection_stages ? pw.selection_stages.length + ' stages' : 'details') + ')' }));
+          if (pw.process_summary) {
+            q3Det.appendChild(h('p', { style: 'font-size: 0.88rem; line-height: 1.5; margin: 8px 0 10px;', text: pw.process_summary }));
+          }
+          if (pw.selection_stages && pw.selection_stages.length) {
+            var stRows = pw.selection_stages.map(function (st) {
+              return h('tr', null,
+                h('td', { class: 'mono', text: 'Stage ' + st.stage_number }),
+                h('td', { text: st.stage_name }),
+                h('td', { class: 'mono', text: st.timeline_typical || '\u2014' }),
+                h('td', { class: 'wrapcell' },
+                  st.focus ? h('div', { style: 'margin-bottom: 2px;', text: st.focus }) : null,
+                  h('div', { style: 'font-size: 0.85rem; color: var(--muted);', text: st.mechanics })));
+            });
+            q3Det.appendChild(table(['Stage', 'Stage Name', 'Timeline', 'Evaluation Focus & Mechanics'], stRows));
+          }
+          q3.appendChild(q3Det);
         }
         pwCard.appendChild(q3);
 
