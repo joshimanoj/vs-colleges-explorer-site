@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VigyanShaala — Central Graduate Policy Verification Portal</title>
+  <title>VigyanShaala — Graduate Policy Verification Portal</title>
   <style>
     :root {
       --bg: #f4f6f9;
@@ -162,7 +162,7 @@
     .pill-batch2 { background: #e8f1fc; color: #1e429f; }
 
     main.workspace {
-      padding: 20px 24px 90px;
+      padding: 20px 24px 96px;
       max-width: 980px;
       width: 100%;
       margin: 0 auto;
@@ -194,7 +194,7 @@
       gap: 10px;
     }
     .card-title { font-size: 15px; font-weight: 700; color: var(--accent); margin: 0; }
-    .card-hint { font-size: 12px; color: var(--muted); margin: 0; }
+    .card-hint { font-size: 12px; color: var(--muted); margin: 2px 0 0; }
     .hero-title { margin: 0 0 6px; font-size: 21px; }
     .hero-sub { color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
     .search-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
@@ -216,12 +216,79 @@
     @media (max-width: 720px) {
       .grid-2, .grid-4 { grid-template-columns: 1fr; }
     }
-    label.field-label {
-      display: block;
-      font-size: 12.5px;
-      font-weight: 700;
+    .label-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+    label.field-label {
+      font-size: 13px;
+      font-weight: 700;
       color: #24344d;
+      margin: 0;
+    }
+    .tip-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .tip-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid #9dc0e3;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      line-height: 1;
+    }
+    .tip-btn:hover, .tip-wrap.open .tip-btn {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .tip-pop {
+      display: none;
+      position: absolute;
+      left: 0;
+      top: calc(100% + 6px);
+      z-index: 60;
+      width: 320px;
+      max-width: calc(100vw - 40px);
+      background: #172336;
+      color: #f8fafc;
+      padding: 11px 13px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      font-weight: 400;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.28);
+    }
+    .tip-pop strong { color: #93c5fd; }
+    .tip-pop .tip-ex {
+      display: block;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255,255,255,0.14);
+      color: #e2e8f0;
+    }
+    .tip-pop .tip-opts {
+      display: block;
+      margin-top: 5px;
+      color: #cbd5e1;
+      font-size: 11.5px;
+    }
+    .tip-wrap:hover .tip-pop,
+    .tip-wrap.open .tip-pop {
+      display: block;
     }
     .help-text {
       font-size: 11.5px;
@@ -302,7 +369,7 @@
   <header class="topbar">
     <div>
       <h1>Graduate Policy Verification Portal</h1>
-      <div class="sub">157 Remaining Core Abroad Universities &middot; Official Sites + Google Search Only</div>
+      <div class="sub">157 Remaining Universities &middot; Hover or click any <strong>?</strong> icon for plain-English help &amp; examples</div>
     </div>
     <div class="top-actions">
       <button type="button" class="btn btn-light" id="btnRestoreCsv">Import Saved CSV</button>
@@ -336,7 +403,7 @@
 
     <main class="workspace" id="workspace">
       <div class="notice">
-        <strong>Verification Rule:</strong> Find every number yourself using the <strong>Official Website</strong> and <strong>Google Search</strong> links below &mdash; <strong>do not use AI tools or third-party ranking blogs</strong>. Every pasted URL and <code>evidence_quote</code> is fetched live and word-checked when imported into the database.
+        <strong>How this works:</strong> Find each answer using the university's <strong>Official Website</strong> and the <strong>Google Search</strong> buttons below (do not use AI tools or ranking blogs). Hover or click any <strong>?</strong> icon for an example and explanation of the choices.
       </div>
 
       <div class="card" id="heroCard">
@@ -350,19 +417,24 @@
         <section class="card">
           <div class="card-header">
             <div>
-              <h3 class="card-title">Section 1 &mdash; Master's Programs (Coursework MS vs Research MS)</h3>
-              <p class="card-hint">Taught Master's (MEng, coursework MSc, MBA) often charge tuition with little/no funding; thesis/research Master's may offer stipends or waivers.</p>
+              <h3 class="card-title">Section 1 &mdash; Master's Programs (Coursework vs Research)</h3>
+              <p class="card-hint">Coursework Master's (MEng, taught MSc, MBA) are usually paid by the student; Research/Thesis Master's may offer stipends or waivers.</p>
             </div>
           </div>
 
           <div class="grid-2">
             <div>
-              <label class="field-label" for="tuition_currency">Tuition Currency</label>
+              <div class="label-row">
+                <label class="field-label" for="tuition_currency">Tuition Currency</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> The 3-letter currency code the university charges international students in.<span class="tip-ex"><strong>Example:</strong> Enter <code>USD</code> for USA, <code>GBP</code> for UK, <code>EUR</code> for Germany/Netherlands, <code>CAD</code> for Canada, or <code>AUD</code> for Australia.</span><span class="tip-opts">Already pre-filled by country — only change if the site bills in a different currency.</span></span></span>
+              </div>
               <input type="text" id="tuition_currency" maxlength="3" placeholder="e.g. USD, GBP, EUR, CAD, AUD" />
-              <div class="help-text">Pre-filled for this country. Change only if the school bills in another currency.</div>
             </div>
             <div>
-              <label class="field-label" for="tuition_period">Billing Cycle (`tuition_period`)</label>
+              <div class="label-row">
+                <label class="field-label" for="tuition_period">How Tuition Is Charged</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Pick the time/billing unit for the tuition numbers you enter below.<span class="tip-ex"><strong>Example:</strong> If fees say &ldquo;$17,500 per semester&rdquo;, pick <em>Per Semester</em>. If public German/Swedish Master's are free, pick <em>Tuition-Free / Nominal Admin Fee Only</em>.</span><span class="tip-opts"><strong>Options:</strong> Per Year (annual) · Per Semester (2x/yr) · Per Quarter/Term (3–4x/yr) · Per Credit · Total Program Fee · Tuition-Free/Nominal.</span></span></span>
+              </div>
               <select id="tuition_period">
                 <option value="">-- Select billing cycle --</option>
                 <option value="per_year">Per Year (Annual fee)</option>
@@ -372,26 +444,33 @@
                 <option value="per_program">Total Program Fee (entire degree cost)</option>
                 <option value="none">Tuition-Free / Nominal Admin Fee Only (e.g., Germany €0)</option>
               </select>
-              <div class="help-text">Must match the unit used for the tuition numbers you enter below.</div>
             </div>
           </div>
 
           <div class="subbox">
-            <div class="subbox-title">1A. Coursework / Taught Master's Tuition & Funding</div>
+            <div class="subbox-title">1A. Coursework / Taught Master's Tuition &amp; Funding</div>
             <div class="grid-2">
               <div>
-                <label class="field-label" for="cw_ms_tuition_min">Lowest International Tuition (`cw_ms_tuition_min`)</label>
-                <input type="number" step="any" min="0" id="cw_ms_tuition_min" placeholder="Number only (leave blank if per-course)" />
+                <div class="label-row">
+                  <label class="field-label" for="cw_ms_tuition_min">Lowest Coursework Master's Tuition</label>
+                  <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> The lowest international tuition number for a taught Master's, matching the billing unit chosen above (numbers only, no currency symbol).<span class="tip-ex"><strong>Example:</strong> If annual fees run $34,000–$48,000, enter <code>34000</code>. If there is only one flat rate of $52,400, enter <code>52400</code> here.</span><span class="tip-opts">Leave blank if every degree has a different fee in a searchable course finder (common in UK/Australia/Canada).</span></span></span>
+                </div>
+                <input type="number" step="any" min="0" id="cw_ms_tuition_min" placeholder="Number only (blank if varies by course)" />
               </div>
               <div>
-                <label class="field-label" for="cw_ms_tuition_max">Highest International Tuition (`cw_ms_tuition_max`)</label>
-                <input type="number" step="any" min="0" id="cw_ms_tuition_max" placeholder="Leave blank if flat rate or per-course" />
+                <div class="label-row">
+                  <label class="field-label" for="cw_ms_tuition_max">Highest Coursework Master's Tuition</label>
+                  <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> The highest international tuition number for a taught Master's across central departments (numbers only).<span class="tip-ex"><strong>Example:</strong> If fees run $34,000–$48,000, enter <code>48000</code>.</span><span class="tip-opts">Leave blank if all programs share one flat rate or if fees vary course-by-course.</span></span></span>
+                </div>
+                <input type="number" step="any" min="0" id="cw_ms_tuition_max" placeholder="Blank if flat rate or varies by course" />
               </div>
             </div>
-            <div class="help-text"><strong>Important:</strong> Many UK, Australian, and Canadian universities charge a different fee per course inside a fee finder instead of one central table. If no central min/max exists, <strong>leave both boxes blank</strong> and paste the fee-finder URL in Section 4.</div>
 
             <div style="margin-top: 12px;">
-              <label class="field-label">Coursework Master's Funding Policy (`cw_ms_funding`)</label>
+              <div class="label-row">
+                <label class="field-label">Coursework Master's Funding</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Does this university fund coursework/taught Master's students with tuition waivers or stipends?<span class="tip-ex"><strong>Example:</strong> Professional MEng or taught MSc students almost always pay tuition (pick <em>Student pays full tuition</em> or <em>Partial scholarships</em> if merit awards exist).</span><span class="tip-opts"><strong>Options:</strong><br>&bull; <em>Student pays full tuition:</em> No waivers/TAships.<br>&bull; <em>Hourly jobs only:</em> Hourly grader/lab pay, tuition still charged.<br>&bull; <em>Partial scholarships / rare TA/RA:</em> Competitive partial discounts, not guaranteed.</span></span></span>
+              </div>
               <div class="radio-stack" id="cwFundingGroup">
                 <label class="radio-opt">
                   <input type="radio" name="cw_ms_funding" value="self_funded" />
@@ -411,7 +490,10 @@
 
           <div class="subbox">
             <div class="subbox-title">1B. Research / Thesis Master's Funding</div>
-            <label class="field-label">Research Master's Funding Policy (`res_ms_funding`)</label>
+            <div class="label-row">
+              <label class="field-label">Research Master's Funding</label>
+              <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Pick how common funding is for students doing a research/thesis Master's (like a thesis MS or MPhil).<span class="tip-ex"><strong>Example:</strong> Many Canadian thesis MSc programs fund admitted students via supervisor grants (pick <em>Fully funded</em> or <em>Partial / competitive</em>).</span><span class="tip-opts"><strong>Options:</strong> Fully funded is standard · Partial / competitive scholarships or TA/RA · Hourly jobs only · Student pays full tuition.</span></span></span>
+            </div>
             <div class="radio-stack" id="rmFundingGroup">
               <label class="radio-opt">
                 <input type="radio" name="res_ms_funding" value="full_guaranteed_or_standard" />
@@ -430,9 +512,12 @@
                 <div><strong>Student pays full tuition</strong><span>No regular research Master's funding package.</span></div>
               </label>
             </div>
-            <div style="margin-top: 10px; max-width: 340px;">
-              <label class="field-label" for="res_ms_stipend_annual">Research Master's Annual Stipend (`res_ms_stipend_annual`)</label>
-              <input type="number" step="any" min="0" id="res_ms_stipend_annual" placeholder="Annual amount in local currency (optional)" />
+            <div style="margin-top: 10px; max-width: 360px;">
+              <div class="label-row">
+                <label class="field-label" for="res_ms_stipend_annual">Research Master's Annual Stipend</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> The yearly living stipend/salary for a funded research Master's student (numbers only, in local currency).<span class="tip-ex"><strong>Example:</strong> Enter <code>24000</code> if the site states CAD $24,000/yr minimum stipend for thesis Master's.</span><span class="tip-opts">Optional — leave blank if the website does not publish a central stipend number.</span></span></span>
+              </div>
+              <input type="number" step="any" min="0" id="res_ms_stipend_annual" placeholder="Annual amount (optional)" />
             </div>
           </div>
         </section>
@@ -442,24 +527,31 @@
           <div class="card-header">
             <div>
               <h3 class="card-title">Section 2 &mdash; PhD / Doctoral Programs</h3>
-              <p class="card-hint">Many US/CA PhDs waive tuition for TA/RAs; public EU PhDs (Germany, Netherlands, Sweden, Switzerland) are often tuition-free salaried jobs.</p>
+              <p class="card-hint">Many US/Canadian PhDs waive tuition for TA/RAs; public EU PhDs (Germany, Netherlands, Sweden, Switzerland) are often tuition-free salaried jobs.</p>
             </div>
           </div>
 
           <div class="grid-2" style="margin-bottom: 12px;">
             <div>
-              <label class="field-label" for="phd_tuition_annual_or_sem">PhD Sticker Tuition (`phd_tuition_annual_or_sem`)</label>
+              <div class="label-row">
+                <label class="field-label" for="phd_tuition_annual_or_sem">Published PhD Tuition (Before Waivers)</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> The sticker international PhD tuition fee (before assistantship waivers), matching your billing choice in Section 1.<span class="tip-ex"><strong>Example:</strong> Enter <code>0</code> for public German/Swedish/salaried EU PhDs where no tuition is charged; enter <code>34780</code> if non-resident grad tuition is $34,780/yr before waiver.</span><span class="tip-opts">Leave blank if PhD fees vary per program and no central figure is listed.</span></span></span>
+              </div>
               <input type="number" step="any" min="0" id="phd_tuition_annual_or_sem" placeholder="Enter 0 if tuition-free; blank if varies" />
-              <div class="help-text">Published international PhD tuition before waivers (matching `tuition_period`). Enter <strong>0</strong> if tuition-free.</div>
             </div>
             <div>
-              <label class="field-label" for="phd_stipend_annual">PhD Annual Stipend / Salary (`phd_stipend_annual`)</label>
-              <input type="number" step="any" min="0" id="phd_stipend_annual" placeholder="Minimum or standard annual amount" />
-              <div class="help-text">Numbers only in local currency (convert 9-mo or monthly only if stated clearly, otherwise note in remarks).</div>
+              <div class="label-row">
+                <label class="field-label" for="phd_stipend_annual">PhD Annual Stipend or Salary</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Minimum or standard yearly living stipend or PhD researcher salary (numbers only, in local currency).<span class="tip-ex"><strong>Example:</strong> Enter <code>48000</code> if guaranteed PhD funding is $48,000/yr, or <code>21000</code> if UKRI stipend is &pound;21,000/yr.</span><span class="tip-opts">Leave blank if the page states stipends vary by department or are not published centrally.</span></span></span>
+              </div>
+              <input type="number" step="any" min="0" id="phd_stipend_annual" placeholder="Annual stipend/salary (optional)" />
             </div>
           </div>
 
-          <label class="field-label">PhD Funding Status (`phd_funding`)</label>
+          <div class="label-row">
+            <label class="field-label">PhD Funding Policy</label>
+            <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> How international PhD students are funded overall at this university.<span class="tip-ex"><strong>Example:</strong> Pick <em>Fully funded is standard</em> for US/Canadian PhDs with RA/TA packages or European salaried PhDs; pick <em>Competitive scholarships</em> for most UK/Australian PhDs.</span><span class="tip-opts"><strong>Options:</strong> Fully funded is standard · Competitive scholarships / supervisor grants · Mostly self-funded.</span></span></span>
+          </div>
           <div class="radio-stack">
             <label class="radio-opt">
               <input type="radio" name="phd_funding" value="full_guaranteed_or_standard" />
@@ -481,26 +573,38 @@
           <div class="card-header">
             <div>
               <h3 class="card-title">Section 3 &mdash; English Language Test Requirements</h3>
-              <p class="card-hint">Fill university-wide minimum scores. Leave a box blank if that test is not accepted or only set per-department.</p>
+              <p class="card-hint">Enter university-wide minimum scores. Leave a box blank if that test is not accepted or only set per department.</p>
             </div>
           </div>
 
-          <div class="subbox-title">Admission Minimums (Overall Score Required to Apply)</div>
+          <div class="subbox-title">Admission Minimums (Minimum Overall Score to Apply)</div>
           <div class="grid-4">
             <div>
-              <label class="field-label" for="toefl_min">TOEFL iBT Min (0-120)</label>
+              <div class="label-row">
+                <label class="field-label" for="toefl_min">TOEFL iBT Min</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Lowest overall TOEFL iBT score for graduate admission (0–120 scale).<span class="tip-ex"><strong>Example:</strong> Enter <code>80</code> (or <code>90</code> / <code>100</code>) if published centrally. Leave blank if departments set their own scores.</span></span></span>
+              </div>
               <input type="number" step="1" min="0" max="120" id="toefl_min" placeholder="e.g. 80" />
             </div>
             <div>
-              <label class="field-label" for="ielts_min">IELTS Min (0-9)</label>
+              <div class="label-row">
+                <label class="field-label" for="ielts_min">IELTS Min</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Lowest overall IELTS Academic band for graduate admission (0–9 scale).<span class="tip-ex"><strong>Example:</strong> Enter <code>6.5</code> or <code>7.0</code>. Leave blank if no single central cutoff exists.</span></span></span>
+              </div>
               <input type="number" step="0.5" min="0" max="9" id="ielts_min" placeholder="e.g. 6.5" />
             </div>
             <div>
-              <label class="field-label" for="det_min">Duolingo DET Min (0-160)</label>
+              <div class="label-row">
+                <label class="field-label" for="det_min">Duolingo (DET)</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Lowest Duolingo English Test score accepted for graduate admission (0–160).<span class="tip-ex"><strong>Example:</strong> Enter <code>115</code> or <code>120</code> if accepted. Leave blank if not accepted or not listed.</span></span></span>
+              </div>
               <input type="number" step="5" min="0" max="160" id="det_min" placeholder="e.g. 115" />
             </div>
             <div>
-              <label class="field-label" for="pte_min">PTE Academic Min (0-90)</label>
+              <div class="label-row">
+                <label class="field-label" for="pte_min">PTE Academic</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Lowest PTE Academic overall score accepted (0–90 scale).<span class="tip-ex"><strong>Example:</strong> Enter <code>58</code> or <code>65</code> if accepted. Leave blank if not accepted or not listed.</span></span></span>
+              </div>
               <input type="number" step="1" min="0" max="90" id="pte_min" placeholder="e.g. 58" />
             </div>
           </div>
@@ -509,12 +613,18 @@
             <div class="subbox-title">Teaching Assistant (TA) Oral English Minimums (Only if Teaching)</div>
             <div class="grid-2">
               <div>
-                <label class="field-label" for="toefl_ta_speaking_min">TOEFL TA Speaking Min (0-30)</label>
-                <input type="number" step="1" min="0" max="30" id="toefl_ta_speaking_min" placeholder="e.g. 23 or 26" />
+                <div class="label-row">
+                  <label class="field-label" for="toefl_ta_speaking_min">TOEFL TA Speaking Min</label>
+                  <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Extra TOEFL <em>Speaking sub-score</em> required for international students to teach classes as a TA (0–30).<span class="tip-ex"><strong>Example:</strong> Enter <code>26</code> if the university states TAs need at least 26 in Speaking. Leave blank if not mentioned.</span></span></span>
+                </div>
+                <input type="number" step="1" min="0" max="30" id="toefl_ta_speaking_min" placeholder="e.g. 23 or 26 (optional)" />
               </div>
               <div>
-                <label class="field-label" for="ielts_ta_speaking_min">IELTS TA Speaking Min (0-9)</label>
-                <input type="number" step="0.5" min="0" max="9" id="ielts_ta_speaking_min" placeholder="e.g. 7.0" />
+                <div class="label-row">
+                  <label class="field-label" for="ielts_ta_speaking_min">IELTS TA Speaking Min</label>
+                  <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Extra IELTS <em>Speaking band</em> required to teach classes as a TA (0–9).<span class="tip-ex"><strong>Example:</strong> Enter <code>7.0</code> or <code>8.0</code> if specified for TAs. Leave blank if not mentioned.</span></span></span>
+                </div>
+                <input type="number" step="0.5" min="0" max="9" id="ielts_ta_speaking_min" placeholder="e.g. 7.0 (optional)" />
               </div>
             </div>
           </div>
@@ -524,36 +634,51 @@
         <section class="card">
           <div class="card-header">
             <div>
-              <h3 class="card-title">Section 4 &mdash; Official Proof (URLs + Exact Verbatim Quote)</h3>
-              <p class="card-hint">Must be central university pages (not single-department pages like <code>cs.</code> or third-party sites like Shiksha/TopUniversities).</p>
+              <h3 class="card-title">Section 4 &mdash; Official Proof (URLs + Exact Quote)</h3>
+              <p class="card-hint">Paste links to official central university pages only (no single-department pages or ranking/study-abroad blogs).</p>
             </div>
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 12px;">
             <div>
-              <label class="field-label" for="tuition_url">Official Central Tuition / Fees URL (`tuition_url`)</label>
+              <div class="label-row">
+                <label class="field-label" for="tuition_url">Official Tuition &amp; Fees Page URL</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Full link to the central Bursar, Registrar, or International Graduate Tuition webpage (or PDF).<span class="tip-ex"><strong>Example:</strong> <code>https://bursar.university.edu/tuition-and-fees</code></span><span class="tip-opts">Never paste a single-department URL (like <code>cs.</code> or <code>/ece/</code>) or third-party sites like Shiksha/TopUniversities.</span></span></span>
+              </div>
               <input type="url" id="tuition_url" placeholder="https://bursar.university.edu/tuition-and-fees" />
               <div class="validation-msg" id="msg_tuition_url"></div>
             </div>
             <div>
-              <label class="field-label" for="funding_url">Official Graduate Funding / Stipend URL (`funding_url`)</label>
+              <div class="label-row">
+                <label class="field-label" for="funding_url">Official Graduate Funding / Stipend URL</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Link to the central Graduate School funding, assistantship, or scholarship policy page.<span class="tip-ex"><strong>Example:</strong> <code>https://gradschool.university.edu/funding</code></span></span></span>
+              </div>
               <input type="url" id="funding_url" placeholder="https://gradschool.university.edu/funding" />
               <div class="validation-msg" id="msg_funding_url"></div>
             </div>
             <div>
-              <label class="field-label" for="english_url">Official English Requirements URL (`english_url`)</label>
+              <div class="label-row">
+                <label class="field-label" for="english_url">Official English Requirements URL</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Link to the central Graduate Admissions English language requirements page.<span class="tip-ex"><strong>Example:</strong> <code>https://gradschool.university.edu/admissions/english-proficiency</code></span></span></span>
+              </div>
               <input type="url" id="english_url" placeholder="https://gradschool.university.edu/admissions/english-proficiency" />
               <div class="validation-msg" id="msg_english_url"></div>
             </div>
             <div>
-              <label class="field-label" for="evidence_quote">Verbatim Evidence Quote (`evidence_quote` &mdash; Required)</label>
-              <textarea id="evidence_quote" rows="3" placeholder="Copy-paste 1-2 exact sentences directly from one of the official pages above proving tuition/funding/English cutoffs..."></textarea>
-              <div class="help-text" id="quoteCount">0 characters (minimum 20 exact verbatim characters required; do not paraphrase).</div>
+              <div class="label-row">
+                <label class="field-label" for="evidence_quote">Exact Quote Copied From the Official Page (Required)</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Highlight and copy-paste 1–2 exact sentences straight from one of the official pages you linked above proving the numbers entered.<span class="tip-ex"><strong>Example:</strong> <code>&ldquo;Graduate assistants on 0.50 FTE appointments receive full tuition remission plus a minimum 12-month stipend of $32,000.&rdquo;</code></span><span class="tip-opts">Must be at least 20 exact verbatim characters. Do not rewrite or paraphrase &mdash; our import check verifies this exact text on the live page.</span></span></span>
+              </div>
+              <textarea id="evidence_quote" rows="3" placeholder="Copy-paste 1-2 exact sentences directly from one of the official pages above..."></textarea>
+              <div class="help-text" id="quoteCount">0 characters (minimum 20 exact verbatim characters required).</div>
               <div class="validation-msg" id="msg_evidence_quote"></div>
             </div>
             <div>
-              <label class="field-label" for="intern_notes">Notes / Remarks (Optional)</label>
-              <input type="text" id="intern_notes" placeholder="e.g. Fees vary per Master's program (fee finder linked); 12-mo stipend listed" />
+              <div class="label-row">
+                <label class="field-label" for="intern_notes">Notes / Remarks (Optional)</label>
+                <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="Help">?</button><span class="tip-pop"><strong>What is needed:</strong> Short note explaining anything unusual (why a field was left blank, or 9-mo vs 12-mo stipend note).<span class="tip-ex"><strong>Example:</strong> <code>UK university charges course-by-course fees inside fee finder; Master's min/max left blank.</code></span></span></span>
+              </div>
+              <input type="text" id="intern_notes" placeholder="Optional notes (e.g. fees vary per course; 9-mo stipend converted)" />
             </div>
           </div>
 
@@ -817,7 +942,7 @@
         setMsg("msg_" + k, res.level, res.text);
       }
       const q = (document.getElementById("evidence_quote").value || "").trim();
-      document.getElementById("quoteCount").textContent = `${q.length} characters (minimum 20 exact verbatim characters required; do not paraphrase).`;
+      document.getElementById("quoteCount").textContent = `${q.length} characters (minimum 20 exact verbatim characters required).`;
       if (q && q.length < 20) {
         setMsg("msg_evidence_quote", "err", "Evidence quote is too short. Copy-paste 1-2 complete verbatim sentences from the official webpage.");
       } else {
@@ -838,10 +963,10 @@
         errs.push("Paste an exact verbatim quote (>= 20 characters) in Section 4.");
       }
       if (data.cw_ms_tuition_min && data.cw_ms_tuition_max && Number(data.cw_ms_tuition_min) > Number(data.cw_ms_tuition_max)) {
-        errs.push("Coursework MS Min tuition cannot exceed Max tuition.");
+        errs.push("Lowest Coursework Master's Tuition cannot exceed Highest Coursework Master's Tuition.");
       }
       if ((data.cw_ms_tuition_min || data.cw_ms_tuition_max || data.phd_tuition_annual_or_sem) && !data.tuition_period) {
-        errs.push("Select a Tuition Billing Cycle in Section 1.");
+        errs.push("Select 'How Tuition Is Charged' in Section 1.");
       }
       return errs;
     }
@@ -949,8 +1074,27 @@
       reader.readAsText(file);
     }
 
+    function wireTooltips() {
+      document.addEventListener("click", e => {
+        const btn = e.target.closest(".tip-btn");
+        if (btn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const wrap = btn.closest(".tip-wrap");
+          const wasOpen = wrap.classList.contains("open");
+          document.querySelectorAll(".tip-wrap.open").forEach(w => w.classList.remove("open"));
+          if (!wasOpen) wrap.classList.add("open");
+          return;
+        }
+        if (!e.target.closest(".tip-pop")) {
+          document.querySelectorAll(".tip-wrap.open").forEach(w => w.classList.remove("open"));
+        }
+      });
+    }
+
     async function boot() {
       loadStorage();
+      wireTooltips();
       const resp = await fetch("verify_data.json");
       rows = await resp.json();
       populateCountries();
