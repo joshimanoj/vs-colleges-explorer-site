@@ -1417,6 +1417,10 @@ td.wrapcell { min-width: 12ch; }
         var q3 = h('div', { class: 'q-block' },
           h('div', { class: 'q-title', text: '3. What is the selection process?' }));
 
+        if (pw.archetype_name) {
+          q3.appendChild(h('div', { style: 'font-size: 0.85rem; color: var(--muted); margin-bottom: 6px;', text: 'Selection Pipeline Archetype: ' + pw.archetype_name }));
+        }
+
         if (pw.process_summary) {
           q3.appendChild(h('p', { style: 'font-size: 0.9rem; line-height: 1.5; margin-bottom: 10px;', text: pw.process_summary }));
         }
