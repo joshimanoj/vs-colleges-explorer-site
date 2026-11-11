@@ -1,0 +1,480 @@
+{
+  "version": "1.0.0",
+  "grounding_sources": [
+    "docs/11-abroad-central-harvester-architecture.md",
+    "scrapers/harvester/central_graduate_harvester.py (COUNTRY_TRACK_BASELINES & import_intern_workbook)",
+    "scrapers/harvester/central_graduate_live.py (GOLDEN_BENCHMARK_POLICIES & _quote_matches_page_texts)",
+    "scrapers/harvester/central_graduate_flagships.py (FLAGSHIP_VERIFIED_POLICIES)"
+  ],
+  "synonyms": {
+    "cw": "coursework",
+    "taught": "coursework",
+    "meng": "coursework masters",
+    "res": "research thesis",
+    "masc": "research masters",
+    "mphil": "research masters",
+    "mres": "research masters",
+    "phd": "doctoral phd",
+    "dphil": "doctoral phd",
+    "doctorate": "doctoral phd",
+    "ta": "teaching assistantship gta",
+    "ra": "research assistantship gra",
+    "ga": "graduate assistantship gta gra",
+    "gta": "assistantship gta gra",
+    "gra": "assistantship gta gra",
+    "hiwi": "hourly hiwi student assistant",
+    "waiver": "tuition remission waiver",
+    "remission": "tuition remission waiver",
+    "stipend": "stipend salary funding",
+    "salary": "stipend salary funding",
+    "sem": "semester",
+    "semesterbeitrag": "semester contribution germany",
+    "studiengebuhren": "statutory tuition germany",
+    "det": "duolingo det",
+    "duolingo": "duolingo det",
+    "pte": "pte pearson",
+    "toefl": "toefl ibt",
+    "ielts": "ielts",
+    "url": "url link page",
+    "link": "url link page",
+    "dept": "department departmental",
+    "departmental": "department departmental",
+    "quote": "quote evidence proof snippet",
+    "snippet": "quote evidence proof snippet",
+    "proof": "quote evidence proof snippet",
+    "csv": "csv export import save",
+    "flag": "flag unreachable blocked",
+    "blocked": "flag unreachable blocked 403 cloudflare",
+    "uk": "gb united kingdom britain",
+    "britain": "gb united kingdom",
+    "usa": "us united states america",
+    "america": "us united states",
+    "germany": "de germany",
+    "german": "de germany",
+    "canada": "ca canada",
+    "canadian": "ca canada",
+    "netherlands": "nl netherlands holland dutch",
+    "holland": "nl netherlands dutch",
+    "dutch": "nl netherlands",
+    "australia": "au australia",
+    "australian": "au australia",
+    "ireland": "ie ireland irish",
+    "irish": "ie ireland",
+    "switzerland": "ch switzerland swiss",
+    "swiss": "ch switzerland",
+    "sweden": "se sweden swedish",
+    "singapore": "sg singapore",
+    "why": "why purpose mission objective goal reason",
+    "task": "task assignment work job project",
+    "steps": "steps workflow process howto start finish",
+    "order": "priority rank order importance",
+    "queue": "157 remaining queue backlog"
+  },
+  "country_guides": {
+    "US": {
+      "name": "United States",
+      "currency": "USD",
+      "typical_period": "per_year",
+      "overview": "Professional coursework MS degrees usually charge full annual/per-credit tuition and are self-funded or only offer rare hourly grading/TA jobs. PhD and research-MS admits commonly compete for 0.50 FTE (20 hr/wk) GRA/GTA assistantships with tuition remission + stipend + health subsidy.",
+      "coursework_ms": "Enter lowest & highest international annual (or per-semester/per-program) coursework Master's tuition. Select self_funded or rare_hourly_only unless the university centrally offers competitive MS fellowships/TA waivers.",
+      "research_ms": "Thesis MS tracks often fall under competitive_merit_or_dept or full_guaranteed_or_standard if 0.50 FTE GRA/GTA waivers apply.",
+      "phd": "Enter the published full sticker PhD tuition (NOT $0 after waiver) if the bursar lists PhD tuition, then choose full_guaranteed_or_standard (or competitive_merit_or_dept) and record the 9-month or 12-month stipend + waiver details in Notes.",
+      "english": "Check whether the Graduate School lists BOTH an admission minimum (often TOEFL 80-100 / IELTS 6.5-7.0) AND a separate higher GTA/TA Spoken English threshold (typically TOEFL Speaking 26-28 or IELTS Speaking 7.5-8.5).",
+      "verified_example": "Purdue University (Benchmark Flagship): Coursework MS $28,794-$59,400 USD per_year (rare_hourly_only); Research MS competitive_merit_or_dept; PhD tuition $28,794 USD per_year with full_guaranteed_or_standard (0.50 FTE health plan + $24k-$34k stipend in notes); TOEFL 80 (TA Speaking 27), IELTS 6.5 (TA Speaking 8.0), DET 115."
+    },
+    "DE": {
+      "name": "Germany",
+      "currency": "EUR",
+      "typical_period": "per_semester (or none if 0 EUR statutory)",
+      "overview": "Most German public universities charge EUR 0 statutory tuition for Master's and PhD programs, EXCEPT Baden-Wuerttemberg (EUR 1,500/semester non-EU) and opt-in Bavaria universities like TUM (EUR 4,000-6,800/semester). Doctoral candidates are almost always tuition-exempt salaried employees (TV-L E13).",
+      "coursework_ms": "Never enter the Semesterbeitrag (EUR 150-450 student union/transit fee) as tuition. If consecutive Master's tuition is zero, enter 0 in min & max and pick 'none' (or per_semester with 0) and note the Semesterbeitrag in Notes.",
+      "research_ms": "Same statutory tuition regime as coursework Master's; student jobs are usually paid hourly (HiWi) without tuition waivers -> rare_hourly_only or competitive_merit_or_dept if DAAD/merit stipends exist.",
+      "phd": "Enter 0 for PhD tuition unless an exception fee is explicitly published; choose full_guaranteed_or_standard if salaried TV-L E13 research positions are standard.",
+      "english": "Many German universities set admission cutoffs at TOEFL ~88-90 / IELTS 6.5 (rarely DET); if no university-wide central cutoff exists and it varies by MSc program, leave English fields blank and explain in Notes.",
+      "verified_example": "Karlsruhe Institute of Technology (BW Flagship): Coursework MS 1,500-1,684 EUR per_semester (rare_hourly_only, BW non-EU law), PhD 0 EUR per_semester (full_guaranteed_or_standard, exempt). University of Goettingen: CW MS 0-0 EUR (none, ~EUR 409-440/sem Semesterbeitrag noted)."
+    },
+    "CA": {
+      "name": "Canada",
+      "currency": "CAD",
+      "typical_period": "per_year",
+      "overview": "Canadian universities strongly distinguish course-based Master's (MEng/MPS — higher differential fees, usually self-funded) from thesis-based Master's (MASc/MSc) and PhD (which normally guarantee minimum funding packages via TA/RA + differential waivers).",
+      "coursework_ms": "Enter international MEng/coursework annual tuition range. Usually self_funded (or competitive_merit_or_dept if international differential exemptions exist).",
+      "research_ms": "Thesis MASc/MSc frequently has full_guaranteed_or_standard or competitive_merit_or_dept minimum funding packages.",
+      "phd": "Enter published international PhD tuition (often lower than Master's or paired with a differential fee waiver) and select full_guaranteed_or_standard if a multi-year minimum funding package is stated.",
+      "english": "Check Graduate Studies for central TOEFL/IELTS/DET/PTE; TA speaking cutoffs (e.g. Waterloo TOEFL Speaking 25 / IELTS 6.5) apply if TAs are required.",
+      "verified_example": "University of Waterloo (Benchmark): CW MS $49,716-$49,716 CAD per_year (self_funded); Research MS full_guaranteed_or_standard; PhD $22,188 CAD per_year with full_guaranteed_or_standard ($29,145+/yr minimum funding); TOEFL 90 (TA Speaking 25), IELTS 7.0 (TA Speaking 6.5), PTE 63."
+    },
+    "GB": {
+      "name": "United Kingdom",
+      "currency": "GBP",
+      "typical_period": "per_year",
+      "overview": "UK Postgraduate Taught (1-year 180-credit MSc) programs charge full overseas course-by-course fees and are mainly self-funded. Postgraduate Research (MPhil/PhD) candidates compete for UKRI/CDT and university studentships paying overseas fees plus a tax-free maintenance stipend.",
+      "coursework_ms": "If the university publishes overseas PGT min-max fee bands centrally, enter both; if every degree has a different fee with no summary band, you may leave min/max blank, pick per_year, and explain in Notes.",
+      "research_ms": "MRes/MPhil funding is usually competitive_merit_or_dept.",
+      "phd": "Enter central overseas PGR research fee if listed (leave blank if by faculty), and usually select competitive_merit_or_dept unless the institution guarantees full studentships for every admit.",
+      "english": "UK universities often organize TOEFL/IELTS into Standard vs Higher profile bands (with Visa/UKVI component floors) and rarely accept Duolingo DET.",
+      "verified_example": "King's College London (Flagship): CW MS £35,000-£42,900 GBP per_year (self_funded); PhD £28,000 GBP per_year (competitive_merit_or_dept, UKRI London-weighted stipend noted); TOEFL 100 (23 Speaking), IELTS 7.0 (6.5), PTE 69."
+    },
+    "AU": {
+      "name": "Australia",
+      "currency": "AUD",
+      "typical_period": "per_year",
+      "overview": "Australian Master's by Coursework pays full CRICOS international fee tables (usually self-funded or partial merit discounts), while Higher Degrees by Research (Masters by Research & PhD) are eligible for Government RTP Fee Offsets + living stipends + OSHC.",
+      "coursework_ms": "Enter the international postgraduate coursework fee band (often per year for 48 credit points / 1.0 EFTSL). Usually self_funded or competitive_merit_or_dept (if automatic/merit 10-25% discounts exist).",
+      "research_ms": "Masters by Research is commonly eligible for RTP fee offsets (competitive_merit_or_dept).",
+      "phd": "Enter the published international HDR tuition fee if shown, select full_guaranteed_or_standard or competitive_merit_or_dept for RTP Fee Offset + stipend (~AUD $34k-$42k/yr), and summarize in Notes.",
+      "english": "Standard Australian university minimums are often IELTS 6.5 / TOEFL ~79-82 / PTE ~58-64; enter university-wide minimums if central, or leave blank if faculty-specific.",
+      "verified_example": "University of Melbourne (Benchmark): CW MS $52,000-$68,768 AUD per_year (self_funded); Research MS competitive_merit_or_dept; PhD $52,000 AUD per_year (full_guaranteed_or_standard, Graduate Research Scholarships $41,100/yr + full fee offset); TOEFL 81, IELTS 6.5, PTE 64."
+    },
+    "NL": {
+      "name": "Netherlands",
+      "currency": "EUR",
+      "typical_period": "per_year",
+      "overview": "Non-EU/EEA MSc applicants pay higher Institutional Tuition Fees (whereas EU students pay the lower statutory fee). PhD candidates in the Netherlands are normally hired as salaried university employees under the CAO NU collective agreement and pay EUR 0 tuition.",
+      "coursework_ms": "Always look up the non-EU / non-EEA 'Institutional rate' (NOT the ~EUR 2,530 EU statutory fee!). Funding is usually self_funded or competitive_merit_or_dept (selective excellence scholarships).",
+      "research_ms": "2-year Research Master's also pay non-EU institutional fees unless awarded excellence scholarships.",
+      "phd": "Enter 0 for PhD tuition (choose 'none' or per_year with 0) and select full_guaranteed_or_standard because standard PhD positions are salaried CAO NU staff contracts (note external-scholarship bench fees in Notes if mentioned).",
+      "english": "Most Dutch research universities specify IELTS ~6.5-7.0 and TOEFL iBT ~90-100 centrally (DET usually not accepted).",
+      "verified_example": "TU Delft (Benchmark): CW MS €25,633-€26,479 EUR per_year (non-EU institutional, competitive_merit_or_dept); PhD €0 (none, full_guaranteed_or_standard salaried CAO NU); TOEFL 100 (TA Speaking 22), IELTS 7.0 (6.5)."
+    },
+    "IE": {
+      "name": "Ireland",
+      "currency": "EUR",
+      "typical_period": "per_year",
+      "overview": "Non-EU Taught Master's (90 ECTS, 1 year) pay full international fees with selective merit/GOI scholarships. Research Master's and PhD scholars compete for Research Ireland (IRC) or institutional studentships covering full fees plus an annual maintenance stipend.",
+      "coursework_ms": "Enter non-EU Taught Postgraduate fee range per_year; usually self_funded or competitive_merit_or_dept.",
+      "research_ms": "Research Master's is typically competitive_merit_or_dept.",
+      "phd": "Enter non-EU Research PhD tuition fee (per_year) and select competitive_merit_or_dept (note Research Ireland ~EUR 22k-25k stipends if stated).",
+      "english": "Most Irish universities centrally publish IELTS 6.5, TOEFL ~88-90, Duolingo DET ~120, and PTE ~63.",
+      "verified_example": "Baseline country pattern (IE): CW MS full_international per_year (self_funded); Research MS competitive_merit_or_dept; PhD full fee + competitive_merit_or_dept (€22k-€25k/yr stipend); IELTS 6.5, TOEFL 88 (21), DET 120, PTE 63."
+    }
+  },
+  "entries": [
+    {
+      "id": "task_purpose_why",
+      "category": "Task & Mission",
+      "title": "Why we are doing this task (420 Core Abroad & why these 157 universities)",
+      "question_forms": [
+        "why are we doing this task",
+        "what is the purpose of this portal",
+        "why these 157 universities and where does this data go",
+        "what is the goal of this project"
+      ],
+      "keywords": ["why", "purpose", "mission", "objective", "goal", "420", "157", "baseline", "unreachable", "vigyanshaala", "doing this"],
+      "field_ids": [],
+      "country_codes": ["*"],
+      "answer": "VigyanShaala is building an accurate, verified graduate policy database across 420 Core Abroad universities (US, UK, Germany, Canada, Australia, Netherlands, Ireland, Switzerland, Sweden, Singapore) so Indian students can compare true Master's/PhD costs, funding odds, and English cutoffs reliably. Automated scrapers already verified 263 universities cleanly, leaving these 157 institutions where websites either blocked automated bots (403/Cloudflare/timeouts) or only had country-level baseline estimates.",
+      "what_to_enter": "Your human verification upgrades each of these 157 universities from estimated/blocked status to 'live_verified' records backed by official central URLs and exact quotes.",
+      "example": "Once you submit your CSV, VigyanShaala's backend runs '--import-intern' to re-check your URLs + quotes and promote those universities in our live College Explorer.",
+      "source": "docs/11-abroad-central-harvester-architecture.md + central_graduate_harvester.py",
+      "follow_ups": ["What do I need to do step by step for each university?", "Why are the 157 universities ordered #1 to #157?"]
+    },
+    {
+      "id": "task_what_needs_to_be_done",
+      "category": "Task & Mission",
+      "title": "What needs to be done — step-by-step workflow for every university",
+      "question_forms": [
+        "what needs to be done",
+        "how do i do this task step by step",
+        "what is my workflow for each college",
+        "how do i start verifying a university"
+      ],
+      "keywords": ["what needs to be done", "steps", "workflow", "process", "how to", "task", "assignment", "start", "finish", "verify"],
+      "field_ids": [],
+      "country_codes": ["*"],
+      "answer": "Work straight down the left sidebar from Priority #1 downward. For each university: (1) Open the Official Website or pre-built Google Search links right under the university name; (2) Find the university's central Graduate School / Bursar / International Fees & English pages (never department-specific pages); (3) Fill Section 1 (Coursework MS Tuition & Funding + Research MS Funding), Section 2 (PhD Tuition & Funding), and Section 3 (English Test cutoffs + TA Speaking scores); (4) Paste central URLs and copy 1-2 verbatim sentences into Quote Proof Boxes 4A, 4B, and 4C; (5) Click 'Save & Mark Verified' (or 'Mark Needs Review / Flag' if blocked/unclear). Periodically click 'Download Progress CSV' in the top right to save and submit your work.",
+      "what_to_enter": "Aim for accuracy over guessing: leave a numeric field blank with an honest note in Notes if the university doesn't publish a central figure, and ALWAYS copy-paste exact quotes from the official URLs.",
+      "example": "Workflow time-saver: if Tuition, Funding, and English live on the same official Graduate Bulletin URL, you can reuse that same URL across 4A/4B/4C with the matching quote for each section.",
+      "source": "verify.html workflow + central_graduate_harvester.py (import_intern_workbook)",
+      "follow_ups": ["What URLs are allowed in 4A, 4B, and 4C?", "When should I flag a university instead of marking it Verified?"]
+    },
+    {
+      "id": "task_priority_ordering",
+      "category": "Task & Mission",
+      "title": "How the 157 universities are prioritized (#1 to #157)",
+      "question_forms": [
+        "why are colleges in this order priority 1 to 157",
+        "which universities should i do first",
+        "how is priority_order calculated"
+      ],
+      "keywords": ["priority", "order", "rank", "157", "first", "important", "qs", "the", "cwur", "demand"],
+      "field_ids": [],
+      "country_codes": ["*"],
+      "answer": "The queue is pre-sorted in strict priority order (#1 down to #157) using VigyanShaala's global ranking composite (QS / THE / CWUR world ranks plus Indian student demand criteria). Higher-impact research & destination universities sit at the top so every hour spent maximizes coverage where students apply most.",
+      "what_to_enter": "Work from Priority #1 downward (the portal automatically highlights the first pending high-priority school when you open it).",
+      "example": "You can also use the Country filter or Search box if asked to focus on a specific region like DE or GB first.",
+      "source": "verify_data.json ranking sort + intern_central_grad_task.xlsx",
+      "follow_ups": ["Why are we doing this task?", "How does saving and CSV export work?"]
+    },
+    {
+      "id": "task_rules_no_guessing_no_aggregators",
+      "category": "Task & Mission",
+      "title": "Core integrity rules — official sources only, never guess or use aggregators",
+      "question_forms": [
+        "can i use shiksha yocket mastersportal or chatgpt",
+        "what if a university doesnt list a number publicly",
+        "what are the golden rules of this task"
+      ],
+      "keywords": ["ai", "chatgpt", "aggregators", "shiksha", "yocket", "mastersportal", "guess", "rules", "accuracy", "official", "google"],
+      "field_ids": [],
+      "country_codes": ["*"],
+      "answer": "Only use official university pages found via the Official Website button or Google Search — NEVER use third-party blogs/aggregators (Shiksha, Yocket, Mastersportal, TopUniversities, Reddit) and NEVER guess numbers. Every URL and quote you submit is automatically re-fetched and verified line-by-line by our Python importer before entering the production database.",
+      "what_to_enter": "If a figure genuinely isn't published centrally (e.g., per-course fees in the UK, or dept-only English minimums), leave the box blank, state it in Notes, and still paste the central policy URL + quote confirming that rule.",
+      "example": "Allowed: 'Overseas fees vary by course' + central Graduate Fees page URL. Rejected: copying an average number from a third-party study-abroad blog.",
+      "source": "docs/11 + verify.html BLOCKED_DOMAINS & DEPT_RE",
+      "follow_ups": ["What URLs are allowed?", "When should I flag a university?"]
+    },
+    {
+      "id": "cw_min_max_usage",
+      "category": "Coursework MS",
+      "title": "Coursework MS Tuition Min & Max (including when to repeat or leave blank)",
+      "question_forms": [
+        "what do i put in cw_ms_tuition_min and cw_ms_tuition_max",
+        "can i leave coursework min max blank if fees vary by program",
+        "should i repeat min in max for flat tuition",
+        "per credit tuition rate how to enter"
+      ],
+      "keywords": ["cw_ms_tuition_min", "cw_ms_tuition_max", "min", "max", "blank", "repeat", "flat", "varies", "per credit", "range", "coursework"],
+      "field_ids": ["cw_ms_tuition_min", "cw_ms_tuition_max"],
+      "country_codes": ["*"],
+      "answer": "Enter plain numbers only (no currency symbols, no commas, no words) in the currency shown for that university. If the university has one flat international Master's rate, enter the same number in Max or leave Max blank. If the university publishes different fees per program with NO central summary range (common in the UK/Australia or per-credit US schools where no total annual/program band is given), leave Min/Max blank and explain the structure in Verification Notes.",
+      "what_to_enter": "Flat fee -> Min = 28794, Max = 28794 (or blank). Range published -> Min = lowest MS tuition, Max = highest MS tuition (e.g., 35000 and 42900). Unlisted central band / purely per-program -> leave blank + write a note.",
+      "example": "Carnegie Mellon (Verified): Min = 61510, Max = 62200 USD (per_year). Cambridge (Verified): left Min/Max blank because Overseas Composition Fees vary course-by-course, with central fee policy URL + quote.",
+      "source": "verify.html tooltips + central_graduate_harvester.py (import_intern_workbook)",
+      "follow_ups": ["What should I pick in Billing Cycle (tuition_period)?", "Can I leave a field blank if a university doesn't list a central number?"]
+    },
+    {
+      "id": "tuition_period_rules",
+      "category": "Coursework MS",
+      "title": "Choosing the right Billing Cycle (tuition_period)",
+      "question_forms": [
+        "what should i pick in tuition_period billing cycle",
+        "when do i choose none vs per_year vs per_semester",
+        "how does per_program work"
+      ],
+      "keywords": ["tuition_period", "billing cycle", "per_year", "per_semester", "per_program", "none", "annual", "semester"],
+      "field_ids": ["tuition_period"],
+      "country_codes": ["*"],
+      "answer": "Billing Cycle tells our pipeline whether your Min/Max numbers cover one academic year ('per_year'), one semester ('per_semester'), or the entire degree ('per_program'). Only select 'none' when tuition is zero (statutory free, such as standard public universities in Germany outside Baden-Wuerttemberg/TUM).",
+      "what_to_enter": "US/UK/Canada/AU/NL/IE almost always use 'per_year'. German fee states (BW €1,500/sem, TUM) and Switzerland use 'per_semester'. Free German public universities with 0 tuition use 'none'.",
+      "example": "TU Delft: 25633-26479 with per_year. KIT (Germany BW): 1500-1684 with per_semester. Goettingen (Germany): 0-0 with none.",
+      "source": "central_graduate_harvester.py :: _VALID_TUITION_PERIODS",
+      "follow_ups": ["Do I include the German Semesterbeitrag fee as tuition?", "Should Min/Max be in local currency or USD?"]
+    },
+    {
+      "id": "currency_rule",
+      "category": "Coursework MS",
+      "title": "Currency rule — local currency vs USD",
+      "question_forms": [
+        "should i convert fees to usd or use local currency",
+        "what currency do i enter"
+      ],
+      "keywords": ["currency", "usd", "eur", "gbp", "cad", "aud", "convert", "local"],
+      "field_ids": ["cw_ms_tuition_min", "cw_ms_tuition_max", "phd_tuition_annual_or_sem"],
+      "country_codes": ["*"],
+      "answer": "NEVER manually convert currencies to USD. Always enter numbers in the institution's pre-set local tuition currency (shown automatically in the form header: EUR for DE/NL/IE, GBP for GB, CAD for CA, AUD for AU, USD for US).",
+      "what_to_enter": "Enter raw numbers matching the official local currency badge on the university header.",
+      "example": "Leiden (NL): enter 21100 to 34000 (EUR), not ~$23k-$37k USD.",
+      "source": "verify.html + central_graduate_harvester.py",
+      "follow_ups": ["Do I enter international or domestic fees?", "What goes into the Coursework MS Funding dropdown?"]
+    },
+    {
+      "id": "domestic_vs_intl_fees",
+      "category": "Coursework MS",
+      "title": "International / Non-EU vs Domestic / Statutory Fees",
+      "question_forms": [
+        "should i enter domestic or international fees",
+        "in state vs out of state tuition us",
+        "eu statutory vs non eu institutional fee netherlands"
+      ],
+      "keywords": ["international", "domestic", "non-eu", "non-eea", "out of state", "in state", "resident", "statutory", "institutional"],
+      "field_ids": ["cw_ms_tuition_min", "cw_ms_tuition_max"],
+      "country_codes": ["US", "CA", "GB", "NL", "AU", "DE", "IE"],
+      "answer": "VigyanShaala serves Indian and international applicants, so ALWAYS record International / Non-Resident / Non-EU Institutional tuition — never domestic, in-state, Home/UK, or EU statutory rates.",
+      "what_to_enter": "US: Non-resident / Out-of-state graduate tuition. NL: Non-EU/EEA Institutional rate (~EUR 19k-34k, not EUR 2.5k). CA/UK/AU/IE: International/Overseas rate. DE (BW/TUM): Non-EU international rate.",
+      "example": "Leiden University (Verified): €21,100–€34,000 non-EU institutional rate, not the €2,530 EU statutory fee.",
+      "source": "COUNTRY_TRACK_BASELINES & GOLDEN_BENCHMARK_POLICIES",
+      "follow_ups": ["Do I include the German Semesterbeitrag fee as tuition?", "How do out-of-state tuition waivers affect what number I enter?"]
+    },
+    {
+      "id": "cw_funding_options",
+      "category": "Coursework MS",
+      "title": "Coursework MS Funding options explained (self_funded vs rare_hourly_only vs competitive_merit_or_dept)",
+      "question_forms": [
+        "difference between self_funded rare_hourly_only competitive_merit_or_dept",
+        "what should i choose for cw_ms_funding",
+        "when is a coursework ms rare_hourly_only vs self_funded"
+      ],
+      "keywords": ["cw_ms_funding", "self_funded", "rare_hourly_only", "competitive_merit_or_dept", "full_guaranteed_or_standard", "funding", "hiwi", "scholarship", "dropdown"],
+      "field_ids": ["cw_ms_funding"],
+      "country_codes": ["*"],
+      "answer": "Pick based on how a typical international Coursework/Professional MS student pays for tuition: (1) 'self_funded' = students pay full tuition with little/no central waiver or assistantship support; (2) 'rare_hourly_only' = hourly jobs exist (like US hourly graders or German HiWi roles) that pay wages for living expenses WITHOUT waiving tuition; (3) 'competitive_merit_or_dept' = selective merit fellowships, excellence scholarships, or competitive TA/RA tuition waivers exist across graduate MS; (4) 'full_guaranteed_or_standard' = virtually all MS admits receive full funding (extremely rare for taught MS).",
+      "what_to_enter": "Choose self_funded when international Master's pays full fees with no systematic waivers; choose rare_hourly_only when hourly HiWi/grader jobs exist without waivers (e.g. Germany public, Purdue Professional MS); choose competitive_merit_or_dept when significant central merit scholarships or MS TA/RA waivers exist.",
+      "example": "Waterloo MEng -> self_funded. Purdue Professional MS -> rare_hourly_only. TU Delft (Excellence Scholarships) -> competitive_merit_or_dept.",
+      "source": "central_graduate_harvester.py :: _VALID_FUNDING_STATUSES",
+      "follow_ups": ["What is the difference between Coursework MS and Research MS?", "How should I classify UK PGT merit scholarships?"]
+    },
+    {
+      "id": "cw_vs_res_ms",
+      "category": "Research MS",
+      "title": "Difference between Coursework MS and Research MS funding",
+      "question_forms": [
+        "difference between coursework ms and research ms",
+        "what if the university doesnt separate research ms from coursework ms",
+        "res_ms_funding when there is no thesis vs non thesis policy"
+      ],
+      "keywords": ["res_ms_funding", "research ms", "thesis", "masc", "mres", "mphil", "coursework", "differentiate"],
+      "field_ids": ["res_ms_funding", "cw_ms_funding"],
+      "country_codes": ["*"],
+      "answer": "Coursework MS covers non-thesis/professional degrees (MEng, MCS, taught MSc) where funding is scarce. Research MS covers thesis/research Master's (MS by Research, MASc, MPhil/MRes) which frequently qualify for GRA/GTA assistantships, Canadian minimum funding, or Australian RTP fee offsets. If a university treats all Master's identically centrally (common in Germany/Netherlands), pick the same funding status for both and note it.",
+      "what_to_enter": "Check if Research/Thesis MS mentions GRA/GTA tuition remission, RTP Fee Offset (AU), or Minimum Funding (CA). If identical to Coursework MS, match cw_ms_funding.",
+      "example": "Waterloo (Verified): Coursework MS (MEng) = self_funded, Research MS (MMath/MASc thesis) = full_guaranteed_or_standard.",
+      "source": "docs/11 + COUNTRY_TRACK_BASELINES",
+      "follow_ups": ["How do PhD stipends and waivers work?", "What does competitive_merit_or_dept mean for Research MS?"]
+    },
+    {
+      "id": "phd_tuition_and_waiver",
+      "category": "PhD / Doctoral",
+      "title": "What to enter in PhD Tuition when fees are waived or PhDs are salaried employees",
+      "question_forms": [
+        "do i enter 0 or sticker tuition for phd if funded",
+        "phd tuition waived vs salaried phd germany netherlands",
+        "what goes in phd_tuition_annual_or_sem"
+      ],
+      "keywords": ["phd_tuition_annual_or_sem", "phd tuition", "waiver", "sticker", "exempt", "salaried", "0", "tv-l", "cao nu"],
+      "field_ids": ["phd_tuition_annual_or_sem", "phd_funding"],
+      "country_codes": ["US", "DE", "CA", "GB", "AU", "NL", "IE", "CH", "SE"],
+      "answer": "Follow the distinction between STATUTORY EXEMPT vs WAIVED STICKER TUITION: (A) If PhDs are legally tuition-exempt or salaried staff with no tuition bill (Germany public, Netherlands CAO NU, Sweden, ETH/EPFL PhD), enter 0. (B) If the university charges official PhD tuition on the fee schedule and covers it via a GRA/GTA/RTP/studentship waiver (US, Canada, UK, Australia, Ireland), enter the PUBLISHED PhD sticker tuition (NOT 0!) and select 'full_guaranteed_or_standard' or 'competitive_merit_or_dept' in PhD Funding.",
+      "what_to_enter": "US/CA/AU/UK/IE -> enter published international PhD tuition if listed (or leave blank if course-varying) + pick funding status. DE/NL -> enter 0 + full_guaranteed_or_standard (if salaried TV-L E13 / CAO NU is standard).",
+      "example": "Caltech (US): PhD Tuition = 68574, PhD Funding = full_guaranteed_or_standard (covered by fellowship/assistantship). TU Delft (NL): PhD Tuition = 0, PhD Funding = full_guaranteed_or_standard (CAO NU employee).",
+      "source": "GOLDEN_BENCHMARK_POLICIES & COUNTRY_TRACK_BASELINES",
+      "follow_ups": ["Where do I record PhD stipend amounts (e.g. 9-month vs 12-month)?", "Does Australia PhD get full_guaranteed_or_standard or competitive?"]
+    },
+    {
+      "id": "stipend_9mo_vs_12mo",
+      "category": "PhD / Doctoral",
+      "title": "Recording stipends, 9-month vs 12-month figures, and health insurance",
+      "question_forms": [
+        "where do i put phd stipend",
+        "how do 9 month vs 12 month stipends work",
+        "should i convert a 9 month stipend to 12 months"
+      ],
+      "keywords": ["stipend", "9_month", "12_month", "9-month", "12-month", "salary", "notes", "health insurance", "convert"],
+      "field_ids": ["phd_funding", "quote_funding", "notes"],
+      "country_codes": ["*"],
+      "answer": "NEVER multiply or extrapolate a 9-month stipend into a 12-month number yourself. Record the exact stated stipend and its stated period (e.g. '$29,145/yr (12-mo)' or '$24,000 academic year / 9-month + summer optional') inside the Proof Quote (4B) and Verification Notes.",
+      "what_to_enter": "Paste the exact stipend sentence from the official funding page into Box 4B (quote_funding), and summarize stipend period + health insurance subsidy in Notes.",
+      "example": "Waterloo quote: 'minimum funding of $29,145 per year (effective May 1, 2026) for up to four years.' Caltech quote: 'AY25-26 $48,244 rising to $50,000 in AY26-27, and 90% health subsidy.'",
+      "source": "docs/11 stipend_period schema + GOLDEN_BENCHMARK_POLICIES",
+      "follow_ups": ["What should go in Quote Box 4B?", "What if PhD stipends vary by department?"]
+    },
+    {
+      "id": "de_semesterbeitrag_rule",
+      "category": "Country Rules",
+      "title": "Germany Semester Contribution (Semesterbeitrag) vs Tuition (Studiengebuehren)",
+      "question_forms": [
+        "do i enter semesterbeitrag as tuition in germany",
+        "what is semester contribution vs tuition germany",
+        "baden wuerttemberg bavaria tum fees"
+      ],
+      "keywords": ["semesterbeitrag", "semester contribution", "germany", "baden", "wuerttemberg", "bavaria", "tum", "studiengebuhren", "hiwi"],
+      "field_ids": ["cw_ms_tuition_min", "cw_ms_tuition_max", "tuition_period", "phd_tuition_annual_or_sem"],
+      "country_codes": ["DE"],
+      "answer": "Do NOT enter Semesterbeitrag (~EUR 150-450/sem for student union, admin, and public transit ticket) as Master's tuition! Outside Baden-Wuerttemberg (EUR 1,500/sem non-EU) and opt-in Bavarian institutions like TUM (EUR 4,000-6,800/sem), statutory German public Master's tuition is 0. You can mention the Semesterbeitrag amount inside Notes.",
+      "what_to_enter": "Public DE (non-BW, non-opt-in) -> Min 0, Max 0, Billing Cycle = none (or per_semester), Note: 'Semesterbeitrag ~€XXX/sem'. BW public uni -> Min 1500, Max 1500, per_semester.",
+      "example": "University of Goettingen (Verified): CW MS = 0-0 EUR (none), quote notes '~€409.18-€439.88/sem semester contribution'. KIT (BW): 1,500 EUR/semester non-EU.",
+      "source": "central_graduate_harvester.py (is_de_bw logic) + Verified DE Flagships",
+      "follow_ups": ["What goes in PhD tuition & funding for Germany?", "How should I classify HiWi jobs in Coursework MS Funding?"]
+    },
+    {
+      "id": "english_ta_vs_admission",
+      "category": "English Tests",
+      "title": "Admission English minimums vs TA Speaking minimums (TOEFL & IELTS)",
+      "question_forms": [
+        "difference between admission score and ta speaking minimum",
+        "toefl_ta_speaking_min vs overall toefl",
+        "where do i find ielts_ta_speaking_min"
+      ],
+      "keywords": ["toefl_ta_speaking_min", "ielts_ta_speaking_min", "toefl", "ielts", "speaking", "gta", "ta", "admission", "cutoff"],
+      "field_ids": ["toefl_ta_speaking_min", "ielts_ta_speaking_min"],
+      "country_codes": ["*"],
+      "answer": "Be careful not to confuse ADMISSION speaking subscores with GTA/Teaching Assistant (ITA) spoken English minimums! If the Graduate School publishes a separate spoken English threshold for international Teaching Assistants (very common in the US/Canada, e.g. TOEFL Speaking 26-28 or IELTS Speaking 7.5-8.5), enter THAT number in `toefl_ta_speaking_min` / `ielts_ta_speaking_min`. If NO central TA speaking rule exists, leave the TA Speaking field blank (do NOT copy the regular admission Speaking score there unless it explicitly covers TAs).",
+      "what_to_enter": "Only fill toefl_ta_speaking_min (0-30) or ielts_ta_speaking_min (0-9) when a TA/GTA spoken English policy exists. Always check graduate school / ITA policy pages.",
+      "example": "Purdue (Verified): Admission TOEFL is 80 / IELTS 6.5, but TA Speaking minimums are TOEFL Speaking 27 / IELTS Speaking 8.0.",
+      "source": "docs/11 + GOLDEN_BENCHMARK_POLICIES",
+      "follow_ups": ["What if the university lists the new 2026 TOEFL 1-6 scale?", "What if Duolingo (DET) or PTE is not accepted?"]
+    },
+    {
+      "id": "english_missing_and_toefl_scale",
+      "category": "English Tests",
+      "title": "Missing DET/PTE, varying department scores, and post-Jan 2026 TOEFL 1-6 scale",
+      "question_forms": [
+        "what if university does not accept duolingo det or pte",
+        "english score varies by department what do i enter",
+        "new 2026 toefl 1-6 scale instead of 0-120"
+      ],
+      "keywords": ["det_min", "pte_min", "duolingo", "pte", "not accepted", "varies", "department", "1-6", "scale", "2026", "blank"],
+      "field_ids": ["det_min", "pte_min", "toefl_ta_speaking_min", "ielts_ta_speaking_min", "notes"],
+      "country_codes": ["*"],
+      "answer": "Two golden rules: (1) NEVER guess or invent a test cutoff. If DET or PTE is not accepted (or scores vary strictly by department with no central graduate floor), leave that box blank and note it in Verification Notes. (2) For the new ETS post-Jan 2026 TOEFL 1-6 band scale: our numeric database expects the 0-120 / 0-30 scale whenever published; if a page ONLY lists the 1-6 band score, record the 1-6 score in Verification Notes and leave the 0-30/0-120 number blank if no classic equivalent is shown.",
+      "what_to_enter": "Not accepted / Dept-only -> leave box blank + note in Notes. Quote the exact central English statement in Box 4C.",
+      "example": "TU Delft / Goettingen (Verified): DET = blank, PTE = blank because neither test is centrally specified.",
+      "source": "central_graduate_harvester.py bounds + verify.html tooltips",
+      "follow_ups": ["Can I paste a department page URL for English scores?", "How does the quote verifier check Box 4C?"]
+    },
+    {
+      "id": "central_url_rules",
+      "category": "URLs & Quotes",
+      "title": "Allowed Official URLs (why departmental & aggregator links are rejected)",
+      "question_forms": [
+        "can i paste a department page url cs ece",
+        "what urls are allowed in tuition funding english url fields",
+        "why did my url turn red rejected"
+      ],
+      "keywords": ["url", "official_tuition_url", "official_funding_url", "official_english_url", "department", "departmental", "aggregator", "shiksha", "yocket", "mastersportal", "central"],
+      "field_ids": ["official_tuition_url", "official_funding_url", "official_english_url"],
+      "country_codes": ["*"],
+      "answer": "By VigyanShaala architecture rule (docs/11), every URL MUST be an official central university page (.edu, .ac.uk, .de, .ca, .nl, .edu.au, .ie — e.g. Bursar, Registrar, Graduate School, International Admissions, Financial Aid). Departmental paths (/cs/, /ece/, /mech/, /dept/, /faculty-of-..., /school-of-...) and third-party aggregators (Shiksha, Yocket, Mastersportal, TopUniversities, Studyportals, Wikipedia, Reddit) are automatically rejected.",
+      "what_to_enter": "Use central graduate school / registrar / bursar / international fees URLs. If Tuition, Funding, and English live on the same official page, you may reuse that same URL across fields.",
+      "example": "Valid: https://grad.wisc.edu/costs-funding/ (central grad school). Rejected: .../engineering/cs/graduate-tuition or mastersportal.com/...",
+      "source": "docs/11 (Strictly Centralized Level Only) + verify.html DEPT_RE & BLOCKED_DOMAINS",
+      "follow_ups": ["Do I have to paste quotes for all three sections (4A, 4B, 4C)?", "What if the university website blocks access (403 / Cloudflare)?"]
+    },
+    {
+      "id": "quote_verification_rules",
+      "category": "URLs & Quotes",
+      "title": "Quote Rules (Sections 4A, 4B, 4C) — why exact verbatim copy-paste is required",
+      "question_forms": [
+        "do i need quotes for everything tuition funding english",
+        "how does the importer check my quotes",
+        "can i summarize or paraphrase the quote"
+      ],
+      "keywords": ["quote", "quote_tuition", "quote_funding", "quote_english", "4a", "4b", "4c", "verbatim", "exact", "summarize", "paraphrase", "import"],
+      "field_ids": ["quote_tuition", "quote_funding", "quote_english"],
+      "country_codes": ["*"],
+      "answer": "Yes — keep quotes split cleanly into the 3 short proof boxes: 4A (Tuition sentence matching Tuition URL), 4B (Funding/Assistantship/Stipend sentence matching Funding URL), and 4C (English Test/Speaking sentence matching English URL). NEVER paraphrase or copy from Google snippets: our Python importer (`--import-intern`) fetches every URL live (`HTTP 200`) and automatically rejects any row whose quote words do NOT match verbatim text on that exact webpage!",
+      "what_to_enter": "1-2 verbatim sentences (50-300 chars each) copied directly from the opened official page. For PDF-only policies where web text differs slightly, ensure exact copy from the PDF URL you pasted.",
+      "example": "4A Tuition quote: 'Full time tuition fees international £42,900 per year (2027/28)'. 4C English quote: 'Students must achieve IELTS 6.5 overall with 6.0 in each component.'",
+      "source": "central_graduate_harvester.py :: _quote_matches_page_texts & import_intern_workbook",
+      "follow_ups": ["What if I can't access a site because of Cloudflare or login?", "How do I save and submit my work CSV?"]
+    },
+    {
+      "id": "flag_unreachable_and_csv",
+      "category": "Importer & Workflow",
+      "title": "When to Flag a University & How Saving / CSV Export Works",
+      "question_forms": [
+        "what do i do if a website is blocked 403 cloudflare or unclear",
+        "when should i click flag",
+        "how is my progress saved localstorage csv"
+      ],
+      "keywords": ["flag", "unreachable", "blocked", "403", "cloudflare", "captcha", "save", "csv", "import", "export", "localstorage", "submit"],
+      "field_ids": ["notes"],
+      "country_codes": ["*"],
+      "answer": "If an official university site blocks your browser (403/CAPTCHA), requires an applicant login portal, or has zero central data after checking official search, DO NOT guess numbers — write what happened in Verification Notes and click 'Flag (Need Help / Unreachable)'. Your edits auto-save immediately in browser localStorage, and you should click 'Download Progress CSV' periodically (plus at the end of your shift) to back up and submit your work.",
+      "what_to_enter": "Write the reason in Notes (e.g. 'Official tuition behind student portal login; PDF link returned 403') -> click 'Mark Needs Review / Flag' -> export CSV via top-right 'Download Progress CSV'.",
+      "example": "Never invent a number to avoid flagging — flagged rows with honest notes are fast for engineers to resolve.",
+      "source": "verify.html workflow + central_graduate_harvester.py (import_intern_workbook)",
+      "follow_ups": ["Can I import my previous CSV if I switch browsers?", "What URLs are allowed?"]
+    }
+  ]
+}

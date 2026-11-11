@@ -363,6 +363,173 @@
     @media (max-width: 960px) { .sticky-footer { left: 0; } }
     .status-toast { font-size: 12.5px; font-weight: 600; }
     .hidden-input { display: none; }
+
+    /* Interactive Grounded Q&A Drawer */
+    .btn-qa { background: #fef3c7; color: #78350f; border-color: #fcd34d; }
+    .btn-qa:hover { background: #fde68a; }
+    .qa-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.25);
+      z-index: 70;
+    }
+    .qa-backdrop.open { display: block; }
+    aside.qa-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 460px;
+      max-width: 100vw;
+      background: #ffffff;
+      border-left: 1px solid var(--border);
+      box-shadow: -8px 0 30px rgba(15, 23, 42, 0.18);
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(102%);
+      transition: transform 0.22s ease;
+    }
+    aside.qa-drawer.open { transform: translateX(0); }
+    .qa-head {
+      background: var(--accent);
+      color: #fff;
+      padding: 13px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .qa-head h2 { margin: 0; font-size: 15.5px; font-weight: 700; }
+    .qa-sub { font-size: 11.5px; opacity: 0.9; margin-top: 2px; }
+    .qa-head-btns { display: flex; gap: 6px; }
+    .qa-icon-btn {
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.28);
+      border-radius: 6px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .qa-icon-btn:hover { background: rgba(255,255,255,0.26); }
+    .qa-context-bar {
+      background: #f1f5f9;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .qa-context-badge {
+      background: #dbeafe;
+      color: #1e40af;
+      font-weight: 700;
+      font-size: 10.5px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+    .qa-chips {
+      padding: 9px 14px;
+      border-bottom: 1px solid #eef2f7;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: #fafcff;
+    }
+    .qa-chip {
+      border: 1px solid #c7d7ea;
+      background: #fff;
+      color: var(--accent);
+      border-radius: 99px;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+    }
+    .qa-chip:hover { background: var(--accent-soft); border-color: #93c5fd; }
+    .qa-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8fafc;
+    }
+    .qa-msg { max-width: 100%; font-size: 13px; line-height: 1.48; }
+    .qa-msg-user {
+      align-self: flex-end;
+      background: var(--accent);
+      color: #fff;
+      padding: 9px 12px;
+      border-radius: 12px 12px 2px 12px;
+      max-width: 88%;
+      font-weight: 500;
+    }
+    .qa-msg-bot {
+      align-self: flex-start;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px 12px 12px 12px;
+      padding: 12px 13px;
+      width: 100%;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+    }
+    .qa-msg-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .qa-tag {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .qa-tag.guard { background: var(--warn-bg); color: var(--warn); }
+    .qa-tag.nomatch { background: #f1f5f9; color: #475569; }
+    .qa-title { font-weight: 700; color: var(--text); margin: 0 0 6px; font-size: 13.5px; }
+    .qa-box {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 7px;
+      font-size: 12.2px;
+    }
+    .qa-box-enter { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+    .qa-box-ex { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; }
+    .qa-box-country { background: #fffbeb; border: 1px solid #fde68a; color: #78350f; }
+    .qa-source {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .qa-followups {
+      margin-top: 9px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .qa-input-bar {
+      padding: 11px 14px;
+      border-top: 1px solid var(--border);
+      background: #fff;
+    }
+    .qa-form { display: flex; gap: 8px; }
+    .qa-form input { flex: 1; }
+    .qa-hint { font-size: 11px; color: var(--muted); margin-top: 5px; }
   </style>
 </head>
 <body>
@@ -372,6 +539,7 @@
       <div class="sub">157 Remaining Universities &middot; Hover or click any <strong>?</strong> icon for plain-English help &amp; examples</div>
     </div>
     <div class="top-actions">
+      <button type="button" class="btn btn-qa" id="btnToggleQa">Ask Rules &amp; Decisions</button>
       <button type="button" class="btn btn-light" id="btnRestoreCsv">Import Saved CSV</button>
       <input type="file" id="csvFileInput" accept=".csv" class="hidden-input" />
       <button type="button" class="btn btn-primary" id="btnDownloadCsv">Download Progress CSV</button>
@@ -715,6 +883,33 @@
     </div>
   </div>
 
+  <div class="qa-backdrop" id="qaBackdrop"></div>
+  <aside class="qa-drawer" id="qaDrawer" aria-label="Ask Rules and Decisions Assistant">
+    <div class="qa-head">
+      <div>
+        <h2>Ask About Rules &amp; Decisions</h2>
+        <div class="qa-sub">Grounded strictly in VigyanShaala rules, country regimes &amp; verified examples (no external AI)</div>
+      </div>
+      <div class="qa-head-btns">
+        <button type="button" class="qa-icon-btn" id="btnClearQa">Reset</button>
+        <button type="button" class="qa-icon-btn" id="btnCloseQa" aria-label="Close Q&A">&times;</button>
+      </div>
+    </div>
+    <div class="qa-context-bar">
+      <span id="qaContextText">Context: General VigyanShaala Rules</span>
+      <span class="qa-context-badge" id="qaContextCountry">--</span>
+    </div>
+    <div class="qa-chips" id="qaQuickChips"></div>
+    <div class="qa-messages" id="qaMessages"></div>
+    <div class="qa-input-bar">
+      <form class="qa-form" id="qaForm">
+        <input type="text" id="qaInput" placeholder="Ask about a field, country rule, quote rule, or task..." autocomplete="off" />
+        <button type="submit" class="btn btn-primary">Ask</button>
+      </form>
+      <div class="qa-hint">Answers never look up or guess fees/scores for queue colleges — use Official Website / Google Search for those.</div>
+    </div>
+  </aside>
+
   <script>
     const STORAGE_KEY = "vs_intern_verify_v1";
     const EXPORT_HEADERS = [
@@ -929,6 +1124,7 @@
         ? `Saved on ${rec.checked_date || "earlier"}`
         : "Viewing university #" + id;
       renderList();
+      if (typeof updateQaContext === "function") updateQaContext(row);
     }
 
     function combinedQuoteFromInputs() {
@@ -1126,9 +1322,373 @@
       });
     }
 
+    // =========================================================================
+    // Argon Grounded Interactive Q&A Engine (Zero External API Calls)
+    // Answers strictly from verify_kb.json (rules, task, country baselines,
+    // verified flagship examples) and blocks target-school number lookups.
+    // =========================================================================
+    let qaKb = null;
+    const GENERIC_UNI_STOPWORDS = new Set([
+      "university","college","institute","technology","state","national","technical",
+      "applied","sciences","science","london","royal","saint","north","south","east",
+      "west","central","public","new","york","california","texas","of","the","and",
+      "for","in","at","on","to","de","la","van","der","und","polytechnic","polytechnique",
+      "school","studies","management","business","engineering","medical","economics",
+      "research","graduate","international","main","campus"
+    ]);
+    const COUNTRY_MENTIONS = {
+      US: ["us", "usa", "united states", "america", "american"],
+      DE: ["de", "germany", "german", "baden", "wuerttemberg", "bavaria", "tum", "semesterbeitrag"],
+      CA: ["ca", "canada", "canadian", "ontario", "quebec", "waterloo", "mcgill"],
+      GB: ["gb", "uk", "united kingdom", "britain", "british", "england", "scotland", "ukri", "ukvi"],
+      AU: ["au", "australia", "australian", "rtp", "cricos", "eftsl"],
+      NL: ["nl", "netherlands", "holland", "dutch", "cao", "delft", "leiden"],
+      IE: ["ie", "ireland", "irish", "ects"]
+    };
+    const LOOKUP_VERBS_RE = /\b(what is|what s|whats|how much is|find the|give me|tell me|fill in|lookup|look up|tuition of|tuition at|tuition for|fee of|fee at|fee for|fees of|fees at|fees for|stipend of|stipend at|stipend for|score of|score at|score for|toefl of|toefl at|toefl for|ielts of|ielts at|ielts for|cutoff of|cutoff at|cutoff for)\b/;
+    const RULE_INTENT_RE = /\b(what should|what goes|which option|can i leave|do i enter|do i need|do i include|how do i|how does|difference|explain|meaning|what is a|example|why|rule|rules|allowed|rejected|verbatim|quote|blank|period|billing|currency|convert|department|departmental|flag|csv|workflow|task|order|priority)\b/;
+
+    function normalizeQaText(text) {
+      return String(text || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[_/\\-]+/g, " ")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function expandWithSynonyms(normText) {
+      const tokens = normText.split(" ").filter(Boolean);
+      const out = new Set(tokens);
+      const syn = (qaKb && qaKb.synonyms) || {};
+      for (const tok of tokens) {
+        if (syn[tok]) {
+          for (const s of normalizeQaText(syn[tok]).split(" ")) {
+            if (s) out.add(s);
+          }
+        }
+      }
+      return out;
+    }
+
+    function currentActiveRow() {
+      return rows.find(r => r.institution_id === activeId) || null;
+    }
+
+    function detectExplicitCountries(normQ) {
+      const padded = " " + normQ + " ";
+      const hits = [];
+      for (const [cc, aliases] of Object.entries(COUNTRY_MENTIONS)) {
+        for (const al of aliases) {
+          if (padded.includes(" " + al + " ")) {
+            hits.push(cc);
+            break;
+          }
+        }
+      }
+      return hits;
+    }
+
+    function matchQueueUniversity(normQ) {
+      const paddedQ = " " + normQ + " ";
+      for (const row of rows) {
+        const cleanFull = normalizeQaText(row.university_name)
+          .replace(/^the\s+/, "")
+          .trim();
+        if (cleanFull.length >= 8 && paddedQ.includes(" " + cleanFull + " ")) {
+          return row;
+        }
+        const sigTokens = cleanFull.split(" ").filter(t => t.length >= 5 && !GENERIC_UNI_STOPWORDS.has(t));
+        if (sigTokens.length >= 1) {
+          const matched = sigTokens.filter(t => paddedQ.includes(" " + t + " "));
+          if ((sigTokens.length === 1 && matched.length === 1 && sigTokens[0].length >= 6) || matched.length >= 2) {
+            return row;
+          }
+        }
+      }
+      return null;
+    }
+
+    function checkAntiCheatGuard(normQ) {
+      const isRuleQuestion = RULE_INTENT_RE.test(normQ);
+      const isLookupVerb = LOOKUP_VERBS_RE.test(normQ);
+      const matchedUni = matchQueueUniversity(normQ);
+      const asksTargetThisSchool = /\b(this university|this college|this school|this uni)\b/.test(normQ);
+      const asksNumberNoun = /\b(tuition|fee|fees|stipend|salary|toefl|ielts|det|duolingo|pte|score|scores|cutoff|rate)\b/.test(normQ);
+
+      if (matchedUni && (isLookupVerb || (!isRuleQuestion && asksNumberNoun))) {
+        return matchedUni;
+      }
+      if (asksTargetThisSchool && isLookupVerb && asksNumberNoun && !isRuleQuestion) {
+        return currentActiveRow() || { university_name: "the selected queue university", country_code: "" };
+      }
+      return null;
+    }
+
+    const QA_STOPWORDS = new Set([
+      "what","who","where","when","which","how","are","was","were","the","and","for",
+      "with","that","this","from","into","have","has","can","could","does","did",
+      "should","would","will","about","your","you","today","there","here"
+    ]);
+
+    function scoreEntry(entry, rawQ, normQ, expandedTokens, explicitCountries, activeCountry) {
+      const lastRawQuery = rawQ;
+      let score = 0;
+      const qForms = (entry.question_forms || []).map(normalizeQaText);
+      for (const form of qForms) {
+        if (!form) continue;
+        if (normQ === form) score += 20;
+        else if (normQ.includes(form) || form.includes(normQ)) score += 10;
+        const formTokens = form.split(" ").filter(t => t.length >= 3 && !QA_STOPWORDS.has(t));
+        for (const ft of formTokens) {
+          if (expandedTokens.has(ft)) score += 1.6;
+        }
+      }
+
+      const paddedQ = " " + normQ + " ";
+      for (const kw of (entry.keywords || [])) {
+        const kNorm = normalizeQaText(kw);
+        if (!kNorm || QA_STOPWORDS.has(kNorm)) continue;
+        if (paddedQ.includes(" " + kNorm + " ")) score += kNorm.includes(" ") ? 6.5 : 4.0;
+        for (const kt of kNorm.split(" ")) {
+          if (kt.length >= 3 && !QA_STOPWORDS.has(kt) && expandedTokens.has(kt)) score += 2.2;
+        }
+      }
+
+      for (const fid of (entry.field_ids || [])) {
+        if (normQ.includes(fid.toLowerCase()) || String(lastRawQuery || "").toLowerCase().includes(fid.toLowerCase())) {
+          score += 7.0;
+        }
+      }
+
+      const titleTokens = normalizeQaText(entry.title).split(" ").filter(t => t.length >= 4 && !QA_STOPWORDS.has(t));
+      for (const tt of titleTokens) {
+        if (expandedTokens.has(tt)) score += 1.8;
+      }
+
+      const cCodes = entry.country_codes || ["*"];
+      if (explicitCountries.length > 0) {
+        if (explicitCountries.some(cc => cCodes.includes(cc))) score += 6.5;
+        else if (!cCodes.includes("*")) score -= 4.0;
+      } else if (activeCountry && !cCodes.includes("*")) {
+        if (cCodes.includes(activeCountry)) score += 2.5;
+        else score -= 1.5;
+      }
+
+      return score;
+    }
+
+    function answerQuestion(rawQuery) {
+      const query = (rawQuery || "").trim();
+      if (!query) return null;
+      if (!qaKb) {
+        return {
+          mode: "nomatch",
+          tag: "Loading",
+          title: "Knowledge base is still loading",
+          answer: "Please wait a second and try asking again.",
+          source: "verify_kb.json"
+        };
+      }
+
+      const normQ = normalizeQaText(query);
+      const activeRow = currentActiveRow();
+      const activeCountry = activeRow ? activeRow.country_code : "";
+      const explicitCountries = detectExplicitCountries(normQ);
+
+      // 1. Anti-Cheat Target-School Lookup Guard
+      const blockedTarget = checkAntiCheatGuard(normQ);
+      if (blockedTarget) {
+        const cc = blockedTarget.country_code || activeCountry;
+        const cGuide = cc && qaKb.country_guides ? qaKb.country_guides[cc] : null;
+        return {
+          mode: "guard",
+          tag: "Anti-Cheat Guard",
+          title: `Cannot look up or guess numbers for ${blockedTarget.university_name}`,
+          answer: "This Q&A assistant only explains VigyanShaala rules, field definitions, country regimes, and verified benchmark examples. To verify fees, stipends, or test cutoffs for a university in your queue, use the 'Open Official Website' or 'Google Search' buttons above the form and copy an exact sentence from the official page.",
+          what_to_enter: cGuide ? cGuide.coursework_ms + " " + cGuide.phd : "Check the official central Tuition, Funding, and English policy pages and leave missing central numbers blank with a note.",
+          country_note: cGuide ? { code: cc, name: cGuide.name, overview: cGuide.overview } : null,
+          source: "Anti-Cheat Policy (verify.html Guard)",
+          follow_ups: cc ? [`How does ${cGuide ? cGuide.name : cc} PhD & Master's funding work?`, "How does the importer verify my quotes?"] : ["How does the importer verify my quotes?", "When should I flag a university?"]
+        };
+      }
+
+      // 2. Score KB entries
+      const expanded = expandWithSynonyms(normQ);
+      const scored = (qaKb.entries || []).map(entry => ({
+        entry,
+        score: scoreEntry(entry, query, normQ, expanded, explicitCountries, activeCountry)
+      })).sort((a, b) => b.score - a.score);
+
+      const best = scored[0];
+      const targetCountry = explicitCountries[0] || activeCountry;
+      const cGuide = targetCountry && qaKb.country_guides ? qaKb.country_guides[targetCountry] : null;
+
+      // Pure country overview query check (e.g. "How does Netherlands work?", "Germany rules", "How does United Kingdom PhD funding work?")
+      const asksCountryGeneral = explicitCountries.length > 0 && /\b(country|regime|system|rules|work|guide|summary|overview|funding|tuition|phd|masters)\b/.test(normQ);
+      const isHyperSpecificEntry = best && ["de_semesterbeitrag_rule", "cw_min_max_usage", "english_missing_and_toefl_scale", "english_ta_vs_admission", "central_url_rules", "quote_verification_rules"].includes(best.entry.id);
+      if (cGuide && asksCountryGeneral && !isHyperSpecificEntry) {
+        return {
+          mode: "country",
+          tag: `Country Guide · ${targetCountry}`,
+          title: `${cGuide.name} (${targetCountry}) Graduate Policy Guide`,
+          answer: cGuide.overview,
+          what_to_enter: `Currency: ${cGuide.currency} · Billing Cycle: ${cGuide.typical_period}\n• Coursework MS: ${cGuide.coursework_ms}\n• Research MS: ${cGuide.research_ms}\n• PhD: ${cGuide.phd}\n• English: ${cGuide.english}`,
+          example: cGuide.verified_example,
+          source: "COUNTRY_TRACK_BASELINES + Verified Flagships",
+          follow_ups: ["Coursework MS vs Research MS funding difference?", "How do 9-month vs 12-month stipends work?"]
+        };
+      }
+
+      if (best && best.score >= 3.5) {
+        const e = best.entry;
+        const showCountryNote = cGuide && (explicitCountries.includes(targetCountry) || ["cw_min_max_usage", "phd_tuition_and_waiver", "cw_funding_options", "tuition_period_rules", "domestic_vs_intl_fees"].includes(e.id));
+        return {
+          mode: "rule",
+          tag: e.category || "Rulebook",
+          title: e.title,
+          answer: e.answer,
+          what_to_enter: e.what_to_enter,
+          example: e.example,
+          country_note: showCountryNote ? { code: targetCountry, name: cGuide.name, overview: cGuide.overview } : null,
+          source: e.source,
+          follow_ups: e.follow_ups || []
+        };
+      }
+
+      // 3. Honest Fail-Closed Fallback (Zero Guessing)
+      const topSuggestions = scored.slice(0, 3).map(s => (s.entry.question_forms && s.entry.question_forms[0]) || s.entry.title);
+      return {
+        mode: "nomatch",
+        tag: "No Verified Match",
+        title: "No exact rulebook entry matched that phrasing",
+        answer: "I only answer from documented VigyanShaala decisions, field rules, country baselines, and verified benchmark examples so I never invent policy rules. Try rephrasing with a field name, topic (tuition, funding, stipend, TOEFL, quote, URL, priority, flag), or country code.",
+        source: "Grounded Fail-Closed Policy",
+        follow_ups: topSuggestions.length ? topSuggestions : ["Why are we doing this task?", "What needs to be done step by step?"]
+      };
+    }
+
+    function appendQaMessage(kind, payload) {
+      const box = document.getElementById("qaMessages");
+      const div = document.createElement("div");
+      if (kind === "user") {
+        div.className = "qa-msg qa-msg-user";
+        div.textContent = payload;
+      } else {
+        div.className = "qa-msg qa-msg-bot";
+        const tagClass = payload.mode === "guard" ? "guard" : (payload.mode === "nomatch" ? "nomatch" : "");
+        let html = `
+          <div class="qa-msg-top">
+            <span class="qa-tag ${tagClass}">${escapeHtml(payload.tag || "Rulebook")}</span>
+          </div>
+          <div class="qa-title">${escapeHtml(payload.title || "")}</div>
+          <div>${escapeHtml(payload.answer || "")}</div>
+        `;
+        if (payload.what_to_enter) {
+          html += `<div class="qa-box qa-box-enter"><strong>What to enter:</strong> ${escapeHtml(payload.what_to_enter).replace(/\n/g, "<br/>")}</div>`;
+        }
+        if (payload.example) {
+          html += `<div class="qa-box qa-box-ex"><strong>Verified benchmark example:</strong> ${escapeHtml(payload.example)}</div>`;
+        }
+        if (payload.country_note) {
+          html += `<div class="qa-box qa-box-country"><strong>${escapeHtml(payload.country_note.name)} (${escapeHtml(payload.country_note.code)}) context:</strong> ${escapeHtml(payload.country_note.overview)}</div>`;
+        }
+        if (payload.source) {
+          html += `<div class="qa-source">Source: ${escapeHtml(payload.source)}</div>`;
+        }
+        if (payload.follow_ups && payload.follow_ups.length) {
+          html += `<div class="qa-followups">${payload.follow_ups.map(f => `<button type="button" class="qa-chip qa-ask-trigger" data-q="${escapeHtml(f)}">${escapeHtml(f)}</button>`).join("")}</div>`;
+        }
+        div.innerHTML = html;
+      }
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function submitQaQuestion(qText) {
+      const q = (qText || "").trim();
+      if (!q) return;
+      appendQaMessage("user", q);
+      const res = answerQuestion(q);
+      if (res) appendQaMessage("bot", res);
+    }
+
+    function updateQaContext(row) {
+      const r = row || currentActiveRow();
+      const ctxText = document.getElementById("qaContextText");
+      const ctxBadge = document.getElementById("qaContextCountry");
+      const chipsEl = document.getElementById("qaQuickChips");
+      if (!ctxText || !chipsEl) return;
+
+      const cc = r ? r.country_code : "";
+      if (r) {
+        ctxText.textContent = `Viewing: #${r.priority_order || "?"} ${r.university_name}`;
+        ctxBadge.textContent = cc || "--";
+      } else {
+        ctxText.textContent = "Context: General VigyanShaala Rules";
+        ctxBadge.textContent = "--";
+      }
+
+      const countryPrompts = {
+        DE: ["Do I enter Semesterbeitrag as tuition in Germany?", "What goes in PhD tuition for Germany?"],
+        GB: ["Can I leave Min/Max blank if UK courses vary?", "How does United Kingdom PhD funding work?"],
+        US: ["Coursework MS vs Research MS funding?", "Admission score vs TA speaking minimum?"],
+        NL: ["EU statutory vs Non-EU institutional fee in NL?", "What goes in PhD tuition in Netherlands?"],
+        CA: ["Coursework MEng vs Thesis MASc funding in CA?", "Where do I put PhD stipends?"],
+        AU: ["How does Australia PhD RTP funding work?", "Can I leave Coursework Min/Max blank?"],
+        IE: ["How does Ireland graduate funding work?", "What English tests should I check?"]
+      };
+      const basePrompts = [
+        "Why are we doing this task?",
+        "What needs to be done step by step?",
+        "How does the importer verify my quotes?"
+      ];
+      const combined = [...(countryPrompts[cc] || []), ...basePrompts].slice(0, 4);
+      chipsEl.innerHTML = combined
+        .map(p => `<button type="button" class="qa-chip qa-ask-trigger" data-q="${escapeHtml(p)}">${escapeHtml(p)}</button>`)
+        .join("");
+    }
+
+    function resetQaThread() {
+      const box = document.getElementById("qaMessages");
+      box.innerHTML = "";
+      appendQaMessage("bot", {
+        mode: "rule",
+        tag: "Ready",
+        title: "Ask me about any rule, field definition, country regime, or this task",
+        answer: "I answer strictly from VigyanShaala's verified rules, country baselines, and benchmark examples (Golden 8 + Flagships). Ask a question below or click any suggested chip above!",
+        source: "docs/11 + COUNTRY_TRACK_BASELINES + Verified Flagships"
+      });
+    }
+
+    function toggleQaDrawer(forceOpen) {
+      const drawer = document.getElementById("qaDrawer");
+      const backdrop = document.getElementById("qaBackdrop");
+      const open = forceOpen !== undefined ? forceOpen : !drawer.classList.contains("open");
+      drawer.classList.toggle("open", open);
+      backdrop.classList.toggle("open", open);
+      if (open) {
+        updateQaContext();
+        setTimeout(() => document.getElementById("qaInput").focus(), 120);
+      }
+    }
+
+    async function loadKb() {
+      try {
+        const resp = await fetch("verify_kb.json");
+        if (resp.ok) qaKb = await resp.json();
+      } catch (e) {
+        console.warn("Failed to load verify_kb.json", e);
+      }
+      resetQaThread();
+    }
+
     async function boot() {
       loadStorage();
       wireTooltips();
+      loadKb();
       const resp = await fetch("verify_data.json");
       rows = await resp.json();
       populateCountries();
@@ -1157,6 +1717,20 @@
     document.getElementById("btnRestoreCsv").addEventListener("click", () => document.getElementById("csvFileInput").click());
     document.getElementById("csvFileInput").addEventListener("change", e => {
       if (e.target.files[0]) importSavedCsv(e.target.files[0]);
+    });
+    document.getElementById("btnToggleQa").addEventListener("click", () => toggleQaDrawer());
+    document.getElementById("btnCloseQa").addEventListener("click", () => toggleQaDrawer(false));
+    document.getElementById("qaBackdrop").addEventListener("click", () => toggleQaDrawer(false));
+    document.getElementById("btnClearQa").addEventListener("click", resetQaThread);
+    document.getElementById("qaForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const inp = document.getElementById("qaInput");
+      submitQaQuestion(inp.value);
+      inp.value = "";
+    });
+    document.getElementById("qaDrawer").addEventListener("click", e => {
+      const btn = e.target.closest(".qa-ask-trigger");
+      if (btn && btn.dataset.q) submitQaQuestion(btn.dataset.q);
     });
 
     boot();
