@@ -393,8 +393,6 @@
         <div class="tabs" id="filterTabs">
           <button type="button" class="tab-btn active" data-filter="all">All</button>
           <button type="button" class="tab-btn" data-filter="pending">Pending</button>
-          <button type="button" class="tab-btn" data-filter="1_unreachable">Batch 1</button>
-          <button type="button" class="tab-btn" data-filter="2_baseline">Batch 2</button>
           <button type="button" class="tab-btn" data-filter="done">Done</button>
         </div>
       </div>
@@ -848,15 +846,13 @@
         const stPill = st === "done"
           ? '<span class="pill pill-done">Done</span>'
           : (st === "flagged" ? '<span class="pill pill-flagged">Flagged</span>' : '<span class="pill pill-pending">Todo</span>');
-        const bPill = r.priority_batch === "1_unreachable"
-          ? '<span class="pill pill-batch1">B1</span>'
-          : '<span class="pill pill-batch2">B2</span>';
+        const rankTag = r.rank_badge ? ` &middot; ${escapeHtml(r.rank_badge)}` : "";
         div.innerHTML = `
           <div class="uni-item-top">
-            <div class="uni-name">${escapeHtml(r.university_name)}</div>
+            <div class="uni-name"><span style="color:var(--accent);">#${r.priority_order || ""}</span> ${escapeHtml(r.university_name)}</div>
             ${stPill}
           </div>
-          <div class="uni-meta">${bPill} ${escapeHtml(r.country_code)} ${r.state ? "&middot; " + escapeHtml(r.state) : ""} &middot; ID ${r.institution_id}</div>
+          <div class="uni-meta">${escapeHtml(r.country_code)}${rankTag}${r.state ? " &middot; " + escapeHtml(r.state) : ""}</div>
         `;
         div.onclick = () => selectUniversity(r.institution_id);
         list.appendChild(div);
@@ -879,15 +875,14 @@
       if (!row) return;
       const rec = saved[String(id)] || {};
 
-      document.getElementById("heroName").textContent = row.university_name;
-      const bLabel = row.priority_batch === "1_unreachable"
-        ? '<span class="pill pill-batch1">Batch 1: Blocked/Timed Out</span>'
-        : '<span class="pill pill-batch2">Batch 2: Baseline Check</span>';
+      document.getElementById("heroName").textContent = `#${row.priority_order || ""} ${row.university_name}`;
+      const rankBadgeHtml = row.rank_badge
+        ? `<span class="pill" style="background:#e0f2fe;color:#0369a1;">${escapeHtml(row.rank_badge)}</span>`
+        : "";
       document.getElementById("heroMeta").innerHTML = `
-        ${bLabel}
+        ${rankBadgeHtml}
         <span><strong>Country:</strong> ${escapeHtml(row.country_code)}${row.state ? " (" + escapeHtml(row.state) + ")" : ""}</span>
         <span><strong>ID:</strong> ${row.institution_id}</span>
-        <span><strong>Reason:</strong> ${escapeHtml(row.why_needs_check)}</span>
       `;
 
       const host = getHost(row.official_website);
