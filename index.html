@@ -1026,7 +1026,8 @@ td.wrapcell { min-width: 12ch; }
     });
     var aBox = h('div');
 
-    if (p.central_graduate_policies) {
+    var isCgpVerified = !!(p.central_graduate_policies && (p.central_graduate_policies.audit_status === 'live_verified' || p.central_graduate_policies.audit_status === 'pilot_verified'));
+    if (isCgpVerified) {
       var cgp = p.central_graduate_policies;
       var cgpBox = h('div', { class: 'det-card', style: 'margin-bottom: 16px;' });
       cgpBox.appendChild(h('h3', { style: 'margin-top: 0; margin-bottom: 10px;', text: 'Central Graduate Assistantship & Tuition Policy' }));
@@ -1065,6 +1066,10 @@ td.wrapcell { min-width: 12ch; }
         cgpBox.appendChild(h('div', { style: 'display: flex; gap: 14px; margin-top: 8px; font-size: 0.85rem;' }, cgpLinks));
       }
       aBox.appendChild(cgpBox);
+    } else if (p.central_graduate_policies) {
+      aBox.appendChild(h('div', { class: 'det-card', style: 'margin-bottom: 16px;' },
+        h('h3', { style: 'margin-top: 0; margin-bottom: 8px;', text: 'Central Graduate Assistantship & Tuition Policy' }),
+        h('p', { class: 'muted', style: 'margin: 0; line-height: 1.5;', text: 'Institution-specific graduate tuition, stipend, and assistantship details for this university are currently under verification. Generic country-level baselines are hidden to avoid mixing estimates with verified official data.' })));
     }
 
     if (!aidList.length && !p.central_graduate_policies) {
@@ -1381,50 +1386,72 @@ td.wrapcell { min-width: 12ch; }
           pwCard.appendChild(exBlock);
         }
 
-        // Q2: What typical score gets me in?
+        // Q2: Official / Verified Minimum Requirements (Decision 75: no synthetic GRE/GPA/competitive estimates abroad)
+        var isAbroadPathway = pw.archetype_jurisdiction !== 'IN';
         var q2 = h('div', { class: 'q-block' },
-          h('div', { class: 'q-title', text: '2. What typical score gets me in?' }));
+          h('div', { class: 'q-title', text: isAbroadPathway ? '2. Verified Minimum Entry Requirements' : '2. What typical score gets me in?' }));
 
-        var scoreRows = [];
-        if (pw.gpa_min_eligibility != null) {
-          var gpaComp = pw.gpa_competitive_min != null ? pw.gpa_competitive_min + (pw.gpa_competitive_max ? ' \u2013 ' + pw.gpa_competitive_max : '') : '\u2014';
-          scoreRows.push(h('tr', null,
-            h('td', { class: 'wrapcell', text: 'Undergraduate GPA (Scale ' + (pw.gpa_scale || '4.0') + ')' }),
-            h('td', { class: 'mono', text: String(pw.gpa_min_eligibility) }),
-            h('td', { class: 'mono', text: gpaComp })));
-        }
-
-        if (pw.gre_requirement_status && pw.gre_requirement_status !== 'NOT_REQUIRED') {
-          var greComp = pw.gre_quant_competitive_min ? 'Quant \u2265 ' + pw.gre_quant_competitive_min : '\u2014';
-          scoreRows.push(h('tr', null,
-            h('td', { class: 'wrapcell', text: 'GRE Benchmark' }),
-            h('td', { class: 'mono', text: pw.gre_requirement_status.replace(/_/g, ' ') }),
-            h('td', { class: 'mono', text: greComp })));
-        }
-
-        if (pw.english_test_min_score && Object.keys(pw.english_test_min_score).length) {
-          for (var test in pw.english_test_min_score) {
-            var minS = pw.english_test_min_score[test];
-            var compS = pw.english_test_competitive_score ? pw.english_test_competitive_score[test] : '\u2014';
-            scoreRows.push(h('tr', null,
-              h('td', { class: 'wrapcell', text: fmtExamName(test) }),
-              h('td', { class: 'mono', text: String(minS) }),
-              h('td', { class: 'mono', text: String(compS) })));
+        if (isAbroadPathway) {
+          var abRows = [];
+          if (isCgpVerified && pw.english_test_min_score && Object.keys(pw.english_test_min_score).length) {
+            for (var test in pw.english_test_min_score) {
+              abRows.push(h('tr', null,
+                h('td', { class: 'wrapcell', text: fmtExamName(test) }),
+                h('td', { class: 'mono', text: String(pw.english_test_min_score[test]) })));
+            }
           }
-        }
-
-        if (pw.entrance_test_min_score && Object.keys(pw.entrance_test_min_score).length) {
-          for (var et in pw.entrance_test_min_score) {
-            var mVal = pw.entrance_test_min_score[et];
-            var cVal = pw.entrance_test_competitive_score ? pw.entrance_test_competitive_score[et] : '\u2014';
-            scoreRows.push(h('tr', null,
-              h('td', { class: 'wrapcell', text: fmtExamName(et) }),
-              h('td', { class: 'mono', text: String(mVal) }),
-              h('td', { class: 'mono', text: String(cVal) })));
+          if (isCgpVerified && p.central_graduate_policies) {
+            if (p.central_graduate_policies.toefl_ta_speaking_min != null) {
+              abRows.push(h('tr', null,
+                h('td', { class: 'wrapcell', text: 'TOEFL Teaching Assistant (Speaking Min)' }),
+                h('td', { class: 'mono', text: String(p.central_graduate_policies.toefl_ta_speaking_min) })));
+            }
+            if (p.central_graduate_policies.ielts_ta_speaking_min != null) {
+              abRows.push(h('tr', null,
+                h('td', { class: 'wrapcell', text: 'IELTS Teaching Assistant (Speaking Min)' }),
+                h('td', { class: 'mono', text: String(p.central_graduate_policies.ielts_ta_speaking_min) })));
+            }
           }
-        }
-        if (scoreRows.length) {
-          q2.appendChild(table(['Assessment / Test Dimension', 'Minimum Eligibility Floor', 'Typical Competitive Target'], scoreRows));
+          if (abRows.length) {
+            q2.appendChild(table(['English Proficiency Test', 'Verified Minimum Floor'], abRows));
+            q2.appendChild(h('p', { class: 'muted', style: 'font-size: 0.82rem; margin-top: 6px;', text: 'GRE, GPA, and competitive admit thresholds vary by academic department rather than centrally.' }));
+          } else {
+            q2.appendChild(h('p', { class: 'muted', style: 'font-size: 0.85rem; line-height: 1.5; margin: 4px 0 0;', text: 'University-specific English minimums are currently under verification (generic country baselines omitted). GRE and GPA thresholds vary by academic department.' }));
+          }
+        } else {
+          var scoreRows = [];
+          if (pw.gpa_min_eligibility != null) {
+            var gpaComp = pw.gpa_competitive_min != null ? pw.gpa_competitive_min + (pw.gpa_competitive_max ? ' \u2013 ' + pw.gpa_competitive_max : '') : '\u2014';
+            scoreRows.push(h('tr', null,
+              h('td', { class: 'wrapcell', text: 'Undergraduate GPA (Scale ' + (pw.gpa_scale || '4.0') + ')' }),
+              h('td', { class: 'mono', text: String(pw.gpa_min_eligibility) }),
+              h('td', { class: 'mono', text: gpaComp })));
+          }
+
+          if (pw.english_test_min_score && Object.keys(pw.english_test_min_score).length) {
+            for (var test in pw.english_test_min_score) {
+              var minS = pw.english_test_min_score[test];
+              var compS = pw.english_test_competitive_score ? pw.english_test_competitive_score[test] : '\u2014';
+              scoreRows.push(h('tr', null,
+                h('td', { class: 'wrapcell', text: fmtExamName(test) }),
+                h('td', { class: 'mono', text: String(minS) }),
+                h('td', { class: 'mono', text: String(compS) })));
+            }
+          }
+
+          if (pw.entrance_test_min_score && Object.keys(pw.entrance_test_min_score).length) {
+            for (var et in pw.entrance_test_min_score) {
+              var mVal = pw.entrance_test_min_score[et];
+              var cVal = pw.entrance_test_competitive_score ? pw.entrance_test_competitive_score[et] : '\u2014';
+              scoreRows.push(h('tr', null,
+                h('td', { class: 'wrapcell', text: fmtExamName(et) }),
+                h('td', { class: 'mono', text: String(mVal) }),
+                h('td', { class: 'mono', text: String(cVal) })));
+            }
+          }
+          if (scoreRows.length) {
+            q2.appendChild(table(['Assessment / Test Dimension', 'Minimum Eligibility Floor', 'Typical Competitive Target'], scoreRows));
+          }
         }
 
         if (pw.category_cutoffs && Object.keys(pw.category_cutoffs).length) {
