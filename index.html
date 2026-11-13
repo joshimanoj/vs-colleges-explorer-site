@@ -376,6 +376,14 @@ td.wrapcell { min-width: 12ch; }
       <div class="hero-cta">
         <button type="button" class="btn btn-large" id="btn-get-started">Get Started &rarr;</button>
       </div>
+      <div class="curie-hero-picker" style="margin-top: 18px; max-width: 580px;">
+        <label for="fcurie-home" style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 6px;">
+          Jump to college with verified course-level details:
+        </label>
+        <select id="fcurie-home" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: 500 0.95rem var(--sans); cursor: pointer;">
+          <option value="">-- Select a college with course-level details --</option>
+        </select>
+      </div>
     </div>
     <p class="label">Try a popular search</p>
     <div class="chips" id="chips"></div>
@@ -397,6 +405,11 @@ td.wrapcell { min-width: 12ch; }
           <option value="u">University</option>
           <option value="c">College</option>
           <option value="s">Standalone</option>
+        </select>
+
+        <label class="sr" for="fcurie">Colleges with course-level details</label>
+        <select id="fcurie" style="flex: 1 1 260px; min-width: 200px;">
+          <option value="">Colleges with course-level details...</option>
         </select>
 
         <label class="checklabel" id="fcourses-wrap">
@@ -465,7 +478,7 @@ td.wrapcell { min-width: 12ch; }
   function statusLabel(s) { return STATUS_LABEL[s] || s; }
   var profileUI = null;   // { id, select(tab) } for the profile currently drawn
   var els = {
-    q: $('q'), fcountry: $('fcountry'), flevel: $('flevel'), fcourses: $('fcourses'), status: $('status'), home: $('home'),
+    q: $('q'), fcountry: $('fcountry'), flevel: $('flevel'), fcurie: $('fcurie'), fcurieHome: $('fcurie-home'), fcourses: $('fcourses'), status: $('status'), home: $('home'),
     stats: $('stats'), chips: $('chips'), snap: $('snapnote'), resview: $('resultsview'),
     results: $('results'), none: $('noresults'), profile: $('profile'), credits: $('credits'),
     searchform: $('searchform'), login: $('login'), userbar: $('userbar'), whoami: $('whoami'),
@@ -592,6 +605,30 @@ td.wrapcell { min-width: 12ch; }
     meta.countries.forEach(function (x) { counts[x[0]] = x[1]; });
     codes.forEach(function (cc) {
       els.fcountry.appendChild(h('option', { value: cc, text: countryLabel(cc) + ' (' + fmtNum(counts[cc]) + ')' }));
+    });
+    populateCurieDropdowns();
+  }
+
+  function populateCurieDropdowns() {
+    var list = (meta && meta.curie_institutions) || [];
+    var selects = [els.fcurie, els.fcurieHome].filter(Boolean);
+    selects.forEach(function (sel) {
+      while (sel.options.length > 1) sel.remove(1);
+      if (!list.length) {
+        sel.options[0].text = 'Course-level details loading...';
+        return;
+      }
+      sel.options[0].text = (sel === els.fcurieHome ? '-- Select a college with course-level details (' : 'Colleges with course-level details (') + list.length + ' universities)...';
+      list.forEach(function (inst) {
+        var label = inst[1] + (inst[2] ? ' (' + inst[2] + ')' : '') + (inst[3] ? ' \u2014 ' + inst[3] + ' courses' : '');
+        sel.appendChild(h('option', { value: inst[0], text: label }));
+      });
+      sel.onchange = function () {
+        var id = sel.value;
+        if (!id) return;
+        sel.value = '';
+        openProfile(Number(id), 'courses');
+      };
     });
   }
 
