@@ -281,6 +281,26 @@ td.wrapcell { min-width: 12ch; }
 .q-block { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
 .q-block:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 .q-title { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+
+/* Layer 1 & Layer 2 Abroad Admissions styling */
+.layer1-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-top: 14px; }
+.layer1-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 10px; }
+.layer1-item { display: flex; flex-direction: column; gap: 3px; }
+.layer1-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
+.layer1-val { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.layer1-sub { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+.badge-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 0.78rem; font-weight: 500; border: 1px solid var(--border); }
+.badge-pill.green { background: var(--m-exact-bg); color: var(--m-exact-fg); border-color: transparent; }
+.badge-pill.blue { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.badge-pill.amber { background: var(--m-fuzzy-bg); color: var(--m-fuzzy-fg); border-color: transparent; }
+.badge-pill.purple { background: var(--m-llm-bg); color: var(--m-llm-fg); border-color: transparent; }
+.badge-pill.gray { background: var(--surface); color: var(--muted); }
+.curie-search-bar { display: flex; gap: 10px; align-items: center; margin: 12px 0; flex-wrap: wrap; }
+.curie-search-bar input { flex: 1 1 220px; min-width: 0; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: 400 0.95rem var(--sans); }
+.curie-filter-btn { padding: 5px 11px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: 0.82rem; font-weight: 500; }
+.curie-filter-btn.active { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.tag-chip { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; background: var(--surface); border: 1px solid var(--border); margin: 2px 2px 0 0; color: var(--muted); }
+.quote-box { margin-top: 6px; padding: 6px 10px; background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 4px 4px 0; font-size: 0.82rem; color: var(--muted); font-style: italic; }
 #profile { min-width: 0; max-width: 100%; }
 #checkview .tablewrap { margin-top: 12px; }
 #checkview td.num { text-align: right; white-space: nowrap; }
@@ -971,6 +991,12 @@ td.wrapcell { min-width: 12ch; }
     var panels = {};
     PTABS.forEach(function (t) { panels[t] = h('div', { class: 'ppanel', role: 'tabpanel', id: 'ppanel-' + t, hidden: '' }); });
     panels.overview.appendChild(section('Overview', h('div', { class: 'facts' }, facts), 'Official institutional registration details, statutory management classifications, and location directory.'));
+    if (p.central_graduate_policies) {
+      var l1Card = renderLayer1Card(p.central_graduate_policies);
+      if (l1Card) {
+        panels.overview.appendChild(section('Admissions & Net Cost Profile (Layer 1)', l1Card, 'Verified selectivity band, tuition net cost tier, 3-year Indian bachelor policy, and India degree equivalency guidelines.'));
+      }
+    }
 
     // TAB: Rankings
     var rkList = p.rankings || [];
@@ -993,6 +1019,36 @@ td.wrapcell { min-width: 12ch; }
     // TAB: Tuition fees
     var feesList = p.fees || [];
     var fBox = h('div');
+    if (p.central_graduate_policies) {
+      var cgp = p.central_graduate_policies;
+      if (cgp.net_cost_tier || cgp.estimated_annual_net_tuition_usd_band || (cgp.tracks && cgp.tracks.coursework_masters)) {
+        var tSummaryBox = h('div', { class: 'det-card', style: 'margin-bottom: 16px;' });
+        tSummaryBox.appendChild(h('h3', { style: 'margin-top: 0; margin-bottom: 8px;', text: 'Verified Graduate Tuition Band & Cost Tier' }));
+        var tSumRows = [];
+        if (cgp.net_cost_tier) {
+          tSumRows.push(['Cost Tier', formatCostTier(cgp.net_cost_tier)]);
+        }
+        if (cgp.estimated_annual_net_tuition_usd_band) {
+          tSumRows.push(['Estimated Annual Net Tuition (USD Band)', cgp.estimated_annual_net_tuition_usd_band]);
+        }
+        if (cgp.tracks && cgp.tracks.coursework_masters) {
+          var cwm = cgp.tracks.coursework_masters;
+          if (cwm.annual_fulltime_intl_min != null) {
+            var rangeStr = (cwm.tuition_currency || '$') + ' ' + fmtNum(cwm.annual_fulltime_intl_min) +
+                           (cwm.annual_fulltime_intl_max ? ' \u2013 ' + fmtNum(cwm.annual_fulltime_intl_max) : '') +
+                           ' / ' + (cwm.raw_fee_unit || 'yr').replace(/_/g, ' ');
+            tSumRows.push(['Coursework Master’s Annual Intl Tuition Range', rangeStr]);
+          }
+        }
+        if (tSumRows.length) {
+          var tableRows = tSumRows.map(function (r) {
+            return h('tr', null, h('td', { style: 'font-weight: 600; width: 280px;', text: r[0] }), h('td', { text: r[1] }));
+          });
+          tSummaryBox.appendChild(table(['Dimension', 'Verified Provision'], tableRows));
+          fBox.appendChild(tSummaryBox);
+        }
+      }
+    }
     if (!feesList.length) {
       fBox.appendChild(h('p', { class: 'muted', text: 'No regulated tuition fee schedule stored for this institution.' }));
     } else {
@@ -1418,6 +1474,36 @@ td.wrapcell { min-width: 12ch; }
           } else {
             q2.appendChild(h('p', { class: 'muted', style: 'font-size: 0.85rem; line-height: 1.5; margin: 4px 0 0;', text: 'University-specific English minimums are currently under verification (generic country baselines omitted). GRE and GPA thresholds vary by academic department.' }));
           }
+
+          if (p.central_graduate_policies && (p.central_graduate_policies.three_year_indian_bachelor_policy || p.central_graduate_policies.india_pg_equivalency_notes || p.central_graduate_policies.india_college_tier_rule)) {
+            var indCard = h('div', { class: 'det-card', style: 'margin-top: 12px;' });
+            indCard.appendChild(h('h4', { style: 'margin: 0 0 6px; font-size: 0.95rem;', text: 'Indian Degree Recognition & Admission Rules' }));
+            var indRows = [];
+            if (p.central_graduate_policies.three_year_indian_bachelor_policy) {
+              var threeVal = formatThreeYearPolicy(p.central_graduate_policies.three_year_indian_bachelor_policy);
+              if (p.central_graduate_policies.three_year_conditions) threeVal += ' \u2014 ' + p.central_graduate_policies.three_year_conditions;
+              indRows.push(['3-Year Bachelor Policy', threeVal]);
+            }
+            if (p.central_graduate_policies.india_college_tier_rule && p.central_graduate_policies.india_college_tier_rule !== 'NOT_SPECIFIED') {
+              indRows.push(['College Tier Policy', p.central_graduate_policies.india_college_tier_rule === 'ANY_RECOGNIZED' ? 'Any recognized Indian university' : 'Tiered cutoffs by Indian university prestige']);
+            }
+            if (p.central_graduate_policies.india_pg_equivalency_notes) {
+              var eqVal = typeof p.central_graduate_policies.india_pg_equivalency_notes === 'object' ? JSON.stringify(p.central_graduate_policies.india_pg_equivalency_notes) : String(p.central_graduate_policies.india_pg_equivalency_notes);
+              indRows.push(['Postgraduate Grade Equivalencies', eqVal]);
+            }
+            if (indRows.length) {
+              indCard.appendChild(table(['Policy Dimension', 'Verified Requirement'], indRows.map(function (r) {
+                return h('tr', null, h('td', { style: 'font-weight: 500; width: 240px;', text: r[0] }), h('td', { text: r[1] }));
+              })));
+            }
+            if (p.central_graduate_policies.three_year_policy_quote) {
+              indCard.appendChild(h('div', { class: 'quote-box', text: '\u201c' + p.central_graduate_policies.three_year_policy_quote + '\u201d' }));
+            }
+            if (p.central_graduate_policies.three_year_policy_url) {
+              indCard.appendChild(h('div', { style: 'font-size: 0.8rem; margin-top: 4px;' }, extLink(p.central_graduate_policies.three_year_policy_url, 'Official Policy Source \u2197')));
+            }
+            q2.appendChild(indCard);
+          }
         } else {
           var scoreRows = [];
           if (pw.gpa_min_eligibility != null) {
@@ -1548,7 +1634,7 @@ td.wrapcell { min-width: 12ch; }
     }
     panels.recognition.appendChild(section('Statutory Recognitions & Accreditations', recBox, 'Statutory accreditations and approvals from official bodies (UGC, NAAC, NBA, AICTE, NMC, Bar Council).'));
     var nRec = ordered.length;
-    panels.courses.appendChild(HOSTED ? coursesPanel(p) : h('span'));
+    panels.courses.appendChild((HOSTED || (p.curie_courses && p.curie_courses.length) || (p.courses && p.courses.length)) ? coursesPanel(p) : h('span'));
 
     // sources table
     var loc = [place].filter(Boolean).join('');
@@ -1640,7 +1726,7 @@ td.wrapcell { min-width: 12ch; }
 
     // tab bar
     var tabDefs = [['overview', 'Overview']];
-    if (HOSTED) tabDefs.push(['courses', coursesLabel(p)]);
+    if (HOSTED || (p.curie_courses && p.curie_courses.length) || (p.courses && p.courses.length)) tabDefs.push(['courses', coursesLabel(p)]);
     tabDefs.push(['rankings', 'Rankings']);
     tabDefs.push(['fees', 'Tuition Fees']);
     tabDefs.push(['aid', 'Financial Aid']);
@@ -1679,6 +1765,304 @@ td.wrapcell { min-width: 12ch; }
     window.scrollTo(0, 0);
   }
 
+  /* ---------- Layer 1 Abroad Admissions & Net Cost formatting ---------- */
+  function formatSelectivity(b) {
+    if (!b) return null;
+    var map = {
+      'VERY_SELECTIVE': 'Very Selective (<15% admit rate)',
+      'HIGHLY_SELECTIVE': 'Highly Selective (15-25% admit rate)',
+      'SELECTIVE': 'Selective (25-40% admit rate)',
+      'COMPETITIVE': 'Competitive (40-60% admit rate)',
+      'MODERATE': 'Moderate (>60% admit rate)'
+    };
+    return map[b] || b.replace(/_/g, ' ');
+  }
+
+  function formatCostTier(t) {
+    if (!t) return null;
+    var map = {
+      'LOW_PUBLIC_OR_FREE': 'Low Tuition / Tuition-Free',
+      'MODERATE_PUBLIC': 'Moderate Public Institution',
+      'HIGH_INTL_OR_PRIVATE': 'High International / Private',
+      'UNVERIFIED': 'Under Verification'
+    };
+    return map[t] || t.replace(/_/g, ' ');
+  }
+
+  function formatThreeYearPolicy(p) {
+    if (!p) return null;
+    var map = {
+      'YES': 'Accepted (3-year Bachelor eligible directly)',
+      'WES_OR_BRIDGE': 'Accepted with WES evaluation / Bridge / Honours',
+      '4YR_ONLY': '4-Year Bachelor Degree Required',
+      'UNKNOWN': 'Policy not published / under evaluation'
+    };
+    return map[p] || p.replace(/_/g, ' ');
+  }
+
+  function renderLayer1Card(cgp) {
+    if (!cgp) return null;
+    var hasL1 = cgp.selectivity_band || cgp.net_cost_tier || cgp.estimated_annual_net_tuition_usd_band ||
+                cgp.three_year_indian_bachelor_policy || cgp.india_college_tier_rule || cgp.india_pg_equivalency_notes ||
+                (cgp.tracks && cgp.tracks.coursework_masters);
+    if (!hasL1) return null;
+
+    var box = h('div', { class: 'layer1-card' },
+      h('h3', { style: 'margin-top: 0; margin-bottom: 8px;', text: 'Admissions & Net Cost Profile (Layer 1)' }));
+
+    var items = [];
+    if (cgp.selectivity_band) {
+      items.push(h('div', { class: 'layer1-item' },
+        h('span', { class: 'layer1-label', text: 'Selectivity Band' }),
+        h('span', { class: 'layer1-val', text: formatSelectivity(cgp.selectivity_band) })));
+    }
+    if (cgp.net_cost_tier) {
+      var tierText = formatCostTier(cgp.net_cost_tier);
+      if (cgp.estimated_annual_net_tuition_usd_band) {
+        tierText += ' (' + cgp.estimated_annual_net_tuition_usd_band + ')';
+      }
+      items.push(h('div', { class: 'layer1-item' },
+        h('span', { class: 'layer1-label', text: 'Net Cost Tier' }),
+        h('span', { class: 'layer1-val', text: tierText })));
+    }
+    if (cgp.three_year_indian_bachelor_policy && cgp.three_year_indian_bachelor_policy !== 'UNKNOWN') {
+      var polWrap = h('div', { class: 'layer1-item' },
+        h('span', { class: 'layer1-label', text: '3-Year Indian Bachelor' }),
+        h('span', { class: 'layer1-val', text: formatThreeYearPolicy(cgp.three_year_indian_bachelor_policy) }));
+      if (cgp.three_year_conditions) {
+        polWrap.appendChild(h('span', { class: 'layer1-sub', text: cgp.three_year_conditions }));
+      }
+      if (cgp.three_year_policy_quote) {
+        polWrap.appendChild(h('div', { class: 'quote-box', text: '\u201c' + cgp.three_year_policy_quote + '\u201d' }));
+      }
+      if (cgp.three_year_policy_url) {
+        polWrap.appendChild(h('div', { style: 'font-size: 0.8rem; margin-top: 4px;' }, extLink(cgp.three_year_policy_url, 'Official Policy Source \u2197')));
+      }
+      items.push(polWrap);
+    }
+    if (cgp.india_college_tier_rule || cgp.india_pg_equivalency_notes) {
+      var indWrap = h('div', { class: 'layer1-item' },
+        h('span', { class: 'layer1-label', text: 'India Degree Equivalency & Tier Rule' }));
+      if (cgp.india_college_tier_rule && cgp.india_college_tier_rule !== 'NOT_SPECIFIED') {
+        var tierLabel = cgp.india_college_tier_rule === 'ANY_RECOGNIZED' ? 'Any recognized Indian university accepted' :
+                        (cgp.india_college_tier_rule === 'TIERED_BY_INDIAN_UNI' ? 'Cutoffs tiered by Indian university prestige (IIT/NIT vs State vs Private)' : cgp.india_college_tier_rule);
+        indWrap.appendChild(h('span', { class: 'layer1-val', text: tierLabel }));
+      }
+      if (cgp.india_pg_equivalency_notes) {
+        var notesStr = typeof cgp.india_pg_equivalency_notes === 'object' ? JSON.stringify(cgp.india_pg_equivalency_notes) : String(cgp.india_pg_equivalency_notes);
+        indWrap.appendChild(h('span', { class: 'layer1-sub', text: notesStr }));
+      }
+      items.push(indWrap);
+    }
+    if (cgp.tracks && cgp.tracks.coursework_masters) {
+      var cwm = cgp.tracks.coursework_masters;
+      if (cwm.annual_fulltime_intl_min != null) {
+        var tRange = (cwm.tuition_currency || '$') + ' ' + fmtNum(cwm.annual_fulltime_intl_min) +
+                     (cwm.annual_fulltime_intl_max ? ' \u2013 ' + fmtNum(cwm.annual_fulltime_intl_max) : '') +
+                     ' / ' + (cwm.raw_fee_unit || 'yr').replace(/_/g, ' ');
+        items.push(h('div', { class: 'layer1-item' },
+          h('span', { class: 'layer1-label', text: 'Coursework Master’s Annual Intl Tuition' }),
+          h('span', { class: 'layer1-val', text: tRange })));
+      }
+    }
+
+    box.appendChild(h('div', { class: 'layer1-grid' }, items));
+    return box;
+  }
+
+  /* ---------- Layer 2 Curie Course Catalog ---------- */
+  function formatFieldPolicy(pol) {
+    if (!pol) return '\u2014';
+    var map = {
+      'ANY_DEGREE': 'Any Bachelor’s Field',
+      'RELATED_FIELD': 'Related Quantitative / STEM Field',
+      'STRICT_PREREQUISITES': 'Strict Coursework Prerequisites',
+      'SAME_DISCIPLINE_ONLY': 'Same Discipline Only',
+      'NOT_SPECIFIED': 'Not Specified'
+    };
+    return map[pol] || pol.replace(/_/g, ' ');
+  }
+
+  function formatExamStatus(stat, label) {
+    if (!stat || stat === 'NOT_SPECIFIED') return null;
+    var cls = 'gray';
+    var txt = label + ': ' + stat.replace(/_/g, ' ');
+    if (stat === 'REQUIRED') cls = 'amber';
+    else if (stat === 'OPTIONAL' || stat === 'RECOMMENDED') cls = 'blue';
+    else if (stat === 'NOT_REQUIRED' || stat === 'WAIVED') cls = 'green';
+    else if (stat === 'NOT_ACCEPTED') cls = 'gray';
+    return h('span', { class: 'badge-pill ' + cls, text: txt });
+  }
+
+  function curieCoursesPanel(p) {
+    var rawList = p.curie_courses || [];
+    var box = h('div');
+    box.appendChild(h('p', { class: 'covline', text: fmtNum(rawList.length) + ' verified postgraduate courses with Layer 2 admissions requirements & tuition data.' }));
+
+    var activeFilter = 'all';
+
+    var searchInput = h('input', { type: 'search', placeholder: 'Filter courses by program name, subject, or degree...', 'aria-label': 'Filter courses' });
+    var countSpan = h('span', { class: 'count', text: fmtNum(rawList.length) + ' courses' });
+
+    var btnAll = h('button', { type: 'button', class: 'curie-filter-btn active', text: 'All (' + rawList.length + ')' });
+    var greReqCount = rawList.filter(function (c) { return c.gre_status === 'REQUIRED'; }).length;
+    var btnGre = h('button', { type: 'button', class: 'curie-filter-btn', text: 'GRE Required (' + greReqCount + ')' });
+    var aidCount = rawList.filter(function (c) { return !!c.dept_merit_aid_available; }).length;
+    var btnAid = h('button', { type: 'button', class: 'curie-filter-btn', text: 'Merit Aid (' + aidCount + ')' });
+    var tuiCount = rawList.filter(function (c) { return c.course_tuition_amount != null; }).length;
+    var btnTui = h('button', { type: 'button', class: 'curie-filter-btn', text: 'Tuition Listed (' + tuiCount + ')' });
+
+    var filterBtns = [btnAll, btnGre, btnAid, btnTui];
+    function setFilter(filt, btn) {
+      activeFilter = filt;
+      filterBtns.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      renderList();
+    }
+    btnAll.onclick = function () { setFilter('all', btnAll); };
+    btnGre.onclick = function () { setFilter('gre_req', btnGre); };
+    btnAid.onclick = function () { setFilter('merit_aid', btnAid); };
+    btnTui.onclick = function () { setFilter('has_tuition', btnTui); };
+
+    var filterBar = h('div', { class: 'curie-search-bar' },
+      searchInput,
+      h('div', { style: 'display: flex; gap: 6px; flex-wrap: wrap;' }, btnAll, btnGre, btnAid, btnTui),
+      countSpan);
+    box.appendChild(filterBar);
+
+    var tableContainer = h('div');
+    box.appendChild(tableContainer);
+
+    function renderList() {
+      tableContainer.innerHTML = '';
+      var q = searchInput.value.trim().toLowerCase();
+      var filtered = rawList.filter(function (c) {
+        if (activeFilter === 'gre_req' && c.gre_status !== 'REQUIRED') return false;
+        if (activeFilter === 'merit_aid' && !c.dept_merit_aid_available) return false;
+        if (activeFilter === 'has_tuition' && c.course_tuition_amount == null) return false;
+        if (!q) return true;
+        var hay = ((c.programme_name || '') + ' ' + (c.degree || '') + ' ' + (c.subject || '')).toLowerCase();
+        return hay.indexOf(q) >= 0;
+      });
+
+      countSpan.textContent = fmtNum(filtered.length) + ' courses';
+      if (!filtered.length) {
+        tableContainer.appendChild(h('p', { class: 'muted', style: 'padding: 16px 0;', text: 'No courses match the selected filters.' }));
+        return;
+      }
+
+      var rows = filtered.map(function (c) {
+        // Col 1: Course & Degree
+        var c1 = h('td', { class: 'wrapcell' });
+        var titleRow = h('div', { style: 'font-weight: 600; font-size: 0.95rem; margin-bottom: 2px;' }, c.programme_name);
+        c1.appendChild(titleRow);
+
+        var subMeta = [];
+        if (c.degree) subMeta.push(c.degree);
+        if (c.level) subMeta.push(LEVEL_NAME[c.level] || c.level);
+        if (subMeta.length) {
+          c1.appendChild(h('div', { class: 'coursemeta', text: subMeta.join(' \u2022 ') }));
+        }
+
+        var badgeRow = h('div', { style: 'display: flex; gap: 6px; align-items: center; margin-top: 4px; flex-wrap: wrap;' });
+        if (c.cache_status === 'fresh') badgeRow.appendChild(h('span', { class: 'badge-pill green', text: 'Verified Active' }));
+        else if (c.cache_status === 'blocked') badgeRow.appendChild(h('span', { class: 'badge-pill amber', text: 'Portal / Auth Gated' }));
+        else if (c.cache_status === 'failed') badgeRow.appendChild(h('span', { class: 'badge-pill gray', text: 'Offline / In Review' }));
+
+        if (c.official_url) {
+          badgeRow.appendChild(extLink(c.official_url, 'Official Page \u2197'));
+        }
+        c1.appendChild(badgeRow);
+
+        // Col 2: Undergrad Field Policy & Groups
+        var c2 = h('td', { class: 'wrapcell' });
+        c2.appendChild(h('div', { style: 'font-weight: 500;', text: formatFieldPolicy(c.undergrad_field_policy) }));
+        if (c.eligible_subject_groups && c.eligible_subject_groups.length) {
+          var tagsWrap = h('div', { style: 'margin-top: 4px;' });
+          c.eligible_subject_groups.forEach(function (grp) {
+            tagsWrap.appendChild(h('span', { class: 'tag-chip', text: grp }));
+          });
+          c2.appendChild(tagsWrap);
+        }
+        if (c.undergrad_field_prereqs) {
+          c2.appendChild(h('div', { class: 'coursemeta', style: 'margin-top: 4px;', text: c.undergrad_field_prereqs }));
+        }
+
+        // Col 3: Academic Cutoff (GPA / UK Honours / ECTS)
+        var c3 = h('td', { class: 'wrapcell' });
+        var acadPoints = [];
+        if (c.uk_honours_class) acadPoints.push(c.uk_honours_class);
+        if (c.gpa_min_value != null) acadPoints.push(c.gpa_min_value + ' / ' + (c.gpa_scale || '4.0') + ' min GPA');
+        if (c.ects_total_required != null) acadPoints.push(c.ects_total_required + ' ECTS credits');
+        if (acadPoints.length) {
+          c3.appendChild(h('div', { style: 'font-weight: 600;', text: acadPoints.join(' \u2022 ') }));
+        } else if (c.raw_gpa_text) {
+          c3.appendChild(h('div', { style: 'font-size: 0.85rem;', text: c.raw_gpa_text }));
+        } else {
+          c3.appendChild(h('span', { class: 'muted', text: 'Not Published' }));
+        }
+
+        // Col 4: Exams & Minimums
+        var c4 = h('td', { class: 'wrapcell' });
+        var examPills = h('div', { style: 'display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 4px;' });
+        var gPill = formatExamStatus(c.gre_status, 'GRE');
+        if (gPill) examPills.appendChild(gPill);
+        var gmPill = formatExamStatus(c.gmat_status, 'GMAT');
+        if (gmPill) examPills.appendChild(gmPill);
+        var gtPill = formatExamStatus(c.gate_status, 'GATE');
+        if (gtPill) examPills.appendChild(gtPill);
+        if (examPills.childNodes.length) c4.appendChild(examPills);
+        else c4.appendChild(h('span', { class: 'muted', text: 'Not Specified' }));
+
+        if (c.hard_minimums && Object.keys(c.hard_minimums).length) {
+          var hmMins = [];
+          for (var k in c.hard_minimums) hmMins.push(k.toUpperCase() + ': ' + c.hard_minimums[k]);
+          c4.appendChild(h('div', { class: 'coursemeta', style: 'color: var(--accent); font-weight: 500;', text: 'Min Cutoff: ' + hmMins.join(', ') }));
+        } else if (c.class_profile && Object.keys(c.class_profile).length) {
+          var cpVals = [];
+          for (var pk in c.class_profile) cpVals.push(pk.toUpperCase() + ': ' + c.class_profile[pk]);
+          c4.appendChild(h('div', { class: 'coursemeta', text: 'Admitted Profile: ' + cpVals.join(', ') }));
+        }
+
+        // Col 5: Tuition, Deadlines & Merit Aid
+        var c5 = h('td', { class: 'wrapcell' });
+        if (c.course_tuition_amount != null) {
+          var tStr = (c.course_tuition_currency || '$') + ' ' + fmtNum(c.course_tuition_amount);
+          if (c.course_tuition_unit || c.course_tuition_period) {
+            tStr += ' / ' + (c.course_tuition_unit || c.course_tuition_period).replace(/_/g, ' ');
+          }
+          c5.appendChild(h('div', { style: 'font-weight: 600;', text: tStr }));
+        } else {
+          c5.appendChild(h('span', { class: 'muted', text: 'See Faculty Schedule' }));
+        }
+
+        if (c.intake_deadlines && Object.keys(c.intake_deadlines).length) {
+          var dlList = [];
+          for (var s in c.intake_deadlines) dlList.push(s + ': ' + c.intake_deadlines[s]);
+          c5.appendChild(h('div', { class: 'coursemeta', text: dlList.join(' \u2022 ') }));
+        }
+
+        if (c.dept_merit_aid_available) {
+          var aidBadge = h('div', { style: 'margin-top: 4px;' },
+            h('span', { class: 'badge-pill green', text: 'Merit Aid Available' }));
+          if (c.dept_merit_aid_summary) {
+            aidBadge.appendChild(h('div', { class: 'coursemeta', text: c.dept_merit_aid_summary }));
+          }
+          c5.appendChild(aidBadge);
+        }
+
+        return h('tr', null, c1, c2, c3, c4, c5);
+      });
+
+      var headers = ['Program & Degree', 'Field Eligibility', 'Academic Grade Floor', 'Entrance Exams & Scores', 'Tuition, Deadlines & Aid'];
+      tableContainer.appendChild(table(headers, rows));
+    }
+
+    searchInput.oninput = renderList;
+    renderList();
+    return box;
+  }
+
   /* ---------- courses (hosted mode only) ---------- */
   var LEVEL_NAME = { master: "Master's", graduate_diploma: 'Graduate diploma', graduate_certificate: 'Graduate certificate' };
   var STEM_PILL = { IN: ['stemin', 'STEM'], OUT: ['stemout', 'Not STEM'], UNCLEAR: ['stemunc', 'Unclear'], PENDING: ['stemunc', 'Pending'] };
@@ -1695,11 +2079,17 @@ td.wrapcell { min-width: 12ch; }
     return 'NBA accreditation lapsed ' + MON[+d.slice(5, 7) - 1] + ' ' + d.slice(0, 4);
   }
   function coursesLabel(p) {
+    if (p.curie_courses && p.curie_courses.length) {
+      return 'Courses (' + fmtNum(p.curie_courses.length) + ')';
+    }
     if (!p.coverage) return 'Courses';
     var list = p.courses || [];
     return 'Courses (' + fmtNum(list.length) + ')';
   }
   function coursesPanel(p) {
+    if (p.curie_courses && p.curie_courses.length) {
+      return curieCoursesPanel(p);
+    }
     if (!p.coverage) return h('p', { class: 'muted', text: 'Courses not collected (not in core list).' });
     var list = p.courses || [];
     var box = h('div', null, h('p', { class: 'covline', text: coverageLine(p.coverage) }));
